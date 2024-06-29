@@ -1,0 +1,18 @@
+---
+- name: Setup Copilot Vim plugin
+  hosts: localhost
+
+  tasks:
+    - name: Install nodejs (dependency for copilot)
+      pacman:
+        name:
+          - nodejs
+      become: true
+
+    - name: Clone Copilot Vim repository
+      become: false
+      command: git clone https://github.com/github/copilot.vim.git ~/.config/nvim/pack/github/start/copilot.vim
+
+    - name: Print message
+      debug: 
+        msg: "Run :Copilot setup to setup the copilot in neovim"

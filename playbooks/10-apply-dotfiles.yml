@@ -1,5 +1,5 @@
 ---
-- name: Stow dotfiles
+- name: Apply dotfiles
   hosts: localhost
   gather_facts: false
 
@@ -12,7 +12,7 @@
     - name: Install stow if not installed
       become: true
       package:
-        name: 
+        name:
           - stow
         state: present
       when: stow_check.rc != 0
@@ -22,6 +22,7 @@
       pacman:
         name:
           - neovim
+        state: present
 
     - name: Find dotfile directories
       find:
@@ -41,8 +42,17 @@
       register: stow_result
       changed_when: false  # Assume stow might not change anything if already correctly symlinked
 
-    - name: Show stow output
-      debug:
-        msg: "{{ stow_result.stdout }}"
-      when: stow_result.stdout is defined and stow_result.stdout != ''
+    - name: Link individual files in home directory
+      become: false
+      shell: >
+        cd {{ playbook_dir }}/files/home-dir/;
+        for file in *; do
+          ln -sf $(pwd)/$file ~/.$file;
+        done
+      register: link_result
+      changed_when: link_result.rc == 0
 
+    - name: Show link output
+      debug:
+        msg: "{{ link_result.stdout }}"
+      when: link_result.stdout is defined and link_result.stdout != ''

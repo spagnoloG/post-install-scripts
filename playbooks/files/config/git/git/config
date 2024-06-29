@@ -30,8 +30,8 @@
 [core]
 	editor = "nvim"
 
-[gpg]
-	program = "/nix/store/h7qn6nl04qplrsnqlgwxp72rsg4cil9r-gnupg-2.4.5/bin/gpg2"
+#[gpg]
+#	program = "/nix/store/h7qn6nl04qplrsnqlgwxp72rsg4cil9r-gnupg-2.4.5/bin/gpg2"
 
 [init]
 	defaultBranch = "master"

@@ -1,0 +1,20 @@
+---
+- name: Install Zsh and set as default shell
+  hosts: localhost
+  become: true 
+
+  vars:
+    zsh_packages:
+      - zsh
+      - oh-my-zsh-git
+
+  tasks:
+    - name: Install zsh packages
+      command: paru -S --noconfirm {{ item }}
+      loop: "{{ zsh_packages }}"
+      become: false
+
+    - name: Set Zsh as default shell for current user
+      ansible.builtin.user:
+        name: "{{ sys_username }}"
+        shell: /bin/zsh
