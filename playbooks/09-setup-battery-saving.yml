@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Install power management packages
+      pacman:
+        name:
+          - tlp
+          - tlp-rdw
+          - acpi
+          - acpi_call
+        state: present
+
+    - name: Enable TLP service
+      systemd:
+        name: tlp
+        enabled: yes
+        state: started
+
+    - name: Mask systemd-rfkill.service
+      systemd:
+        name: systemd-rfkill.service
+        masked: yes
+
+    - name: Mask systemd-rfkill.socket
+      systemd:
+        name: systemd-rfkill.socket
+        masked: yes

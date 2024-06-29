@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Install arc-gtk-theme
+      pacman:
+        name: arc-gtk-theme
+        state: present
+
+    - name: Install papirus-icon-theme
+      pacman:
+        name: papirus-icon-theme
+        state: present
+

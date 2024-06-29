@@ -1,0 +1,48 @@
+---
+- name: Stow dotfiles
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Check if stow is installed
+      command: stow --version
+      ignore_errors: true
+      register: stow_check
+
+    - name: Install stow if not installed
+      become: true
+      package:
+        name: 
+          - stow
+        state: present
+      when: stow_check.rc != 0
+
+    - name: Install required packages for dots
+      become: true
+      pacman:
+        name:
+          - neovim
+
+    - name: Find dotfile directories
+      find:
+        paths: "{{ playbook_dir }}/files/config/"
+        patterns: "*"
+        recurse: no
+        file_type: directory
+      register: dotfile_dirs
+
+    - name: Stow dotfiles
+      become: false
+      shell: >
+        cd {{ playbook_dir }}/files/config/;
+        for dir in {{ dotfile_dirs.files | map(attribute='path') | join(' ') }}; do
+          stow -t ~/.config $(basename $dir);
+        done
+      register: stow_result
+      changed_when: false  # Assume stow might not change anything if already correctly symlinked
+
+    - name: Show stow output
+      debug:
+        msg: "{{ stow_result.stdout }}"
+      when: stow_result.stdout is defined and stow_result.stdout != ''
+

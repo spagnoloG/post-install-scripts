@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Install base-devel
+      pacman:
+        name: base-devel
+        state: present
+
+    - name: Check if Paru is already installed
+      command: paru --version
+      register: paru_check
+      ignore_errors: yes
+
+    - name: Clone Paru repository
+      git:
+        repo: https://aur.archlinux.org/paru.git
+        dest: /tmp/paru
+      when: paru_check.rc != 0
+
+    - name: Build and install Paru
+      command: makepkg -si --noconfirm
+      args:
+        chdir: /tmp/paru
+      when: paru_check.rc != 0

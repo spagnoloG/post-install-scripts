@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Install ly
+      pacman:
+        name: ly
+        state: present
+
+    - name: Enable ly service
+      systemd:
+        name: ly
+        enabled: yes
+        state: started

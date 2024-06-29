@@ -1,0 +1,61 @@
+[user]
+	name = Gašper Spagnolo
+	email = gasper.spagnolo@outlook.com
+
+[alias]
+	aliases = "!git config -l | grep alias | cut -c 7-"
+	blobs = "!git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | sed -n 's/^blob //p' | sort --numeric-sort --key=2 | cut -c 1-12,41- | $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
+	br = "branch"
+	ci = "commit"
+	co = "checkout"
+	cp = "cherry-pick"
+	fap = "fetch --all --prune --progress"
+	fixup = "commit --fixup"
+	hist = "log --pretty=format:'%C(yellow)%h%Creset%C(auto)%d - %s %Cblue[%an]' --graph --date=short --decorate --branches --remotes --tags"
+	l = "log --graph --pretty='%Cred%h%Creset - %C(bold blue)<%an>%Creset %s%C(yellow)%d%Creset %Cgreen(%cr)' --abbrev-commit --date=relative"
+	pr-clean = "-c sequence.editor=true rebase --interactive --autosquash --rerere-autoupdate --empty drop --no-keep-empty --fork-point upstream/HEAD"
+	pr-diff = "diff upstream/HEAD.."
+	pr-edit = "rebase --interactive --autosquash --rerere-autoupdate --rebase-merges --fork-point upstream/HEAD"
+	pr-log = "l upstream/HEAD.."
+	pr-update = "pull --rebase=merges upstream HEAD"
+	s = "status -uall"
+	unadd = "reset HEAD --"
+
+[branch]
+	sort = "-committerdate"
+
+[commit]
+	gpgSign = true
+
+[core]
+	editor = "nvim"
+
+[gpg]
+	program = "/nix/store/h7qn6nl04qplrsnqlgwxp72rsg4cil9r-gnupg-2.4.5/bin/gpg2"
+
+[init]
+	defaultBranch = "master"
+
+[merge]
+	conflictstyle = "diff3"
+
+[pull]
+	rebase = true
+
+[push]
+	default = "current"
+
+[tag]
+	gpgSign = true
+	sort = "-v:refname"
+
+[url "ssh://git@bitbucket.org/"]
+	insteadOf = "https://bitbucket.org/"
+
+[url "ssh://git@github.com/"]
+	insteadOf = "https://github.com/"
+
+[user]
+	email = "gasper.spagnolo@outlook.com"
+	name = "Gašper Spagnolo"
+	signingKey = "9EE5C796920C339839F4EFF646DCDBC936F8414C"

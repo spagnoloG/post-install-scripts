@@ -1,0 +1,96 @@
+sys_username: "spagologasper"
+sys_hostname: "yoga"
+arch_mirror_country: "Germany,Austria,Slovenia"
+
+base_packages:
+  - openssh
+  - bind
+  - dialog
+  - intel-ucode
+  - git
+  - reflector
+  - bash-completion
+  - w3m
+  - base-devel
+  - lshw
+  - zip
+  - unzip
+  - htop
+  - xsel
+  - tree
+  - fuse2
+  - keychain
+  - arandr
+  - powertop
+  - inxi
+  - wget
+  - iw
+  - wpa_supplicant
+  - openbsd-netcat
+  - axel
+  - tcpdump
+  - mtr
+  - net-tools
+  - rsync
+  - conntrack-tools
+  - ethtool
+
+desktop_packages:
+  - brave-bin
+  - discord
+  - libreoffice
+  - fontforge
+  - gparted
+  - obs-studio
+  - vlc
+  - remmina
+  - neofetch
+  - evince
+  - gimp
+  - shotwell
+  - file-roller
+  - shotcut
+  - inkscape
+  - evolution
+  - mousepad
+  - klavaro
+
+hacking_packages:
+  - ghidra
+  - wireshark-qt
+  - dig
+
+sound_packages:
+  - sof-firmware
+  - pulseaudio
+  - alsa-utils
+  - alsa-plugins
+  - pavucontrol
+
+xorg_packages:
+  - xorg
+  - xorg-apps
+  - xorg-xinit
+  - xdotool
+  - xclip
+
+i3_packages:
+  - i3-wm
+  - i3status
+  - i3lock
+  - lxappearance
+  - polybar
+  - rofi
+  - ranger
+  - thunar
+  - alacritty
+  - dunst
+  - feh
+  - xss-lock
+  - picom
+  - light
+  - pango
+  - flameshot
+  - gsimplecal
+  - thunar-archive-plugin
+  - thunar-media-tags-plugin
