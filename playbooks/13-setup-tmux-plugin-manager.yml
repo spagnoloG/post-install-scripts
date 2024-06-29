@@ -1,9 +1,8 @@
----
 - name: Setup Tmux Plugin Manager
   hosts: localhost
-
   tasks:
 
-    - name: Clone TPM repository
-      become: false
-      command: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm 
+
+  - name: Clone TPM repository
+    become: false
+    command: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

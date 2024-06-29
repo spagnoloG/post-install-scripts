@@ -1,58 +1,65 @@
----
 - name: Apply dotfiles
   hosts: localhost
   gather_facts: false
-
   tasks:
-    - name: Check if stow is installed
-      command: stow --version
-      ignore_errors: true
-      register: stow_check
 
-    - name: Install stow if not installed
-      become: true
-      package:
-        name:
-          - stow
-        state: present
-      when: stow_check.rc != 0
 
-    - name: Install required packages for dots
-      become: true
-      pacman:
-        name:
-          - neovim
-        state: present
+  - name: Check if stow is installed
+    command: stow --version
+    ignore_errors: true
+    register: stow_check
 
-    - name: Find dotfile directories
-      find:
-        paths: "{{ playbook_dir }}/files/config/"
-        patterns: "*"
-        recurse: no
-        file_type: directory
-      register: dotfile_dirs
 
-    - name: Stow dotfiles
-      become: false
-      shell: >
-        cd {{ playbook_dir }}/files/config/;
-        for dir in {{ dotfile_dirs.files | map(attribute='path') | join(' ') }}; do
-          stow -t ~/.config $(basename $dir);
-        done
-      register: stow_result
-      changed_when: false  # Assume stow might not change anything if already correctly symlinked
+  - name: Install stow if not installed
+    become: true
+    package:
+      name:
+      - stow
+      state: present
+    when: stow_check.rc != 0
 
-    - name: Link individual files in home directory
-      become: false
-      shell: >
-        cd {{ playbook_dir }}/files/home-dir/;
-        for file in *; do
-          ln -sf $(pwd)/$file ~/.$file;
-        done
-      register: link_result
-      changed_when: link_result.rc == 0
 
-    - name: Show link output
-      debug:
-        msg: "{{ link_result.stdout }}"
-      when: link_result.stdout is defined and link_result.stdout != ''
+  - name: Install required packages for dots
+    become: true
+    pacman:
+      name:
+      - neovim
+      state: present
+
+
+  - name: Find dotfile directories
+    find:
+      paths: "{{ playbook_dir }}/files/config/"
+      patterns: "*"
+      recurse: false
+      file_type: directory
+    register: dotfile_dirs
+
+
+  - name: Stow dotfiles
+    become: false
+    shell: >
+      cd {{ playbook_dir }}/files/config/; for dir in {{ dotfile_dirs.files | map(attribute='path') | join(' ') }}; do #magic___^_^___line
+        stow -t ~/.config $(basename $dir);
+      done
+
+    register: stow_result
+    changed_when: false # Assume stow might not change anything if already correctly symlinked
+
+
+  - name: Link individual files in home directory
+    become: false
+    shell: >
+      cd {{ playbook_dir }}/files/home-dir/; for file in *; do
+
+        ln -sf $(pwd)/$file ~/.$file;
+      done
+
+    register: link_result
+    changed_when: link_result.rc == 0
+
+
+  - name: Show link output
+    debug:
+      msg: "{{ link_result.stdout }}"
+    when: link_result.stdout is defined and link_result.stdout != ''

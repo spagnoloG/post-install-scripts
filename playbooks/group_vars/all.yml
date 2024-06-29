@@ -35,6 +35,8 @@ base_packages:
   - conntrack-tools
   - ethtool
   - picom
+  - go
+  - ripgrep
 
 desktop_packages:
   - brave-bin
@@ -60,6 +62,7 @@ hacking_packages:
   - ghidra
   - wireshark-qt
   - dig
+  - hyperscan
 
 sound_packages:
   - sof-firmware

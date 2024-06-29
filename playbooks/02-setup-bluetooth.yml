@@ -1,18 +1,19 @@
----
 - hosts: localhost
-  become: yes
+  become: true
   tasks:
-    - name: Install Bluetooth packages
-      pacman:
-        name:
-          - bluez
-          - bluez-utils
-          - blueman
-        state: present
 
-    - name: Enable Bluetooth service
-      systemd:
-        name: bluetooth
-        enabled: yes
-        state: started
 
+  - name: Install Bluetooth packages
+    pacman:
+      name:
+      - bluez
+      - bluez-utils
+      - blueman
+      state: present
+
+
+  - name: Enable Bluetooth service
+    systemd:
+      name: bluetooth
+      enabled: true
+      state: started
