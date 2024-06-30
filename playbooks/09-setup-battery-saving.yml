@@ -2,7 +2,6 @@
   become: yes
   tasks:
 
-
   - name: Install power management packages
     pacman:
       name:
@@ -12,19 +11,16 @@
       - acpi_call
       state: present
 
-
   - name: Enable TLP service
     systemd:
       name: tlp
       enabled: true
       state: started
 
-
   - name: Mask systemd-rfkill.service
     systemd:
       name: systemd-rfkill.service
       masked: true
-
 
   - name: Mask systemd-rfkill.socket
     systemd:

@@ -37,6 +37,7 @@ base_packages:
   - picom
   - go
   - ripgrep
+  - openal
 
 desktop_packages:
   - brave-bin
@@ -57,12 +58,16 @@ desktop_packages:
   - evolution
   - mousepad
   - klavaro
+  - texlive
+  - zathura
+  - zathura-pdf-mupdf
 
 hacking_packages:
   - ghidra
   - wireshark-qt
   - dig
   - hyperscan
+  - imhex-bin
 
 sound_packages:
   - sof-firmware
@@ -77,6 +82,7 @@ xorg_packages:
   - xorg-xinit
   - xdotool
   - xclip
+  - xorg-drivers
 
 i3_packages:
   - i3-wm

@@ -3,11 +3,9 @@
   become: true
   tasks:
 
-
   - name: Update the system package database
     pacman:
       update_cache: true
-
 
   - name: Remove conflicting iptables package if exists
     pacman:
@@ -15,11 +13,9 @@
       state: absent
     ignore_errors: true
 
-
   - name: Install Virt Manager and related packages with conflict resolution
     shell: |
       yes | pacman -S --needed virt-manager qemu-desktop libvirt edk2-ovmf dnsmasq iptables-nft swtpm 2>/dev/null || echo "Ignoring warnings"
-
 
   - name: Enable libvirt service
     systemd:
@@ -27,19 +23,16 @@
       enabled: true
       state: started
 
-
   - name: Add user to virtualization groups
     user:
       name: "{{ sys_username }}"
       groups: libvirt,libvirt-qemu,kvm
       append: true
 
-
   - name: Verify libvirt service status
     command: systemctl status libvirtd.service
     register: libvirt_status
     changed_when: false
-
 
   - name: Print libvirt service status
     debug:

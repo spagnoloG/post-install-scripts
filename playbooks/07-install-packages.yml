@@ -2,35 +2,29 @@
   become: true
   tasks:
 
-
   - name: Update package database
     command: paru -Syy
     become: false
-
 
   - name: Install base packages
     command: paru -S --noconfirm {{ item }}
     loop: "{{ base_packages }}"
     become: false
 
-
   - name: Install desktop packages
     command: paru -S --noconfirm {{ item }}
     loop: "{{ desktop_packages }}"
     become: false
-
 
   - name: Install sound packages
     command: paru -S --noconfirm {{ item }}
     loop: "{{ sound_packages }}"
     become: false
 
-
   - name: Install Xorg packages
     command: paru -S --noconfirm {{ item }}
     loop: "{{ xorg_packages }}"
     become: false
-
 
   - name: Install i3 and related packages
     command: paru -S --noconfirm {{ item }}

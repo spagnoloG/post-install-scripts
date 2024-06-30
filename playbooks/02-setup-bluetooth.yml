@@ -2,7 +2,6 @@
   become: true
   tasks:
 
-
   - name: Install Bluetooth packages
     pacman:
       name:
@@ -10,7 +9,6 @@
       - bluez-utils
       - blueman
       state: present
-
 
   - name: Enable Bluetooth service
     systemd:

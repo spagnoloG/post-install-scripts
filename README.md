@@ -8,7 +8,7 @@ pip install ansible
 ```
 
 ```
-ansible-playbook -i inventory.yaml playbooks/* --ask-become-pass
+ansible-playbook -i inventory.yaml playbooks/*yml --ask-become-pass
 ```
 
 Poc: don't use.

@@ -3,11 +3,9 @@
   become: true
   tasks:
 
-
   - name: Update the system package database
     pacman:
       update_cache: true
-
 
   - name: Install Docker package
     pacman:
@@ -16,13 +14,11 @@
       - docker-compose
       state: present
 
-
   - name: Enable Docker service
     systemd:
       name: docker.service
       enabled: true
       state: started
-
 
   - name: Add user to Docker group
     user:
@@ -30,23 +26,19 @@
       groups: docker
       append: true
 
-
   - name: Verify Docker installation
     command: docker info
     register: docker_info
     changed_when: false
 
-
   - name: Print Docker info
     debug:
       var: docker_info.stdout
-
 
   - name: Verify running Docker container
     command: docker run -it --rm archlinux bash -c "echo hello world"
     register: docker_run
     changed_when: false
-
 
   - name: Print Docker run output
     debug:

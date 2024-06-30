@@ -5,17 +5,14 @@
     wireguard_config: "/etc/wireguard/yoga.conf"
   tasks:
 
-
   - name: Update the system package database
     pacman:
       update_cache: true
-
 
   - name: Install WireGuard tools
     pacman:
       name: wireguard-tools
       state: present
-
 
   - name: Create WireGuard configuration directory
     file:
@@ -23,13 +20,11 @@
       state: directory
       mode: '0755'
 
-
   - name: Copy WireGuard configuration file
     copy:
       src: files/wg/yoga.conf
       dest: "{{ wireguard_config }}"
       mode: '0600'
-
 
   - name: Enable and start systemd-resolved
     systemd:
@@ -37,19 +32,16 @@
       enabled: true
       state: started
 
-
   - name: Enable and start WireGuard service
     systemd:
       name: wg-quick@yoga.service
       enabled: true
       state: started
 
-
   - name: Verify WireGuard service status
     command: systemctl status wg-quick@yoga.service
     register: wireguard_status
     changed_when: false
-
 
   - name: Print WireGuard service status
     debug:

@@ -13,18 +13,15 @@
     gpu_driver: "nvidia"
   tasks:
 
-
   - name: Update the system
     pacman:
       update_cache: true
       upgrade: true
 
-
   - name: Install base packages
     pacman:
       name: "{{ base_packages }}"
       state: present
-
 
   - name: Enable multilib repository
     lineinfile:
@@ -33,7 +30,6 @@
       line: '[multilib]'
       state: present
 
-
   - name: Enable multilib repository include line
     lineinfile:
       path: /etc/pacman.conf
@@ -41,17 +37,14 @@
       line: 'Include = /etc/pacman.d/mirrorlist'
       state: present
 
-
   - name: Update package database
     command: paru -Syy
     become_user: "{{ ansible_user_id }}"
-
 
   - name: Install NVIDIA driver packages
     command: paru -S --noconfirm {{ item }}
     loop: "{{ nvidia_packages }}"
     become_user: "{{ ansible_user_id }}"
-
 
   - name: Enable DRM kernel mode setting for GRUB
     lineinfile:
@@ -60,10 +53,8 @@
       line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1"'
       backrefs: yes
 
-
   - name: Update GRUB configuration
     command: grub-mkconfig -o /boot/grub/grub.cfg
-
 
   - name: Add NVIDIA modules to mkinitcpio
     replace:
@@ -71,23 +62,19 @@
       regexp: '^MODULES=.*'
       replace: 'MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)'
 
-
   - name: Remove kms from mkinitcpio hooks
     replace:
       path: /etc/mkinitcpio.conf
       regexp: '^HOOKS=.*'
       replace: 'HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)'
 
-
   - name: Regenerate initramfs
     command: mkinitcpio -P
-
 
   - name: Download nvidia.hook
     get_url:
       url: https://raw.githubusercontent.com/korvahannu/arch-nvidia-drivers-installation-guide/main/nvidia.hook
       dest: /tmp/nvidia.hook
-
 
   - name: Create /etc/pacman.d/hooks directory
     file:
@@ -95,13 +82,21 @@
       state: directory
       mode: '0755'
 
-
   - name: Customize nvidia.hook
     replace:
       path: /tmp/nvidia.hook
       regexp: '^Target=nvidia$'
       replace: 'Target={{ gpu_driver }}'
 
-
   - name: Move nvidia.hook to pacman hooks directory
     command: mv /tmp/nvidia.hook /etc/pacman.d/hooks/nvidia.hook
+
+  - name: Copy xorg configuration file
+    copy:
+      src: files/xorg/xorg.conf
+      dest: /etc/X11/xorg.conf
+      owner: root
+      group: root
+      mode: '0644'
+      backup: yes
+    when: gpu_driver == "nvidia"

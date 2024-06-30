@@ -2,7 +2,6 @@
   become: true
   tasks:
 
-
   - name: Install noto and ubuntu fonts
     pacman:
       name:
@@ -12,7 +11,6 @@
       - ttf-dejavu
       - ttf-freefont
       state: present
-
 
   - name: Install additional fonts
     pacman:

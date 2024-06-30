@@ -2,12 +2,10 @@
   become: true
   tasks:
 
-
   - name: Install ly
     pacman:
       name: ly
       state: present
-
 
   - name: Enable ly service
     systemd:
