@@ -71,9 +71,3 @@ cmp.setup({
 })
 
 vim.diagnostic.config({virtual_text = true})
-
-lsp_zero.set_preferences({
-    suggest_lsp_servers = false,
-    sign_icons = {error = 'E', warn = 'W', hint = 'H', info = 'I'}
-})
-

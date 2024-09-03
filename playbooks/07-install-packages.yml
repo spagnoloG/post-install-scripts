@@ -21,12 +21,20 @@
     loop: "{{ sound_packages }}"
     become: false
 
+  - name: Install Sway packages
+    command: paru -S --noconfirm {{ item }}
+    loop: "{{ sway_packages }}"
+    become: false
+    when: use_wayland is defined and use_wayland
+
   - name: Install Xorg packages
     command: paru -S --noconfirm {{ item }}
     loop: "{{ xorg_packages }}"
     become: false
+    when: use_wayland is not defined or not use_wayland
 
   - name: Install i3 and related packages
     command: paru -S --noconfirm {{ item }}
     loop: "{{ i3_packages }}"
     become: false
+    when: use_wayland is not defined or not use_wayland

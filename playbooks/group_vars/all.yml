@@ -1,6 +1,7 @@
 sys_username: "spagologasper"
 sys_hostname: "yoga"
 arch_mirror_country: "Germany,Austria,Slovenia"
+use_wayland: true
 
 base_packages:
   - openssh
@@ -34,10 +35,11 @@ base_packages:
   - rsync
   - conntrack-tools
   - ethtool
-  - picom
   - go
   - ripgrep
-  - openal
+  - brightnessctl
+  - oh-my-zsh-git
+  - yamlfmt
 
 desktop_packages:
   - brave-bin
@@ -59,8 +61,19 @@ desktop_packages:
   - mousepad
   - klavaro
   - texlive
+  # Pdf viewer
   - zathura
   - zathura-pdf-mupdf
+  - ranger
+  # GUI File explorer - thunar
+  - thunar
+  - thunar-volman
+  - thunar-archive-plugin
+  - thunar-media-tags-plugin
+  - alacritty
+  - lxappearance
+  # Others
+  - spotify
 
 hacking_packages:
   - ghidra
@@ -68,13 +81,37 @@ hacking_packages:
   - dig
   - hyperscan
   - imhex-bin
+  - radare2
+  - burpsuite
 
 sound_packages:
   - sof-firmware
-  - pulseaudio
   - alsa-utils
   - alsa-plugins
   - pavucontrol
+  - pipewire-alsa
+  - pipewire-pulse
+  - pipewire-jack
+
+sway_packages:
+  - sway
+  - waybar
+  - wofi
+  - xorg-xwayland
+  - xorg-xlsclients
+  - qt5-wayland
+  - glfw-wayland
+  - wl-clipboard
+  - grim
+  - slurp
+  - mako
+  - bemenu
+  - swaylock
+  - swayidle
+  - swaybg
+  - wdisplays
+  - xdg-desktop-portal-wlr
+  - xdg-desktop-portal
 
 xorg_packages:
   - xorg
@@ -85,22 +122,22 @@ xorg_packages:
   - xorg-drivers
 
 i3_packages:
-  - i3-wm
-  - i3status
-  - i3lock
-  - lxappearance
-  - polybar
-  - rofi
-  - ranger
-  - thunar
-  - alacritty
-  - dunst
-  - feh
-  - xss-lock
-  - picom
-  - light
-  - pango
-  - flameshot
-  - gsimplecal
-  - thunar-archive-plugin
-  - thunar-media-tags-plugin
+ - i3-wm
+ - i3status
+ - i3lock
+ - lxappearance
+ - polybar
+ - rofi
+ - ranger
+ - thunar
+ - alacritty
+ - dunst
+ - feh
+ - xss-lock
+ - picom
+ - light
+ - pango
+ - flameshot
+ - gsimplecal
+ - thunar-archive-plugin
+ - thunar-media-tags-plugin

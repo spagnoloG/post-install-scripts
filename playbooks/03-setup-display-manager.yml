@@ -7,6 +7,19 @@
       name: ly
       state: present
 
+  - name: Ensure environment variables are set globally in /etc/environment
+    lineinfile:
+      path: /etc/environment
+      create: yes
+      line: "{{ item }}"
+    with_items:
+    - 'SDL_VIDEODRIVER=wayland'
+    - '_JAVA_AWT_WM_NONREPARENTING=1'
+    - 'QT_QPA_PLATFORM=wayland'
+    - 'XDG_CURRENT_DESKTOP=sway'
+    - 'XDG_SESSION_DESKTOP=sway'
+    when: use_wayland is defined and use_wayland
+
   - name: Enable ly service
     systemd:
       name: ly
