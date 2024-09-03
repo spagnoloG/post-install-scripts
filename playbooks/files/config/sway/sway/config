@@ -253,4 +253,7 @@ bar {
     }
 }
 
+# Startup scripts
+exec_always pkill kanshi; exec kanshi
+
 include /etc/sway/config.d/*

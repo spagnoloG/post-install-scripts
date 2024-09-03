@@ -1,4 +1,4 @@
-## Arch post-install scripts (wip)
+## Arch post-install scripts
 
 
 ```bash
@@ -11,4 +11,4 @@ pip install ansible
 ansible-playbook -i inventory.yaml playbooks/*yml --ask-become-pass
 ```
 
-Poc: don't use.
+PoC: don't use.

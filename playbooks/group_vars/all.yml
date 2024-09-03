@@ -40,6 +40,7 @@ base_packages:
   - brightnessctl
   - oh-my-zsh-git
   - yamlfmt
+  - ntfs-3g
 
 desktop_packages:
   - brave-bin
@@ -112,6 +113,7 @@ sway_packages:
   - wdisplays
   - xdg-desktop-portal-wlr
   - xdg-desktop-portal
+  - kanshi
 
 xorg_packages:
   - xorg
