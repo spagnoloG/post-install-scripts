@@ -36,6 +36,7 @@
     shell: >
       cd {{ playbook_dir }}/files/config/; for dir in {{ dotfile_dirs.files | map(attribute='path') | join(' ') }}; do #magic___^_^___line
 
+
         stow -t ~/.config $(basename $dir);
       done
 
@@ -46,6 +47,7 @@
     become: false
     shell: >
       cd {{ playbook_dir }}/files/home-dir/; for file in *; do
+
 
         ln -sf $(pwd)/$file ~/.$file;
       done

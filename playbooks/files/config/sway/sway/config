@@ -122,6 +122,9 @@ for_window [title = "File Operation Progress"] floating enable
     # Locking screen Mod + F1
     bindsym $mod+f1 exec swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e
 
+    # Screenshot
+    bindsym Print exec grim -g "$(slurp -d)" - | wl-copy 
+
 #
 # Moving around:
 #

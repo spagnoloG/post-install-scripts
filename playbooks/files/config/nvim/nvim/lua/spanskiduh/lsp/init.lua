@@ -70,4 +70,9 @@ cmp.setup({
     sources = {{name = 'nvim_lsp'}, {name = 'path'}}
 })
 
-vim.diagnostic.config({virtual_text = true})
+vim.diagnostic.config({
+    virtual_text = false, -- Disable the inline error messages
+    signs = true, -- Keep error/warning signs in the sign column
+    underline = true, -- Underline problematic code
+    update_in_insert = false -- Only update diagnostics when leaving insert mode
+})

@@ -1,5 +1,5 @@
-sys_username: "spagologasper"
-sys_hostname: "yoga"
+sys_username: "spanskiduh"
+sys_hostname: "ejp"
 arch_mirror_country: "Germany,Austria,Slovenia"
 use_wayland: true
 
@@ -41,6 +41,9 @@ base_packages:
   - oh-my-zsh-git
   - yamlfmt
   - ntfs-3g
+  - net-tools
+  - inetutils 
+  - lua-format
 
 desktop_packages:
   - brave-bin

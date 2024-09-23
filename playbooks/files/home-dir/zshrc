@@ -12,15 +12,14 @@ plugins=(archlinux
 	jsontools
 	vscode
 	web-search
-	k
 	tig
+    fzf-tab
 	gitfast
 	colored-man-pages
 	colorize
 	command-not-found
 	cp
 	dirhistory
-	autojump
 	sudo
 	zsh-syntax-highlighting)
 
