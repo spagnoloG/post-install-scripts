@@ -18,6 +18,9 @@ set $menu dmenu_path | wmenu | xargs swaymsg exec --
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
 output * bg /usr/share/backgrounds/sway/jeremy-thomas-4dpAqfTbvKA-unsplash.jpg fill
+
+font Iosevka Regular 10
+
 #
 # Example configuration:
 #
@@ -77,7 +80,13 @@ for_window [app_id = "floating_update"] floating enable, resize set width 1000px
 for_window [class = "(?i)pinentry"] floating enable
 for_window [title = "Administrator privileges required"] floating enable
 for_window [title = "File Operation Progress"] floating enable
+for_window [title = "feh"] floating enable, resize set width 800px height 600px
 #---- Window rules ----#
+
+input * {
+    xkb_layout "us,si"
+    xkb_options "grp:win_space_toggle"
+}
 
 
 ### Key bindings

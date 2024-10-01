@@ -76,7 +76,7 @@ text = "#1c1e26"
 [font]
 size = 12
 [font.normal]
-#family = "Iosevka"
+family = "Iosevka"
 style = "Regular"
 
 [window]

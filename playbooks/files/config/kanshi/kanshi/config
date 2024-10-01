@@ -41,3 +41,8 @@ profile {
 profile {
 	output 'LG Display 0x06CA Unknown' enable 
 }
+
+profile {
+    output 'LG Display 0x06CA Unknown' enable mode 1920x1080@60Hz scale 1.00 position 0,1200
+    output 'Dell Inc. DELL U2412M Y1H5T2C70HEL' enable mode 1920x1200@59.950Hz scale 1.00 position 0,0
+}

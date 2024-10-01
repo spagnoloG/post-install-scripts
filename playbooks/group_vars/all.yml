@@ -44,6 +44,10 @@ base_packages:
   - net-tools
   - inetutils 
   - lua-format
+  - direnv
+  - tk # for python
+  - ttf-iosevka
+  - imagemagick
 
 desktop_packages:
   - brave-bin
