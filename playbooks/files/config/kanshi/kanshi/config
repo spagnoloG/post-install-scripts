@@ -35,7 +35,7 @@ profile {
 
 profile {
     output 'Samsung Electric Company C34H89x H4ZRB05512' enable mode 3440x1440@100Hz
-	output 'LG Display 0x06CA Unknown' disable 
+	output 'BOE 0x07DB Unknown' disable 
 }
 
 profile {
