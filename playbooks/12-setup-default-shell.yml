@@ -1,36 +1,36 @@
+---
 - name: Install Zsh and set as default shell
   hosts: localhost
   become: true
   vars:
     zsh_packages:
-    - zsh
-    - oh-my-zsh-git
-    - zoxide
+      - zsh
+      - oh-my-zsh-git
+      - zoxide
     oh_my_zsh_custom_dir: "{{ ansible_env.HOME }}/.oh-my-zsh/custom"
-    zsh_syntax_highlighting_repo: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
-    fzf_tab_repo: "https://github.com/Aloxaf/fzf-tab.git"
+    zsh_syntax_highlighting_repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    fzf_tab_repo: https://github.com/Aloxaf/fzf-tab.git
   tasks:
+    - name: Install zsh packages
+      ansible.builtin.command: paru -S --noconfirm {{ item }}
+      loop: "{{ zsh_packages }}"
+      become: false
 
-  - name: Install zsh packages
-    command: paru -S --noconfirm {{ item }}
-    loop: "{{ zsh_packages }}"
-    become: false
+    - name: Set Zsh as default shell for current user
+      ansible.builtin.user:
+        name: "{{ sys_username }}"
+        shell: /usr/bin/zsh
 
-  - name: Set Zsh as default shell for current user
-    ansible.builtin.user:
-      name: "{{ sys_username }}"
-      shell: /usr/bin/zsh
+    - name: Clone zsh-syntax-highlighting plugin
+      ansible.builtin.git:
+        repo: "{{ zsh_syntax_highlighting_repo }}"
+        dest: "{{ oh_my_zsh_custom_dir }}/plugins/zsh-syntax-highlighting"
+        clone: true
+        update: true
 
-  - name: Clone zsh-syntax-highlighting plugin
-    ansible.builtin.git:
-      repo: "{{ zsh_syntax_highlighting_repo }}"
-      dest: "{{ oh_my_zsh_custom_dir }}/plugins/zsh-syntax-highlighting"
-      clone: yes
-      update: yes
-
-  - name: Clone fzf-tab plugin
-    ansible.builtin.git:
-      repo: "{{ fzf_tab_repo }}"
-      dest: "{{ oh_my_zsh_custom_dir }}/plugins/fzf-tab"
-      clone: yes
-      update: yes
+    - name: Clone fzf-tab plugin
+      ansible.builtin.git:
+        repo: "{{ fzf_tab_repo }}"
+        dest: "{{ oh_my_zsh_custom_dir }}/plugins/fzf-tab"
+        clone: true
+        update: true

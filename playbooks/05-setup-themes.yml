@@ -1,13 +1,18 @@
+---
 - hosts: localhost
   become: true
   tasks:
+    - name: Install arc-gtk-theme
+      pacman:
+        name: arc-gtk-theme
+        state: present
 
-  - name: Install arc-gtk-theme
-    pacman:
-      name: arc-gtk-theme
-      state: present
+    - name: Install papirus-icon-theme
+      pacman:
+        name: papirus-icon-theme
+        state: present
 
-  - name: Install papirus-icon-theme
-    pacman:
-      name: papirus-icon-theme
-      state: present
+    - name: Install dracula theme
+      pacman:
+        name: dracula-gtk-theme-full
+        state: present

@@ -1,25 +1,25 @@
+---
 - hosts: localhost
   become: true
   tasks:
+    - name: Install base-devel
+      pacman:
+        name: base-devel
+        state: present
 
-  - name: Install base-devel
-    pacman:
-      name: base-devel
-      state: present
+    - name: Check if Paru is already installed
+      ansible.builtin.command: paru --version
+      register: paru_check
+      ignore_errors: true
 
-  - name: Check if Paru is already installed
-    command: paru --version
-    register: paru_check
-    ignore_errors: true
+    - name: Clone Paru repository
+      ansible.builtin.git:
+        repo: https://aur.archlinux.org/paru.git
+        dest: /tmp/paru
+      when: paru_check.rc != 0
 
-  - name: Clone Paru repository
-    git:
-      repo: https://aur.archlinux.org/paru.git
-      dest: /tmp/paru
-    when: paru_check.rc != 0
-
-  - name: Build and install Paru
-    command: makepkg -si --noconfirm
-    args:
-      chdir: /tmp/paru
-    when: paru_check.rc != 0
+    - name: Build and install Paru
+      ansible.builtin.command: makepkg -si --noconfirm
+      args:
+        chdir: /tmp/paru
+      when: paru_check.rc != 0
