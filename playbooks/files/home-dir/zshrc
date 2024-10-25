@@ -61,13 +61,15 @@ alias -- 'opdf'='okular $(find ~/  -type f -iname '\''*pdf'\'' | fzf)'
 alias -- 'rebuild-os'='sudo nixos-rebuild switch --flake /home/spagnologasper/.config/home-manager#yoga'
 alias -- 'rm'='rm -i'
 alias -- 'rot13'='tr '\''A-Za-z'\'' '\''N-ZA-Mn-za-m'\'''
-alias -- 'ss'='grc ss'
 alias -- 'sup'='power off'
 alias -- 'sur'='systemctl reboot'
 alias -- 'sus'='systemctl suspend'
 alias -- 'tree'='eza --tree'
 alias -- 'vi'='nvim'
 alias -- 'vim'='nvim'
+alias -- 'ls'='lsd'
+
+[[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 
 # Named Directory Hashes
 

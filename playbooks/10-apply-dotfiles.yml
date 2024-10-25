@@ -32,7 +32,7 @@
       become: false
       ansible.builtin.shell: >
         cd {{ playbook_dir }}/files/config/; for dir in {{ dotfile_dirs.files | map(attribute='path') | join(' ') }}; do #magic___^_^___line
-          stow -t ~/.config $(basename $dir);
+          stow -vt ~/.config $(basename $dir);
         done
       register: stow_result
       changed_when: false # Assume stow might not change anything if already correctly symlinked

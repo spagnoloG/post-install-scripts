@@ -15,11 +15,11 @@
     - name: Clone Paru repository
       ansible.builtin.git:
         repo: https://aur.archlinux.org/paru.git
-        dest: /tmp/paru
+        dest:  "/home/{{sys_username}}/"
       when: paru_check.rc != 0
 
     - name: Build and install Paru
       ansible.builtin.command: makepkg -si --noconfirm
       args:
-        chdir: /tmp/paru
+        chdir: "/home/{{sys_username}}/"
       when: paru_check.rc != 0
