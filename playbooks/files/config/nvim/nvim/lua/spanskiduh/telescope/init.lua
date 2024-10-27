@@ -1,12 +1,21 @@
 local ok1, telescope = pcall(require, "telescope")
 local ok2, telescope_builtin = pcall(require, "telescope.builtin")
+local ok3, wk = pcall(require, "which-key")
 
-if not ok1 or not ok2 then return end
+if not (ok1 and ok2 and ok3) then return end
 
-vim.keymap.set('n', '<leader>ff', telescope_builtin.find_files, {})
-vim.keymap.set('n', '<C-p>', telescope_builtin.git_files, {})
-vim.keymap.set('n', '<leader>fg', telescope_builtin.live_grep, {})
+-- Register Telescope key mappings with WhichKey
+wk.add({
+    {
+        "<leader>ff",
+        telescope_builtin.find_files,
+        desc = "Find Files",
+        mode = "n"
+    }, {"<C-p>", telescope_builtin.git_files, desc = "Git Files", mode = "n"},
+    {"<leader>fg", telescope_builtin.live_grep, desc = "Live Grep", mode = "n"}
+})
 
+-- Telescope setup
 telescope.setup {
     picker = {hidden = true},
     defaults = {

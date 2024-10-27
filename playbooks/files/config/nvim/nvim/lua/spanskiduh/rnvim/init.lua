@@ -1,15 +1,12 @@
 -- Ensure R.nvim is loaded
 local ok, r = pcall(require, "r")
-if not ok then return end
-
--- Key mappings for R.nvim
-vim.keymap.set('n', '<leader>rl', "<Plug>RDSendLine", {desc = "Send line to R"})
-vim.keymap.set('v', '<leader>rs', "<Plug>RSendSelection",
-               {desc = "Send selection to R"})
+local ok_wk, wk = pcall(require, "which-key")
+if not (ok and ok_wk) then return end
 
 -- R.nvim setup
 r.setup({
     auto_start = "on startup",
+    objbr_auto_start = true,
     hook = {
         on_filetype = function()
             vim.api.nvim_buf_set_keymap(0, "n", "<Enter>", "<Plug>RDSendLine",
@@ -29,8 +26,37 @@ r.setup({
     disable_cmds = {"RClearConsole", "RCustomStart", "RSPlot", "RSaveClose"}
 })
 
--- Auto-start configuration based on environment variable
-if vim.env.R_AUTO_START == "true" then
-    r.setup({auto_start = "on startup", objbr_auto_start = true})
-end
-
+-- Conditional WhichKey mappings for .R files
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "r",
+    callback = function()
+        wk.add({
+            {
+                "<leader>rl",
+                "<Plug>RDSendLine",
+                desc = "Send line to R",
+                mode = "n",
+                buffer = true
+            }, {
+                "<leader>rs",
+                "<Plug>RSendSelection",
+                desc = "Send selection to R",
+                mode = "v",
+                buffer = true
+            },
+            {
+                "<leader>rh",
+                "<Plug>RHelp",
+                desc = "R Help",
+                mode = "n",
+                buffer = true
+            }, {
+                "<leader>ro",
+                "<Plug>RObjBrowser",
+                desc = "R Object Browser",
+                mode = "n",
+                buffer = true
+            }
+        })
+    end
+})

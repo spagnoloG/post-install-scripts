@@ -81,4 +81,9 @@ return require('packer').startup(function(use)
 
     use {'R-nvim/R.nvim', config = function() require('spanskiduh.rnvim') end}
 
+    use {
+        'folke/which-key.nvim',
+        config = function() require('spanskiduh.which-key') end
+    }
+
 end)
