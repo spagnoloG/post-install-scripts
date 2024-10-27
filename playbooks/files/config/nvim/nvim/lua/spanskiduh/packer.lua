@@ -79,4 +79,6 @@ return require('packer').startup(function(use)
 
     use {'hrsh7th/cmp-path'}
 
+    use {'R-nvim/R.nvim', config = function() require('spanskiduh.rnvim') end}
+
 end)
