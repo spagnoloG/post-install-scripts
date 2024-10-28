@@ -9,6 +9,26 @@ if not (ok1 and ok2 and ok3 and ok4 and ok5) then return end
 -- Extend lspconfig with lsp-zero's functionalities
 lsp_zero.extend_lspconfig()
 
+-- Command to show all diagnostics (including warnings)
+vim.api.nvim_create_user_command("ShowAllDiagnostics", function()
+    vim.diagnostic.config({
+        virtual_text = true,
+        signs = true,
+        underline = true,
+        update_in_insert = false
+    })
+end, {})
+
+-- Command to revert to showing only errors
+vim.api.nvim_create_user_command("ShowErrorDiagnostics", function()
+    vim.diagnostic.config({
+        virtual_text = {severity = {min = vim.diagnostic.severity.ERROR}},
+        signs = true,
+        underline = {severity = {min = vim.diagnostic.severity.ERROR}},
+        update_in_insert = false
+    })
+end, {})
+
 -- Default on_attach function with WhichKey mappings
 lsp_zero.on_attach(function(client, bufnr)
     if client.name == "eslint" then
@@ -78,6 +98,18 @@ lsp_zero.on_attach(function(client, bufnr)
             desc = "Signature Help",
             mode = "i",
             buffer = bufnr
+        }, {
+            "<leader>sd",
+            function() vim.cmd("ShowAllDiagnostics") end,
+            desc = "Show Line Diagnostics",
+            mode = "n",
+            buffer = bufnr
+        }, {
+            "<leader>hd",
+            function() vim.cmd("ShowErrorDiagnostics") end,
+            desc = "Hide Line Diagnostics",
+            mode = "n",
+            buffer = bufnr
         }
     })
 end)
@@ -94,7 +126,7 @@ mason.setup({
 })
 
 mason_lspconfig.setup({
-    ensure_installed = {'rust_analyzer'},
+    ensure_installed = {'rust_analyzer', 'pylsp', 'r_language_server'},
     handlers = {lsp_zero.default_setup}
 })
 
@@ -115,9 +147,9 @@ cmp.setup({
 
 -- Diagnostic configuration for Neovim LSP
 vim.diagnostic.config({
-    virtual_text = false,
+    virtual_text = {severity = {min = vim.diagnostic.severity.ERROR}},
     signs = true,
-    underline = true,
-    update_in_insert = false
+    underline = {severity = {min = vim.diagnostic.severity.ERROR}},
+    update_in_insert = false,
+    severity_sort = true
 })
-
