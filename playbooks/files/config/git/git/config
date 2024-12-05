@@ -59,3 +59,8 @@
 	email = "gasper.spagnolo@outlook.com"
 	name = "Gašper Spagnolo"
 	signingKey = "9EE5C796920C339839F4EFF646DCDBC936F8414C"
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process

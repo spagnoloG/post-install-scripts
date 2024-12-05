@@ -44,6 +44,7 @@ unsetopt EXTENDED_HISTORY
 
 
 export EDITOR='nvim'
+export MANPAGER="nvim +Man\!"
 
 bin_txt() {
     curl -X PUT --data "$1" https://p.spanskiduh.dev
@@ -53,13 +54,29 @@ bin_file() {
     curl -X PUT --data-binary "@$1" https://p.spanskiduh.dev
 }
 
+move_to_trash () {
+    mkdir -p ~/.trash
+
+    for item in "$@"; do
+        # Skip options like -r, -f
+        if [[ $item == -* ]]; then
+            continue
+        fi
+
+        # Check if the file or directory exists
+        if [[ -e $item ]]; then
+            mv "$item" ~/.trash/
+        else
+            echo "move_to_trash: $item: No such file or directory"
+        fi
+    done
+}
+
 # Aliases
 alias -- 'md-notes'='cd ~/Documents/md-notes/ && nvim .'
-alias -- 'ndevelop'='nix develop -c $SHELL'
 alias -- 'night'='brightnessctl s 1%'
 alias -- 'opdf'='okular $(find ~/  -type f -iname '\''*pdf'\'' | fzf)'
-alias -- 'rebuild-os'='sudo nixos-rebuild switch --flake /home/spagnologasper/.config/home-manager#yoga'
-alias -- 'rm'='rm -i'
+alias -- 'rm'='move_to_trash'
 alias -- 'rot13'='tr '\''A-Za-z'\'' '\''N-ZA-Mn-za-m'\'''
 alias -- 'sup'='power off'
 alias -- 'sur'='systemctl reboot'
@@ -68,6 +85,7 @@ alias -- 'tree'='eza --tree'
 alias -- 'vi'='nvim'
 alias -- 'vim'='nvim'
 alias -- 'ls'='lsd'
+alias -- 'conda'='micromamba'
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 
@@ -111,3 +129,22 @@ if [[ ! -d $ZSH_CACHE_DIR ]]; then
 fi
 
 source $ZSH/oh-my-zsh.sh
+
+# >>> mamba initialize >>>
+# !! Contents within this block are managed by 'micromamba shell init' !!
+export MAMBA_EXE='/usr/bin/micromamba';
+export MAMBA_ROOT_PREFIX='/home/spanskiduh/.local/share/mamba';
+__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__mamba_setup"
+else
+    alias micromamba="$MAMBA_EXE"  # Fallback on help from micromamba activate
+fi
+unset __mamba_setup
+# <<< mamba initialize <<<
+#
+
+# Nvm
+if [ -s "/usr/share/nvm/init-nvm.sh" ]; then
+    source "/usr/share/nvm/init-nvm.sh"
+fi

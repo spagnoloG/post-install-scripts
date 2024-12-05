@@ -49,6 +49,7 @@ base_packages:
   - tk # for python
   - ttf-iosevka
   - imagemagick
+  - micromamba-bin
 
 desktop_packages:
   - brave-bin

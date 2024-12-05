@@ -46,3 +46,8 @@ profile {
     output 'LG Display 0x06CA Unknown' enable mode 1920x1080@60Hz scale 1.00 position 0,1200
     output 'Dell Inc. DELL U2412M Y1H5T2C70HEL' enable mode 1920x1200@59.950Hz scale 1.00 position 0,0
 }
+
+profile {
+    output 'Philips Consumer Electronics Company PHL27M1N3200Z UK02329015881' enable mode 1920x1080@144Hz scale 0.75 position 0,0
+	output 'BOE 0x07DB Unknown' disable 
+}

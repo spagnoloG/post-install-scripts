@@ -82,6 +82,9 @@ for_window [class = "(?i)pinentry"] floating enable
 for_window [title = "Administrator privileges required"] floating enable
 for_window [title = "File Operation Progress"] floating enable
 for_window [title = "feh"] floating enable, resize set width 800px height 600px
+for_window [title = "Figure 1"] floating enable, resize set width 800px height 600px
+for_window [app_id = "matplotlib"] floating enable, resize set width 800px height 600px
+
 #---- Window rules ----#
 
 input * {

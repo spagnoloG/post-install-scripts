@@ -86,4 +86,6 @@ return require('packer').startup(function(use)
         config = function() require('spanskiduh.which-key') end
     }
 
+    use {'spagnoloG/pynvim-runner'}
+
 end)
