@@ -45,6 +45,7 @@ unsetopt EXTENDED_HISTORY
 
 export EDITOR='nvim'
 export MANPAGER="nvim +Man\!"
+export TRASH_DIR="$HOME/.trash"
 
 bin_txt() {
     curl -X PUT --data "$1" https://p.spanskiduh.dev
@@ -55,7 +56,7 @@ bin_file() {
 }
 
 move_to_trash () {
-    mkdir -p ~/.trash
+    mkdir -p "$TRASH_DIR"
 
     for item in "$@"; do
         # Skip options like -r, -f
@@ -65,11 +66,30 @@ move_to_trash () {
 
         # Check if the file or directory exists
         if [[ -e $item ]]; then
-            mv "$item" ~/.trash/
+            base_name=$(basename "$item")
+            target="$TRASH_DIR/$base_name"
+            
+            # Handle name conflict
+            if [[ -e $target ]]; then
+                timestamp=$(date +"%Y%m%d%H%M%S")
+                target="${TRASH_DIR}/${base_name}_${timestamp}"
+            fi
+
+            mv "$item" "$target"
+            echo "Moved $item to $target"
         else
             echo "move_to_trash: $item: No such file or directory"
         fi
     done
+}
+
+empty_trash () {
+    if [[ -d $TRASH_DIR ]]; then 
+        \rm -rf "${TRASH_DIR:?}"/*
+        echo "Trash emptied."
+    else
+        echo "Trash directory does not exist."
+    fi
 }
 
 # Aliases
@@ -86,6 +106,7 @@ alias -- 'vi'='nvim'
 alias -- 'vim'='nvim'
 alias -- 'ls'='lsd'
 alias -- 'conda'='micromamba'
+alias -- 'empty_trash'='empty_trash'
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 
