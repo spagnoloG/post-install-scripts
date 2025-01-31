@@ -1,17 +1,17 @@
----
-- hosts: localhost
-  become: true
-  tasks:
-    - name: Install Bluetooth packages
-      pacman:
-        name:
-          - bluez
-          - bluez-utils
-          - blueman
-        state: present
+  - hosts: localhost
+    become: true
+    tasks:
 
-    - name: Enable Bluetooth service
-      ansible.builtin.systemd:
-        name: bluetooth
-        enabled: true
-        state: started
+      - name: Install Bluetooth packages
+        pacman:
+          name:
+            - bluez
+            - bluez-utils
+            - blueman
+          state: present
+
+      - name: Enable Bluetooth service
+        ansible.builtin.systemd:
+          name: bluetooth
+          enabled: true
+          state: started

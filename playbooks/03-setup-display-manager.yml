@@ -1,27 +1,28 @@
----
-- hosts: localhost
-  become: true
-  tasks:
-    - name: Install ly
-      pacman:
-        name: ly
-        state: present
+  - hosts: localhost
+    become: true
+    tasks:
 
-    - name: Ensure environment variables are set globally in /etc/environment
-      ansible.builtin.lineinfile:
-        path: /etc/environment
-        create: true
-        line: "{{ item }}"
-      with_items:
-        - SDL_VIDEODRIVER=wayland
-        - _JAVA_AWT_WM_NONREPARENTING=1
-        - QT_QPA_PLATFORM=wayland
-        - XDG_CURRENT_DESKTOP=sway
-        - XDG_SESSION_DESKTOP=sway
-      when: use_wayland is defined and use_wayland
+      - name: Install ly
+        pacman:
+          name: ly
+          state: present
 
-    - name: Enable ly service
-      ansible.builtin.systemd:
-        name: ly
-        enabled: true
-        state: started
+      - name: Ensure environment variables are set globally in /etc/environment
+        ansible.builtin.lineinfile:
+          path: /etc/environment
+          create: true
+          line: '{{ item }}'
+        with_items:
+          - SDL_VIDEODRIVER=wayland
+          - _JAVA_AWT_WM_NONREPARENTING=1
+          - QT_QPA_PLATFORM=wayland
+          - XDG_CURRENT_DESKTOP=sway
+          - XDG_SESSION_DESKTOP=sway
+          - QT_QPA_PLATFORMTHEME=qt5ct
+        when: use_wayland is defined and use_wayland
+
+      - name: Enable ly service
+        ansible.builtin.systemd:
+          name: ly
+          enabled: true
+          state: started

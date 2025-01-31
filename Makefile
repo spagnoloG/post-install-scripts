@@ -1,6 +1,8 @@
 format:
-	yamlfmt -formatter indentless_arrays=true ./playbooks/*.yml
-	python ./scripts/add_newlines.py ./playbooks/
+	@for file in ./playbooks/*.yml; do \
+		./.venv/bin/python3 ./scripts/format_file.py $$file; \
+		echo "Formatted: $$file"; \
+	done
 	find . -type f -iname "*.lua" -exec lua-format --in-place {} \;
 
 setup-venv:

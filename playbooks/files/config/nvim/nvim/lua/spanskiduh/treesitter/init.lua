@@ -19,8 +19,5 @@ treesitter.setup {
     -- List of parsers to ignore installing (for "all")
     ignore_install = {"javascript"},
 
-    highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = true
-    }
+    highlight = {enable = true, additional_vim_regex_highlighting = true}
 }

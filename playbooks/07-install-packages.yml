@@ -1,40 +1,40 @@
----
-- hosts: localhost
-  become: true
-  tasks:
-    - name: Update package database
-      ansible.builtin.command: paru -Syy
-      become: false
+  - hosts: localhost
+    become: true
+    tasks:
 
-    - name: Install base packages
-      ansible.builtin.command: paru -S --noconfirm {{ item }}
-      loop: "{{ base_packages }}"
-      become: false
+      - name: Update package database
+        ansible.builtin.command: paru -Syy
+        become: false
 
-    - name: Install desktop packages
-      ansible.builtin.command: paru -S --noconfirm {{ item }}
-      loop: "{{ desktop_packages }}"
-      become: false
+      - name: Install base packages
+        ansible.builtin.command: paru -S --noconfirm {{ item }}
+        loop: '{{ base_packages }}'
+        become: false
 
-    - name: Install sound packages
-      ansible.builtin.command: paru -S --noconfirm {{ item }}
-      loop: "{{ sound_packages }}"
-      become: false
+      - name: Install desktop packages
+        ansible.builtin.command: paru -S --noconfirm {{ item }}
+        loop: '{{ desktop_packages }}'
+        become: false
 
-    - name: Install Sway packages
-      ansible.builtin.command: paru -S --noconfirm {{ item }}
-      loop: "{{ sway_packages }}"
-      become: false
-      when: use_wayland is defined and use_wayland
+      - name: Install sound packages
+        ansible.builtin.command: paru -S --noconfirm {{ item }}
+        loop: '{{ sound_packages }}'
+        become: false
 
-    - name: Install Xorg packages
-      ansible.builtin.command: paru -S --noconfirm {{ item }}
-      loop: "{{ xorg_packages }}"
-      become: false
-      when: use_wayland is not defined or not use_wayland
+      - name: Install Sway packages
+        ansible.builtin.command: paru -S --noconfirm {{ item }}
+        loop: '{{ sway_packages }}'
+        become: false
+        when: use_wayland is defined and use_wayland
 
-    - name: Install i3 and related packages
-      ansible.builtin.command: paru -S --noconfirm {{ item }}
-      loop: "{{ i3_packages }}"
-      become: false
-      when: use_wayland is not defined or not use_wayland
+      - name: Install Xorg packages
+        ansible.builtin.command: paru -S --noconfirm {{ item }}
+        loop: '{{ xorg_packages }}'
+        become: false
+        when: use_wayland is not defined or not use_wayland
+
+      - name: Install i3 and related packages
+        ansible.builtin.command: paru -S --noconfirm {{ item }}
+        loop: '{{ i3_packages }}'
+        become: false
+        when: use_wayland is not defined or not use_wayland

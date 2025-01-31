@@ -1,57 +1,55 @@
----
-- name: Setup keyboard backlight service (thikpad t14 g2)
-  hosts: localhost
-  become: true 
-  tasks:
+  - name: Setup keyboard backlight service (thikpad t14 g2)
+    hosts: localhost
+    become: true
+    tasks:
 
-    - name: Ensure necessary build tools are installed
-      pacman:
-        name:
-          - gcc
-          - make
-        state: present
+      - name: Ensure necessary build tools are installed
+        pacman:
+          name:
+            - gcc
+            - make
+          state: present
 
-    - name: Create directory for the backlight script
-      file:
-        path: /usr/local/customscripts/kbdbacklight
-        state: directory
-        mode: '0755'
+      - name: Create directory for the backlight script
+        file:
+          path: /usr/local/customscripts/kbdbacklight
+          state: directory
+          mode: '0755'
 
-    - name: Copy backlight.c to the target directory
-      copy:
-        src: backlight/backlight.c
-        dest: /usr/local/customscripts/kbdbacklight/kbdbacklight.c
-        mode: '0644'
+      - name: Copy backlight.c to the target directory
+        copy:
+          src: backlight/backlight.c
+          dest: /usr/local/customscripts/kbdbacklight/kbdbacklight.c
+          mode: '0644'
 
-    - name: Compile the backlight program
-      command: gcc -O2 -o kbdbacklight /usr/local/customscripts/kbdbacklight/kbdbacklight.c
-      args:
-        chdir: /usr/local/customscripts/kbdbacklight
+      - name: Compile the backlight program
+        command: gcc -O2 -o kbdbacklight /usr/local/customscripts/kbdbacklight/kbdbacklight.c
+        args:
+          chdir: /usr/local/customscripts/kbdbacklight
 
-    - name: Create systemd service file for the backlight script
-      copy:
-        dest: /etc/systemd/system/kbdbacklight.service
-        content: |
-          [Unit]
-          Description=Starts a daemon monitoring keyboard usage. Turns on keyboard backlight until no key is pressed for a TIMEOUT period.
-          After=network.target
+      - name: Create systemd service file for the backlight script
+        copy:
+          dest: /etc/systemd/system/kbdbacklight.service
+          content: |
+            [Unit]
+            Description=Starts a daemon monitoring keyboard usage. Turns on keyboard backlight until no key is pressed for a TIMEOUT period.
+            After=network.target
 
-          [Service]
-          Type=simple
-          ExecStart=/usr/local/customscripts/kbdbacklight/kbdbacklight
-          KillSignal=SIGKILL
-          Restart=on-failure
-          User=root
+            [Service]
+            Type=simple
+            ExecStart=/usr/local/customscripts/kbdbacklight/kbdbacklight
+            KillSignal=SIGKILL
+            Restart=on-failure
+            User=root
 
-          [Install]
-          WantedBy=multi-user.target
+            [Install]
+            WantedBy=multi-user.target
 
-    - name: Reload systemd to pick up new service
-      command: systemctl daemon-reload
+      - name: Reload systemd to pick up new service
+        command: systemctl daemon-reload
 
-    - name: Enable the keyboard backlight service to start at boot
-      systemd:
-        name: kbdbacklight
-        enabled: true 
-        state: started
-
+      - name: Enable the keyboard backlight service to start at boot
+        systemd:
+          name: kbdbacklight
+          enabled: true
+          state: started

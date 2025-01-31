@@ -1,6 +1,7 @@
----
-- hosts: localhost
-  become: true
-  tasks:
-    - name: Set mirrors using reflector
-      ansible.builtin.command: sudo reflector --country "{{ countries }}" --fastest 10 --threads `nproc` --save /etc/pacman.d/mirrorlist
+  - hosts: localhost
+    become: true
+    tasks:
+
+      - name: Set mirrors using reflector
+        ansible.builtin.command: sudo reflector --country "{{ countries }}" --fastest
+          10 --threads `nproc` --save /etc/pacman.d/mirrorlist

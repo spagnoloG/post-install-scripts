@@ -86,6 +86,7 @@ desktop_packages:
   - spotify
   - cava
   # Others
+  - qt5ct
 
 hacking_packages:
   - ghidra

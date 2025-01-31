@@ -1,18 +1,18 @@
----
-- hosts: localhost
-  become: true
-  tasks:
-    - name: Install arc-gtk-theme
-      pacman:
-        name: arc-gtk-theme
-        state: present
+  - hosts: localhost
+    become: true
+    tasks:
 
-    - name: Install papirus-icon-theme
-      pacman:
-        name: papirus-icon-theme
-        state: present
+      - name: Install arc-gtk-theme
+        pacman:
+          name: arc-gtk-theme
+          state: present
 
-    - name: Install dracula theme
-      pacman:
-        name: dracula-gtk-theme-full
-        state: present
+      - name: Install dracula theme
+        pacman:
+          name: dracula-gtk-theme-full
+          state: present
+
+# Next fresh installation check how to enable this without gnome, also now manual enable is needed for qt applications via qt5ct
+# - gsettings set org.gnome.desktop.interface gtk-theme "Dracula"
+# - gsettings set org.gnome.desktop.wm.preferences theme "Dracula" 
+# - gsettings set org.gnome.desktop.interface icon-theme "Dracula"

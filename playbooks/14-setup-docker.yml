@@ -1,45 +1,46 @@
----
-- name: Install Docker on Arch Linux
-  hosts: localhost
-  become: true
-  tasks:
-    - name: Update the system package database
-      pacman:
-        update_cache: true
+  - name: Install Docker on Arch Linux
+    hosts: localhost
+    become: true
+    tasks:
 
-    - name: Install Docker package
-      pacman:
-        name:
-          - docker
-          - docker-compose
-        state: present
+      - name: Update the system package database
+        pacman:
+          update_cache: true
 
-    - name: Enable Docker service
-      ansible.builtin.systemd:
-        name: docker.service
-        enabled: true
-        state: started
+      - name: Install Docker package
+        pacman:
+          name:
+            - docker
+            - docker-compose
+          state: present
 
-    - name: Add user to Docker group
-      ansible.builtin.user:
-        name: "{{ sys_username }}"
-        groups: docker
-        append: true
+      - name: Enable Docker service
+        ansible.builtin.systemd:
+          name: docker.service
+          enabled: true
+          state: started
 
-    - name: Verify Docker installation
-      ansible.builtin.command: docker info
-      register: docker_info
-      changed_when: false
+      - name: Add user to Docker group
+        ansible.builtin.user:
+          name: '{{ sys_username }}'
+          groups: docker
+          append: true
 
-    - name: Print Docker info
-      ansible.builtin.debug:
-        var: docker_info.stdout
+      - name: Verify Docker installation
+        ansible.builtin.command: docker info
+        register: docker_info
+        changed_when: false
 
-    - name: Verify running Docker container
-      ansible.builtin.command: docker run -it --rm archlinux bash -c "echo hello world"
-      register: docker_run
-      changed_when: false
+      - name: Print Docker info
+        ansible.builtin.debug:
+          var: docker_info.stdout
 
-    - name: Print Docker run output
-      ansible.builtin.debug:
-        var: docker_run.stdout
+      - name: Verify running Docker container
+        ansible.builtin.command: docker run -it --rm archlinux bash -c "echo hello
+          world"
+        register: docker_run
+        changed_when: false
+
+      - name: Print Docker run output
+        ansible.builtin.debug:
+          var: docker_run.stdout

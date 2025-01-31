@@ -1,52 +1,61 @@
----
-- name: Apply dotfiles
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: Check if stow is installed
-      ansible.builtin.command: stow --version
-      ignore_errors: true
-      register: stow_check
+  - name: Apply dotfiles
+    hosts: localhost
+    gather_facts: false
+    tasks:
 
-    - name: Install stow if not installed
-      become: true
-      ansible.builtin.package:
-        name:
-          - stow
-        state: present
-      when: stow_check.rc != 0
+      - name: Check if stow is installed
+        ansible.builtin.command: stow --version
+        ignore_errors: true
+        register: stow_check
 
-    - name: Find dotfile directories
-      ansible.builtin.find:
-        paths: "{{ playbook_dir }}/files/config/"
-        patterns: "*"
-        recurse: false
-        file_type: directory
-      register: dotfile_dirs
+      - name: Install stow if not installed
+        become: true
+        ansible.builtin.package:
+          name:
+            - stow
+          state: present
+        when: stow_check.rc != 0
 
-    - name: Show dotfile directories
-      ansible.builtin.debug:
-        msg: "{{ dotfile_dirs.files | map(attribute='path') | list }}"
+      - name: Find dotfile directories
+        ansible.builtin.find:
+          paths: '{{ playbook_dir }}/files/config/'
+          patterns: '*'
+          recurse: false
+          file_type: directory
+        register: dotfile_dirs
 
-    - name: Stow dotfiles
-      become: false
-      ansible.builtin.shell: >
-        cd {{ playbook_dir }}/files/config/; for dir in {{ dotfile_dirs.files | map(attribute='path') | join(' ') }}; do #magic___^_^___line
-          stow -vt ~/.config $(basename $dir);
-        done
-      register: stow_result
-      changed_when: false # Assume stow might not change anything if already correctly symlinked
+      - name: Show dotfile directories
+        ansible.builtin.debug:
+          msg: "{{ dotfile_dirs.files | map(attribute='path') | list }}"
 
-    - name: Link individual files in home directory
-      become: false
-      ansible.builtin.shell: >
-        cd {{ playbook_dir }}/files/home-dir/; for file in *; do
-          ln -sf $(pwd)/$file ~/.$file;
-        done
-      register: link_result
-      changed_when: link_result.rc == 0
+      - name: Stow dotfiles
+        become: false
+        ansible.builtin.shell: >
+          cd {{ playbook_dir }}/files/config/; for dir in {{ dotfile_dirs.files |
+          map(attribute='path') | join(' ') }}; do #magic___^_^___line
 
-    - name: Show link output
-      ansible.builtin.debug:
-        msg: "{{ link_result.stdout }}"
-      when: link_result.stdout is defined and link_result.stdout != ''
+
+
+            stow -vt ~/.config $(basename $dir);
+          done
+
+        register: stow_result
+        changed_when: false # Assume stow might not change anything if already correctly symlinked
+
+      - name: Link individual files in home directory
+        become: false
+        ansible.builtin.shell: >
+          cd {{ playbook_dir }}/files/home-dir/; for file in *; do
+
+
+
+            ln -sf $(pwd)/$file ~/.$file;
+          done
+
+        register: link_result
+        changed_when: link_result.rc == 0
+
+      - name: Show link output
+        ansible.builtin.debug:
+          msg: '{{ link_result.stdout }}'
+        when: link_result.stdout is defined and link_result.stdout != ''
