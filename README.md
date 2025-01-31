@@ -8,10 +8,10 @@ pip install ansible
 ```
 
 ```
-ansible-playbook -i inventory.yaml playbooks/*yml --ask-become-pass
+ansible-playbook -i inventory.yaml site.yml --ask-become-pass
 ```
 
-PoC: don't use.
+This is a proof of concept (PoC) for a complete environment setup using Ansible.
 
 ## Pluginless dots (distro-agnostic)
 
