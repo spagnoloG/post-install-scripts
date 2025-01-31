@@ -82,8 +82,10 @@ desktop_packages:
   - thunar-media-tags-plugin
   - alacritty
   - lxappearance
-  # Others
+  # Music 
   - spotify
+  - cava
+  # Others
 
 hacking_packages:
   - ghidra

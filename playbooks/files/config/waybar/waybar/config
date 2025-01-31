@@ -161,5 +161,6 @@
     "format": " ",
     "on-click": "nwg-bar",
     "tooltip": false
-  }
+  },
+  "ipc": true
 }
