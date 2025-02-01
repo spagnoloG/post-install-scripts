@@ -21,7 +21,8 @@ plugins=(archlinux
 	cp
 	dirhistory
 	sudo
-	zsh-syntax-highlighting)
+	zsh-syntax-highlighting
+    zsh-autosuggestions)
 
 # Zoxide 
 eval "$(zoxide init zsh)"
@@ -55,7 +56,7 @@ bin_file() {
     curl -X PUT --data-binary "@$1" https://p.spanskiduh.dev
 }
 
-move_to_trash () {
+_move_to_trash () {
     mkdir -p "$TRASH_DIR"
 
     for item in "$@"; do
@@ -83,7 +84,7 @@ move_to_trash () {
     done
 }
 
-empty_trash () {
+_empty_trash () {
     if [[ -d $TRASH_DIR ]]; then 
         \rm -rf "${TRASH_DIR:?}"/*
         echo "Trash emptied."
@@ -96,7 +97,7 @@ empty_trash () {
 alias -- 'md-notes'='cd ~/Documents/md-notes/ && nvim .'
 alias -- 'night'='brightnessctl s 1%'
 alias -- 'opdf'='okular $(find ~/  -type f -iname '\''*pdf'\'' | fzf)'
-alias -- 'rm'='move_to_trash'
+alias -- 'rm'='_move_to_trash'
 alias -- 'rot13'='tr '\''A-Za-z'\'' '\''N-ZA-Mn-za-m'\'''
 alias -- 'sup'='power off'
 alias -- 'sur'='systemctl reboot'
@@ -106,7 +107,7 @@ alias -- 'vi'='nvim'
 alias -- 'vim'='nvim'
 alias -- 'ls'='lsd'
 alias -- 'conda'='micromamba'
-alias -- 'empty_trash'='empty_trash'
+alias -- 'empty_trash'='_empty_trash'
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 

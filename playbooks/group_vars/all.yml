@@ -1,31 +1,29 @@
----
 sys_username: spanskiduh
 sys_hostname: t14
 arch_mirror_country: Germany,Austria,Slovenia
 use_wayland: true
 
 base_packages:
-  - openssh
-  - bind
-  - dialog
-  - intel-ucode
-  - git
-  - reflector
-  - bash-completion
-  - w3m
+  # Essential utilities
   - base-devel
+  - bash-completion
+  - dialog
+  - keychain
   - lshw
+  - inxi
+  - htop
+  - tree
+  - xsel
+  - fuse2
   - zip
   - unzip
-  - htop
-  - xsel
-  - tree
-  - fuse2
-  - keychain
-  - arandr
-  - powertop
-  - inxi
-  - wget
+  - imagemagick
+  - micromamba-bin
+  - tk  # for python
+  - intel-ucode
+
+  # Networking tools
+  - openssh
   - iw
   - wpa_supplicant
   - openbsd-netcat
@@ -33,60 +31,76 @@ base_packages:
   - tcpdump
   - mtr
   - net-tools
+  - inetutils
   - rsync
   - conntrack-tools
   - ethtool
+
+  # Package management & mirrors
+  - reflector
   - go
   - ripgrep
-  - brightnessctl
-  - oh-my-zsh-git
   - yamlfmt
-  - ntfs-3g
-  - net-tools
-  - inetutils
   - lua-format
   - direnv
-  - tk # for python
-  - ttf-iosevka
-  - imagemagick
-  - micromamba-bin
+
+  # Miscellaneous utilities
+  - ntfs-3g
+  - brightnessctl
+  - powertop
+  - arandr
+  - w3m
+  - wget
+  - oh-my-zsh-git
 
 desktop_packages:
+  # Browsers & communication
   - brave-bin
   - discord
-  - libreoffice
-  - fontforge
-  - gparted
-  - obs-studio
-  - vlc
-  - remmina
-  - neofetch
-  - evince
-  - gimp
-  - shotwell
-  - file-roller
-  - shotcut
-  - inkscape
+  - betterdiscord-installer # betterdiscord-installer install
   - evolution
-  - mousepad
-  - klavaro
-  - texlive
-  # Pdf viewer
+  - remmina
+
+  # Office & productivity
+  - libreoffice
+  - gparted
+  - evince
   - zathura
   - zathura-pdf-mupdf
+  - texlive
+
+  # Media & design
+  - vlc
+  - gimp
+  - shotcut
+  - inkscape
+  - fontforge
+  - obs-studio
+  - file-roller
+  - shotwell
+
+  # File management
   - ranger
-  # GUI File explorer - thunar
   - thunar
   - thunar-volman
   - thunar-archive-plugin
   - thunar-media-tags-plugin
+  - thunar-nextcloud-plugin
+  - tumbler # thumbnailer
+
+  # Terminal & UI customization
   - alacritty
   - lxappearance
-  # Music 
+  - qt5ct
+  - neofetch
+  - mousepad
+
+  # Music
   - spotify
   - cava
-  # Others
-  - qt5ct
+
+  # Typing tutor
+  - klavaro
 
 hacking_packages:
   - ghidra
@@ -108,25 +122,31 @@ sound_packages:
 
 sway_packages:
   - sway
+  - swaybg
+  - swayidle
+  - swaylock-effects
   - waybar
   - wofi
-  - xorg-xwayland
-  - xorg-xlsclients
-  - qt5-wayland
-  - glfw-wayland
-  - wl-clipboard
-  - grim
-  - slurp
   - mako
   - bemenu
-  - swaylock
-  - swayidle
-  - swaybg
   - wdisplays
   - xdg-desktop-portal-wlr
   - xdg-desktop-portal
   - kanshi
   - nwg-bar
+
+  # Clipboard & screenshot tools
+  - wl-clipboard
+  - grim
+  - slurp
+
+  # XWayland compatibility
+  - xorg-xwayland
+  - xorg-xlsclients
+
+  # Wayland-specific libraries
+  - qt5-wayland
+  - glfw-wayland
 
 xorg_packages:
   - xorg
