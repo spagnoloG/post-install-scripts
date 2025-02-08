@@ -1,58 +1,99 @@
----
-- name: Configure DNS over TLS with systemd-resolved
-  hosts: localhost
-  become: true 
-  tasks:
+  - name: Enforce secure DNS with systemd-resolved and NetworkManager integration
+    hosts: localhost
+    become: true
+    tasks:
+      - name: Remove conflicting DNS services
+        pacman:
+          name:
+            - dnsmasq
+            - unbound
+          state: absent
 
-    - name: Remove conflicting DNS services
-      pacman:
-        name:
-          - dnsmasq
-          - unbound
-        state: absent
+      - name: Install systemd-resolvconf (provides resolvectl)
+        pacman:
+          name: systemd-resolvconf
+          state: present
 
-    - name: Install systemd-resolvconf (for resolvctl)
-      pacman:
-        name: systemd-resolvconf
-        state: present
+      - name: Enable and start systemd-resolved service
+        systemd:
+          name: systemd-resolved
+          enabled: true
+          state: started
 
-    - name: Enable and start systemd-resolved service
-      systemd:
-        name: systemd-resolved
-        enabled: true 
-        state: started
+      - name: Enforce DNS servers in /etc/systemd/resolved.conf
+        lineinfile:
+          path: /etc/systemd/resolved.conf
+          regexp: ^DNS=
+          line: DNS=1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google 9.9.9.9#dns.quad9.net
+          backup: true
+        notify: Restart systemd-resolved
 
-    - name: Configure DNS servers with DNS over TLS in resolved.conf
-      lineinfile:
-        path: /etc/systemd/resolved.conf
-        regexp: '^DNS='
-        line: 'DNS=1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google 9.9.9.9#dns.quad9.net'
-      notify: Restart systemd-resolved
+      - name: Enforce DNSOverTLS setting in /etc/systemd/resolved.conf
+        lineinfile:
+          path: /etc/systemd/resolved.conf
+          regexp: ^DNSOverTLS=
+          line: DNSOverTLS=yes
+          backup: true
+        notify: Restart systemd-resolved
 
-    - name: Enable DNSOverTLS in resolved.conf
-      lineinfile:
-        path: /etc/systemd/resolved.conf
-        regexp: '^DNSOverTLS='
-        line: 'DNSOverTLS=yes'
-      notify: Restart systemd-resolved
+      - name: Enforce DNSSEC setting in /etc/systemd/resolved.conf
+        lineinfile:
+          path: /etc/systemd/resolved.conf
+          regexp: ^DNSSEC=
+          line: DNSSEC=yes
+          backup: true
+        notify: Restart systemd-resolved
 
-    - name: Ensure Domains setting is correct in resolved.conf
-      lineinfile:
-        path: /etc/systemd/resolved.conf
-        regexp: '^Domains='
-        line: 'Domains=~.'
-      notify: Restart systemd-resolved
+      - name: Enforce Domains setting in /etc/systemd/resolved.conf
+        lineinfile:
+          path: /etc/systemd/resolved.conf
+          regexp: ^Domains=
+          line: Domains=~.
+          backup: true
+        notify: Restart systemd-resolved
 
-    - name: Ensure /etc/resolv.conf points to systemd-resolved stub resolver
-      file:
-        src: /run/systemd/resolve/stub-resolv.conf
-        dest: /etc/resolv.conf
-        state: link
-        force: true 
+      - name: Ensure /etc/resolv.conf points to systemd-resolved stub resolver
+        file:
+          src: /run/systemd/resolve/stub-resolv.conf
+          dest: /etc/resolv.conf
+          state: link
+          force: true
+        notify: Restart systemd-resolved
 
-  handlers:
-    - name: Restart systemd-resolved
-      systemd:
-        name: systemd-resolved
-        state: restarted
+      - name: Configure NetworkManager to use systemd-resolved for DNS
+        ini_file:
+          dest: /etc/NetworkManager/NetworkManager.conf
+          section: main
+          option: dns
+          value: systemd-resolved
+          backup: yes
+        notify: Restart NetworkManager
 
+      - name: Display current /etc/systemd/resolved.conf content
+        command: cat /etc/systemd/resolved.conf
+        register: resolved_conf_content
+        changed_when: false
+
+      - name: Print resolved.conf content
+        debug:
+          msg: '{{ resolved_conf_content.stdout }}'
+
+      - name: Display systemd-resolved status (resolvectl)
+        command: resolvectl status
+        register: resolvectl_status
+        changed_when: false
+
+      - name: Print resolvectl status
+        debug:
+          msg: '{{ resolvectl_status.stdout }}'
+
+    handlers:
+      - name: Restart systemd-resolved
+        systemd:
+          name: systemd-resolved
+          state: restarted
+
+      - name: Restart NetworkManager
+        systemd:
+          name: NetworkManager
+          state: restarted
