@@ -13,10 +13,7 @@ return require('packer').startup(function(use)
         config = function() require('spanskiduh.telescope') end
     }
 
-    use {
-        'folke/tokyonight.nvim',
-        config = function() require('tokyonight').setup() end
-    }
+    use {'Mofiqul/dracula.nvim'}
 
     use('nvim-treesitter/nvim-treesitter', {run = ':TSUpdate'})
 

@@ -1,77 +1,70 @@
-[colors]
-[colors.bright]
-black = "#5b5858"
-blue = "#3fc4de"
-cyan = "#6be4e6"
-green = "#3fdaa4"
-magenta = "#f075b5"
-red = "#ec6a88"
-white = "#d5d8da"
-yellow = "#fbc3a7"
+[colors.primary]
+
+background = "#282a36"
+foreground = "#f8f8f2"
+bright_foreground = "#ffffff"
 
 [colors.cursor]
-cursor = "#e95678"
-text = "#1c1e26"
 
-[colors.dim]
-black = "#16161c"
-blue = "#26bbd9"
-cyan = "#59e1e3"
-green = "#29d398"
-magenta = "#ee64ac"
-red = "#e95678"
-white = "#d5d8da"
-yellow = "#fab795"
-
-[colors.hints]
-[colors.hints.end]
-background = "#26bbd9"
-foreground = "#1c1e26"
-
-[colors.hints.start]
-background = "#ee64ac"
-foreground = "#1c1e26"
-
-[[colors.indexed_colors]]
-color = "#f5a97f"
-index = 16
-
-[[colors.indexed_colors]]
-color = "#f4dbd6"
-index = 17
-
-[colors.normal]
-black = "#16161c"
-blue = "#26bbd9"
-cyan = "#59e1e3"
-green = "#29d398"
-magenta = "#ee64ac"
-red = "#e95678"
-white = "#d5d8da"
-yellow = "#fab795"
-
-[colors.primary]
-background = "#1c1e26"
-bright_foreground = "#e0e0e0"
-dim_foreground = "#e0e0e0"
-foreground = "#e0e0e0"
-
-[colors.search]
-[colors.search.focused_match]
-background = "#29d398"
-foreground = "#1c1e26"
-
-[colors.search.matches]
-background = "#fab795"
-foreground = "#1c1e26"
-
-[colors.selection]
-background = "#e95678"
-text = "#1c1e26"
+text = "#282a36"
+cursor = "#f8f8f2"
 
 [colors.vi_mode_cursor]
-cursor = "#26bbd9"
-text = "#1c1e26"
+
+text = "CellBackground"
+cursor = "CellForeground"
+
+[colors.selection]
+
+text = "CellForeground"
+background = "#44475a"
+
+[colors.normal]
+
+black = "#21222c"
+red = "#ff5555"
+green = "#50fa7b"
+yellow = "#f1fa8c"
+blue = "#bd93f9"
+magenta = "#ff79c6"
+cyan = "#8be9fd"
+white = "#f8f8f2"
+
+[colors.bright]
+
+black = "#6272a4"
+red = "#ff6e6e"
+green = "#69ff94"
+yellow = "#ffffa5"
+blue = "#d6acff"
+magenta = "#ff92df"
+cyan = "#a4ffff"
+white = "#ffffff"
+
+[colors.search.matches]
+
+foreground = "#44475a"
+background = "#50fa7b"
+
+[colors.search.focused_match]
+
+foreground = "#44475a"
+background = "#ffb86c"
+
+[colors.footer_bar]
+
+background = "#282a36"
+foreground = "#f8f8f2"
+
+[colors.hints.start]
+
+foreground = "#282a36"
+background = "#f1fa8c"
+
+[colors.hints.end]
+
+foreground = "#f1fa8c"
+background = "#282a36"
 
 [font]
 size = 12

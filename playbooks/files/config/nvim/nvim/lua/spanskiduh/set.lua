@@ -35,7 +35,7 @@ vim.g.mapleader = " "
 vim.g.autoread = true
 
 -- Colorscheme
-vim.cmd.colorscheme("tokyonight-night")
+vim.cmd.colorscheme("dracula")
 
 -- Autosave
 vim.cmd('autocmd FocusLost, BufLeave, BufHidden * silent! wall')
