@@ -33,9 +33,6 @@
         ansible.builtin.shell: >
           cd {{ playbook_dir }}/files/config/; for dir in {{ dotfile_dirs.files |
           map(attribute='path') | join(' ') }}; do #magic___^_^___line
-
-
-
             stow -vt ~/.config $(basename $dir);
           done
 
@@ -46,9 +43,6 @@
         become: false
         ansible.builtin.shell: >
           cd {{ playbook_dir }}/files/home-dir/; for file in *; do
-
-
-
             ln -sf $(pwd)/$file ~/.$file;
           done
 
@@ -59,3 +53,14 @@
         ansible.builtin.debug:
           msg: '{{ link_result.stdout }}'
         when: link_result.stdout is defined and link_result.stdout != ''
+
+      - name: Ensure PAM configuration for swaylock contains required auth lines (fprintd)
+        become: true
+        ansible.builtin.lineinfile:
+          path: /etc/pam.d/swaylock
+          line: '{{ item }}'
+          insertafter: EOF
+          state: present
+        loop:
+          - auth sufficient pam_unix.so try_first_pass likeauth nullok
+          - auth sufficient pam_fprintd.so
