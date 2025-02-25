@@ -113,6 +113,7 @@ desktop_packages:
 
   # File management
   - ranger
+  - superfile
   - thunar
   - thunar-volman
   - thunar-archive-plugin

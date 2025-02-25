@@ -67,7 +67,7 @@ foreground = "#f1fa8c"
 background = "#282a36"
 
 [font]
-size = 12
+size = 11
 [font.normal]
 family = "Iosevka"
 style = "Regular"

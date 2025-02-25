@@ -139,8 +139,37 @@ ranger-cd() {
 	# hacky way of transferring over previous command and updating the screen
 	VISUAL=true zle edit-command-line
 }
+
+spf() {
+    os=$(uname -s)
+
+    # Linux
+    if [[ "$os" == "Linux" ]]; then
+        export SPF_LAST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/superfile/lastdir"
+    fi
+
+    # macOS
+    if [[ "$os" == "Darwin" ]]; then
+        export SPF_LAST_DIR="$HOME/Library/Application Support/superfile/lastdir"
+    fi
+
+    command spf "$@"
+
+    [ ! -f "$SPF_LAST_DIR" ] || {
+        . "$SPF_LAST_DIR"
+        rm -f -- "$SPF_LAST_DIR" > /dev/null
+    }
+}
+
+spf-cd() {
+    spf
+    VISUAL=true zle edit-command-line
+}
+
 zle -N ranger-cd
-bindkey '^o' ranger-cd
+bindkey '^i' ranger-cd
+zle -N spf-cd
+bindkey '^o' spf-cd
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
 DISABLE_AUTO_UPDATE="true"
