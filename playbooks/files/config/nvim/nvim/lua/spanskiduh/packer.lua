@@ -85,4 +85,13 @@ return require('packer').startup(function(use)
 
     use {'spagnoloG/pynvim-runner'}
 
+    use {
+        "mfussenegger/nvim-dap",
+        requires = {
+            "nvim-neotest/nvim-nio", "rcarriga/nvim-dap-ui",
+            "mfussenegger/nvim-dap-python", "theHamsta/nvim-dap-virtual-text"
+        },
+        config = function() require("spanskiduh.dap").setup() end
+    }
+
 end)
