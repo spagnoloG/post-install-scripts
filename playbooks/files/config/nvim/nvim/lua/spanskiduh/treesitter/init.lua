@@ -6,7 +6,7 @@ treesitter.setup {
     -- A list of parser names, or "all"
     ensure_installed = {
         "c", "lua", "rust", "javascript", "java", "python", "html", "css",
-        "json", "yaml", "bash", "typescript", "r"
+        "json", "yaml", "bash", "typescript", "r", "markdown", "rnoweb", "yaml"
     },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)

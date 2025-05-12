@@ -108,6 +108,13 @@ alias -- 'vim'='nvim'
 alias -- 'ls'='lsd'
 alias -- 'conda'='micromamba'
 alias -- 'empty_trash'='_empty_trash'
+alias -- 'cd'='z'
+
+# Fix problems with rm autocompleting to directories
+autoload -U compinit
+compinit
+compdef _rm rm
+compdef _files rm
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 

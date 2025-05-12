@@ -48,6 +48,6 @@ profile {
 }
 
 profile {
-    output 'Philips Consumer Electronics Company PHL27M1N3200Z UK02329015881' enable mode 1920x1080@144Hz scale 0.75 position 0,0
-	output 'BOE 0x07DB Unknown' disable 
+    output 'Philips Consumer Electronics Company PHL27M1N3200Z UK02329015881' enable mode 1920x1080@144Hz scale 1.00 position 0,0
+	output 'BOE 0x07DB Unknown' enable scale 1.00 position 0,1080
 }
