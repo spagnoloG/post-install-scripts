@@ -50,7 +50,7 @@ input "2:7:SynPS/2_Synaptics_TouchPad" {
     tap enabled
     natural_scroll enabled
     middle_emulation enabled
-    pointer_accel 0.5
+    pointer_accel 0.6
 }
 #
 # You can get the names of your inputs by running: swaymsg -t get_inputs
@@ -84,6 +84,9 @@ for_window [title = "File Operation Progress"] floating enable
 for_window [title = "feh"] floating enable, resize set width 800px height 600px
 for_window [title = "Figure 1"] floating enable, resize set width 800px height 600px
 for_window [app_id = "matplotlib"] floating enable, resize set width 800px height 600px
+for_window [app_id = "com.github.hluk.copyq"] floating enable, resize set width 800px height 600px
+# Command to list all windows in sway:
+# swaymsg -t get_tree or  swaymsg -t subscribe '["window"]'
 
 #---- Window rules ----#
 

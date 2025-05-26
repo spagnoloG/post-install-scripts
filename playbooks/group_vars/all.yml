@@ -134,6 +134,9 @@ desktop_packages:
 
   # Typing tutor
   - klavaro
+  
+  # Clipboard tool
+  - copyq
 
 hacking_packages:
   - ghidra

@@ -93,6 +93,10 @@ _empty_trash () {
     fi
 }
 
+_rm_completion() {
+    _alternative 'files:file:_files'
+}
+
 # Aliases
 alias -- 'md-notes'='cd ~/Documents/md-notes/ && nvim .'
 alias -- 'night'='brightnessctl s 1%'
@@ -110,11 +114,12 @@ alias -- 'conda'='micromamba'
 alias -- 'empty_trash'='_empty_trash'
 alias -- 'cd'='z'
 
-# Fix problems with rm autocompleting to directories
 autoload -U compinit
 compinit
+compdef _files _move_to_trash
 compdef _rm rm
 compdef _files rm
+compdef _rm_completion rm
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 
