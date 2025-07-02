@@ -56,6 +56,28 @@ bin_file() {
     curl -X PUT --data-binary "@$1" https://p.spanskiduh.dev
 }
 
+pdfgrep() {
+    # 1. Check for dependencies: fzf and rga
+    if ! command -v rga &> /dev/null || ! command -v fzf &> /dev/null; then
+        echo "Error: This function requires 'ripgrep-all (rga)' and 'fzf' to be installed."
+        return 1
+    fi
+
+    # 2. Check for search term
+    if [[ -z "$1" ]]; then
+        echo "Usage: pdfgrep <search-term>"
+        return 1
+    fi
+    
+    # 3. Run the search and pipe to a more robust fzf command
+    rga --ignore-case --pretty --max-depth 1 -t pdf "$1" . | \
+    fzf --ansi \
+        --delimiter ':' \
+        --preview-window 'right,60%,border-left' \
+        --bind "enter:execute(xdg-open {1} > /dev/null 2>&1)" \
+        --preview "echo {} | cut -d: -f4- | sed 's/\x1b\[[0-9;]*m//g'"
+}
+
 _move_to_trash () {
     mkdir -p "$TRASH_DIR"
 

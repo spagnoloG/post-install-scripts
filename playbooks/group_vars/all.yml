@@ -72,6 +72,7 @@ base_packages:
   - reflector
   - go
   - ripgrep
+  - ripgrep-all
   - yamlfmt
   - lua-format
   - direnv
