@@ -2,15 +2,9 @@
     become: true
     tasks:
 
-      - name: Install arc-gtk-theme
-        pacman:
-          name: arc-gtk-theme
-          state: present
-
-      - name: Install dracula theme
-        pacman:
-          name: dracula-gtk-theme-full
-          state: present
+      - name: Install theme
+        ansible.builtin.command: paru -S --noconfirm dracula-gtk-theme
+        become: false
 
 # Next fresh installation check how to enable this without gnome, also now manual enable is needed for qt applications via qt5ct
 # - gsettings set org.gnome.desktop.interface gtk-theme "Dracula"

@@ -10,11 +10,7 @@
             - ttf-ubuntu-font-family
             - ttf-dejavu
             - ttf-freefont
-          state: present
-
-      - name: Install additional fonts
-        pacman:
-          name:
+            - ttf-iosevka
             - ttf-liberation
             - ttf-droid
             - ttf-roboto

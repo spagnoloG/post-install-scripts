@@ -90,7 +90,7 @@ desktop_packages:
   # Browsers & communication
   - brave-bin
   - discord
-  - betterdiscord-installer # betterdiscord-installer install
+  - slack-desktop
   - evolution
   - remmina
 
@@ -139,6 +139,10 @@ desktop_packages:
   # Clipboard tool
   - copyq
 
+  # Programming
+  - neovim
+  - cursor-bin
+
 hacking_packages:
   - ghidra
   - wireshark-qt
@@ -154,8 +158,6 @@ sound_packages:
   - alsa-plugins
   - pavucontrol
   - pipewire-alsa
-  - pipewire-pulse
-  - pipewire-jack
 
 sway_packages:
   - sway
@@ -166,7 +168,7 @@ sway_packages:
   - wofi
   - mako
   - bemenu
-  - wdisplays
+  - wdisplays-persistent
   - xdg-desktop-portal-wlr
   - xdg-desktop-portal
   - kanshi

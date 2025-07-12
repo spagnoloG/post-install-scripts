@@ -13,13 +13,21 @@
         ignore_errors: true
 
       - name: Clone Paru repository
+        become: false
         ansible.builtin.git:
           repo: https://aur.archlinux.org/paru.git
-          dest: /home/{{sys_username}}/
+          dest: /home/{{sys_username}}/paru
         when: paru_check.rc != 0
 
       - name: Build and install Paru
+        become: false
         ansible.builtin.command: makepkg -si --noconfirm
         args:
-          chdir: /home/{{sys_username}}/
+          chdir: /home/{{sys_username}}/paru
         when: paru_check.rc != 0
+
+      - name: Remove paru directory 
+        become: true
+        ansible.builtin.file: 
+          state: absent
+          path: /home/{{sys_username}}/paru

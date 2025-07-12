@@ -17,7 +17,7 @@ set $menu wofi -I --show drun | xargs swaymsg exec
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg /usr/share/backgrounds/sway/wall.jpg fill
+#output * bg /usr/share/backgrounds/sway/wall.jpg fill
 
 font Iosevka Regular 5
 
