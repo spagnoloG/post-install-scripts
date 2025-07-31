@@ -68,8 +68,8 @@
         ansible.builtin.replace:
           path: /etc/mkinitcpio.conf
           regexp: ^HOOKS=.*
-          replace: HOOKS=(base udev autodetect modconf block filesystems keyboard
-            fsck)
+          replace: HOOKS=(base udev autodetect modconf block filesystems 
+            keyboard fsck)
 
       - name: Regenerate initramfs
         ansible.builtin.command: mkinitcpio -P
@@ -93,7 +93,8 @@
           replace: Target={{ gpu_driver }}
 
       - name: Move nvidia.hook to pacman hooks directory
-        ansible.builtin.command: mv /tmp/nvidia.hook /etc/pacman.d/hooks/nvidia.hook
+        ansible.builtin.command: mv /tmp/nvidia.hook 
+          /etc/pacman.d/hooks/nvidia.hook
 
       - name: Copy xorg configuration file
         ansible.builtin.copy:

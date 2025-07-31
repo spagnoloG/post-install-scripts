@@ -38,8 +38,8 @@
         changed_when: false
 
       - name: Ensure chain 'output' exists in table 'inet filter'
-        shell: nft list chain inet filter output || nft add chain inet filter output
-          '{ type filter hook output priority 0; policy accept; }'
+        shell: nft list chain inet filter output || nft add chain inet filter 
+          output '{ type filter hook output priority 0; policy accept; }'
         args:
           executable: /bin/bash
         changed_when: false

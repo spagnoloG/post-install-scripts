@@ -26,7 +26,7 @@ telescope.setup {
         },
         file_ignore_patterns = {
             ".git/", ".settings/", ".metadata/", "target/", "node_modules/",
-            '.class$'
+            '.class$', '.venv/', '.DS_Store', 'dist/', 'build/', 'coverage/'
         },
         mappings = {i = {['<C-u>'] = false, ['<C-d>'] = false}},
         layout_strategy = "horizontal",

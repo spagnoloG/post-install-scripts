@@ -51,3 +51,16 @@ profile {
     output 'Philips Consumer Electronics Company PHL27M1N3200Z UK02329015881' enable mode 1920x1080@144Hz scale 1.00 position 0,0
 	output 'BOE 0x07DB Unknown' enable scale 1.00 position 0,1080
 }
+
+profile {
+    output DP-1 position 1920,0 mode 3840x2160@29.9810 scale 1.00 transform normal
+    output eDP-1 position 0,0 mode 1920x1080@60.0490 scale 1.00 transform normal
+}
+profile {
+    output DP-3 position 1920,0 mode 2560x1440@59.9510 scale 1.00 transform normal
+    output eDP-1 position 0,0 mode 1920x1080@60.0490 scale 1.00 transform normal
+}
+profile {
+    output HDMI-A-1 position 1920,0 mode 3440x1440@49.9870 scale 1.00 transform normal
+    output eDP-1 position 0,0 mode 1920x1080@60.0490 scale 1.00 transform normal
+}

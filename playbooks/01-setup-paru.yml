@@ -26,8 +26,8 @@
           chdir: /home/{{sys_username}}/paru
         when: paru_check.rc != 0
 
-      - name: Remove paru directory 
+      - name: Remove paru directory
         become: true
-        ansible.builtin.file: 
+        ansible.builtin.file:
           state: absent
           path: /home/{{sys_username}}/paru

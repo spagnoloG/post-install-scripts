@@ -4,4 +4,5 @@
 
       - name: Clone TPM repository
         become: false
-        ansible.builtin.command: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+        ansible.builtin.command: git clone https://github.com/tmux-plugins/tpm 
+          ~/.tmux/plugins/tpm

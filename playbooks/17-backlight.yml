@@ -23,7 +23,8 @@
           mode: '0644'
 
       - name: Compile the backlight program
-        command: gcc -O2 -o kbdbacklight /usr/local/customscripts/kbdbacklight/kbdbacklight.c
+        command: gcc -O2 -o kbdbacklight 
+          /usr/local/customscripts/kbdbacklight/kbdbacklight.c
         args:
           chdir: /usr/local/customscripts/kbdbacklight
 

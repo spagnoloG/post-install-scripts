@@ -9,7 +9,8 @@
         - lsd
         - grc
       oh_my_zsh_custom_dir: /usr/share/oh-my-zsh/custom
-      zsh_syntax_highlighting_repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+      zsh_syntax_highlighting_repo: 
+        https://github.com/zsh-users/zsh-syntax-highlighting.git
       fzf_tab_repo: https://github.com/Aloxaf/fzf-tab.git
     tasks:
 

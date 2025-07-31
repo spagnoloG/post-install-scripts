@@ -36,8 +36,8 @@
           var: docker_info.stdout
 
       - name: Verify running Docker container
-        ansible.builtin.command: docker run -it --rm archlinux bash -c "echo hello
-          world"
+        ansible.builtin.command: docker run -it --rm archlinux bash -c "echo 
+          hello world"
         register: docker_run
         changed_when: false
 

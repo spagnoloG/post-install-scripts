@@ -54,7 +54,8 @@
           msg: '{{ link_result.stdout }}'
         when: link_result.stdout is defined and link_result.stdout != ''
 
-      - name: Ensure PAM configuration for swaylock contains required auth lines (fprintd)
+      - name: Ensure PAM configuration for swaylock contains required auth lines
+          (fprintd)
         become: true
         ansible.builtin.lineinfile:
           path: /etc/pam.d/swaylock

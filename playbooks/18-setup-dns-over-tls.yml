@@ -1,4 +1,5 @@
-  - name: Enforce secure DNS with systemd-resolved and NetworkManager integration
+  - name: Enforce secure DNS with systemd-resolved and NetworkManager 
+      integration
     hosts: localhost
     become: true
     tasks:
@@ -24,7 +25,8 @@
         lineinfile:
           path: /etc/systemd/resolved.conf
           regexp: ^DNS=
-          line: DNS=1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google 9.9.9.9#dns.quad9.net
+          line: DNS=1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google 
+            9.9.9.9#dns.quad9.net
           backup: true
         notify: Restart systemd-resolved
 
