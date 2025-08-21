@@ -1,8 +1,8 @@
-  - hosts: localhost
+-   hosts: localhost
     become: true
     tasks:
 
-      - name: Install theme
+    -   name: Install theme
         ansible.builtin.command: paru -S --noconfirm dracula-gtk-theme
         become: false
 

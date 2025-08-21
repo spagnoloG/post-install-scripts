@@ -1,48 +1,48 @@
-  - name: Install WireGuard and configure
+-   name: Install WireGuard and configure
     hosts: localhost
     become: true
     vars:
       wireguard_config: /etc/wireguard/yoga.conf
     tasks:
 
-      - name: Update the system package database
+    -   name: Update the system package database
         pacman:
           update_cache: true
 
-      - name: Install WireGuard tools
+    -   name: Install WireGuard tools
         pacman:
           name: wireguard-tools
           state: present
 
-      - name: Create WireGuard configuration directory
+    -   name: Create WireGuard configuration directory
         ansible.builtin.file:
           path: /etc/wireguard
           state: directory
           mode: '0755'
 
-      - name: Copy WireGuard configuration file
+    -   name: Copy WireGuard configuration file
         ansible.builtin.copy:
           src: files/wg/yoga.conf
           dest: '{{ wireguard_config }}'
           mode: '0600'
 
-      - name: Enable and start systemd-resolved
+    -   name: Enable and start systemd-resolved
         ansible.builtin.systemd:
           name: systemd-resolved
           enabled: true
           state: started
 
-      - name: Enable and start WireGuard service
+    -   name: Enable and start WireGuard service
         ansible.builtin.systemd:
           name: wg-quick@yoga.service
           enabled: true
           state: started
 
-      - name: Verify WireGuard service status
+    -   name: Verify WireGuard service status
         ansible.builtin.command: systemctl status wg-quick@yoga.service
         register: wireguard_status
         changed_when: false
 
-      - name: Print WireGuard service status
+    -   name: Print WireGuard service status
         ansible.builtin.debug:
           var: wireguard_status.stdout

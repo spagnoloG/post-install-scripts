@@ -32,13 +32,24 @@ vim.opt.colorcolumn = "80"
 
 vim.g.mapleader = " "
 
-vim.g.autoread = true
+vim.opt.autoread = true
 
 -- Colorscheme
 vim.cmd.colorscheme("dracula")
 
 -- Autosave
 vim.cmd('autocmd FocusLost, BufLeave, BufHidden * silent! wall')
+
+-- Auto-reload files when changed externally
+vim.cmd([[
+  augroup auto_read
+    autocmd!
+    autocmd FocusGained,BufEnter,CursorHold,CursorHoldI *
+      \ if mode() == 'n' && getcmdwintype() == '' | checktime | endif
+    autocmd FileChangedShellPost *
+      \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+  augroup END
+]])
 
 -- Copilot parse yaml
 vim.cmd('filetype on') -- Enable filetype detection

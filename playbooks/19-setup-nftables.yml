@@ -1,24 +1,24 @@
-  - name: Configure nftables rules on Arch Linux
+-   name: Configure nftables rules on Arch Linux
     hosts: all
     become: true
     tasks:
-      - name: Ensure nftables package is installed
+    -   name: Ensure nftables package is installed
         pacman:
           name: nftables
           state: present
 
-      - name: Enable and start nftables service
+    -   name: Enable and start nftables service
         systemd:
           name: nftables
           enabled: true
           state: started
 
-      - name: Backup current nftables configuration
+    -   name: Backup current nftables configuration
         command: nft list ruleset
         register: nft_backup
         changed_when: false
 
-      - name: Save nftables backup to file
+    -   name: Save nftables backup to file
         copy:
           content: '{{ nft_backup.stdout }}'
           dest: /tmp/nft_backup.conf
@@ -26,27 +26,26 @@
           group: root
           mode: '0644'
 
-      - name: Retrieve current nftables ruleset
+    -   name: Retrieve current nftables ruleset
         command: nft list ruleset
         register: current_nft_ruleset
         changed_when: false
 
-      - name: Ensure table 'inet filter' exists
+    -   name: Ensure table 'inet filter' exists
         shell: nft list table inet filter || nft add table inet filter
         args:
           executable: /bin/bash
         changed_when: false
 
-      - name: Ensure chain 'output' exists in table 'inet filter'
-        shell: nft list chain inet filter output || nft add chain inet filter 
-          output '{ type filter hook output priority 0; policy accept; }'
+    -   name: Ensure chain 'output' exists in table 'inet filter'
+        shell: nft list chain inet filter output || nft add chain inet filter output '{ type filter hook output priority 0; policy accept; }'
         args:
           executable: /bin/bash
         changed_when: false
 
-      - name: Add nftables rules if not already present
+    -   name: Add nftables rules if not already present
         block:
-          - name: 'Add nftables rule: {{ item.description }}'
+        -   name: 'Add nftables rule: {{ item.description }}'
             shell: >
               nft add rule {{ item.table }} {{ item.chain }} {{ item.protocol }}
               {% if item.dport is defined %} dport {{ item.dport }}{% endif %}
@@ -55,18 +54,17 @@
               ', '_') }}"
             args:
               executable: /bin/bash
-            when: "'ansible_rule_' ~ (item.description | regex_replace(' ', '_'))
-              not in current_nft_ruleset.stdout"
+            when: "'ansible_rule_' ~ (item.description | regex_replace(' ', '_')) not in current_nft_ruleset.stdout"
             loop: '{{ nft_rules }}'
             loop_control:
               label: '{{ item.description }}'
 
-      - name: Retrieve final nftables configuration
+    -   name: Retrieve final nftables configuration
         command: nft list ruleset
         register: final_config
         changed_when: false
 
-      - name: Display final nftables configuration
+    -   name: Display final nftables configuration
         debug:
           msg: '{{ final_config.stdout }}'
 

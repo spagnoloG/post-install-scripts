@@ -1,22 +1,22 @@
-  - name: Apply dotfiles
+-   name: Apply dotfiles
     hosts: localhost
     gather_facts: false
     tasks:
 
-      - name: Check if stow is installed
+    -   name: Check if stow is installed
         ansible.builtin.command: stow --version
         ignore_errors: true
         register: stow_check
 
-      - name: Install stow if not installed
+    -   name: Install stow if not installed
         become: true
         ansible.builtin.package:
           name:
-            - stow
+          -   stow
           state: present
         when: stow_check.rc != 0
 
-      - name: Find dotfile directories
+    -   name: Find dotfile directories
         ansible.builtin.find:
           paths: '{{ playbook_dir }}/files/config/'
           patterns: '*'
@@ -24,11 +24,11 @@
           file_type: directory
         register: dotfile_dirs
 
-      - name: Show dotfile directories
+    -   name: Show dotfile directories
         ansible.builtin.debug:
           msg: "{{ dotfile_dirs.files | map(attribute='path') | list }}"
 
-      - name: Stow dotfiles
+    -   name: Stow dotfiles
         become: false
         ansible.builtin.shell: >
           cd {{ playbook_dir }}/files/config/; for dir in {{ dotfile_dirs.files |
@@ -39,7 +39,7 @@
         register: stow_result
         changed_when: false # Assume stow might not change anything if already correctly symlinked
 
-      - name: Link individual files in home directory
+    -   name: Link individual files in home directory
         become: false
         ansible.builtin.shell: >
           cd {{ playbook_dir }}/files/home-dir/; for file in *; do
@@ -49,13 +49,12 @@
         register: link_result
         changed_when: link_result.rc == 0
 
-      - name: Show link output
+    -   name: Show link output
         ansible.builtin.debug:
           msg: '{{ link_result.stdout }}'
         when: link_result.stdout is defined and link_result.stdout != ''
 
-      - name: Ensure PAM configuration for swaylock contains required auth lines
-          (fprintd)
+    -   name: Ensure PAM configuration for swaylock contains required auth lines (fprintd)
         become: true
         ansible.builtin.lineinfile:
           path: /etc/pam.d/swaylock
@@ -63,5 +62,5 @@
           insertafter: EOF
           state: present
         loop:
-          - auth sufficient pam_unix.so try_first_pass likeauth nullok
-          - auth sufficient pam_fprintd.so
+        -   auth sufficient pam_unix.so try_first_pass likeauth nullok
+        -   auth sufficient pam_fprintd.so

@@ -1,39 +1,39 @@
-  - name: Install Virt Manager on Arch Linux
+-   name: Install Virt Manager on Arch Linux
     hosts: localhost
     become: true
     tasks:
 
-      - name: Update the system package database
+    -   name: Update the system package database
         pacman:
           update_cache: true
 
-      - name: Remove conflicting iptables package if exists
+    -   name: Remove conflicting iptables package if exists
         pacman:
           name: iptables
           state: absent
         ignore_errors: true
 
-      - name: Install Virt Manager and related packages with conflict resolution
+    -   name: Install Virt Manager and related packages with conflict resolution
         ansible.builtin.shell: |
           yes | pacman -S --needed virt-manager qemu-desktop libvirt edk2-ovmf dnsmasq iptables-nft swtpm 2>/dev/null || echo "Ignoring warnings"
 
-      - name: Enable libvirt service
+    -   name: Enable libvirt service
         ansible.builtin.systemd:
           name: libvirtd.service
           enabled: true
           state: started
 
-      - name: Add user to virtualization groups
+    -   name: Add user to virtualization groups
         ansible.builtin.user:
           name: '{{ sys_username }}'
           groups: libvirt,libvirt-qemu,kvm
           append: true
 
-      - name: Verify libvirt service status
+    -   name: Verify libvirt service status
         ansible.builtin.command: systemctl status libvirtd.service
         register: libvirt_status
         changed_when: false
 
-      - name: Print libvirt service status
+    -   name: Print libvirt service status
         ansible.builtin.debug:
           var: libvirt_status.stdout

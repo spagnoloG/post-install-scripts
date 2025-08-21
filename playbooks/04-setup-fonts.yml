@@ -1,19 +1,19 @@
-  - hosts: localhost
+-   hosts: localhost
     become: true
     tasks:
 
-      - name: Install noto and ubuntu fonts
+    -   name: Install noto and ubuntu fonts
         pacman:
           name:
-            - noto-fonts
-            - noto-fonts-emoji
-            - ttf-ubuntu-font-family
-            - ttf-dejavu
-            - ttf-freefont
-            - ttf-iosevka
-            - ttf-liberation
-            - ttf-droid
-            - ttf-roboto
-            - terminus-font
-            - ttf-jetbrains-mono-nerd
+          -   noto-fonts
+          -   noto-fonts-emoji
+          -   ttf-ubuntu-font-family
+          -   ttf-dejavu
+          -   ttf-freefont
+          -   ttf-iosevka
+          -   ttf-liberation
+          -   ttf-droid
+          -   ttf-roboto
+          -   terminus-font
+          -   ttf-jetbrains-mono-nerd
           state: present

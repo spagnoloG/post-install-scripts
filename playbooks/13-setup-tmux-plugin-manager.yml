@@ -1,8 +1,7 @@
-  - name: Setup Tmux Plugin Manager
+-   name: Setup Tmux Plugin Manager
     hosts: localhost
     tasks:
 
-      - name: Clone TPM repository
+    -   name: Clone TPM repository
         become: false
-        ansible.builtin.command: git clone https://github.com/tmux-plugins/tpm 
-          ~/.tmux/plugins/tpm
+        ansible.builtin.command: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

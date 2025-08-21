@@ -1,46 +1,45 @@
-  - name: Install Docker on Arch Linux
+-   name: Install Docker on Arch Linux
     hosts: localhost
     become: true
     tasks:
 
-      - name: Update the system package database
+    -   name: Update the system package database
         pacman:
           update_cache: true
 
-      - name: Install Docker package
+    -   name: Install Docker package
         pacman:
           name:
-            - docker
-            - docker-compose
+          -   docker
+          -   docker-compose
           state: present
 
-      - name: Enable Docker service
+    -   name: Enable Docker service
         ansible.builtin.systemd:
           name: docker.service
           enabled: true
           state: started
 
-      - name: Add user to Docker group
+    -   name: Add user to Docker group
         ansible.builtin.user:
           name: '{{ sys_username }}'
           groups: docker
           append: true
 
-      - name: Verify Docker installation
+    -   name: Verify Docker installation
         ansible.builtin.command: docker info
         register: docker_info
         changed_when: false
 
-      - name: Print Docker info
+    -   name: Print Docker info
         ansible.builtin.debug:
           var: docker_info.stdout
 
-      - name: Verify running Docker container
-        ansible.builtin.command: docker run -it --rm archlinux bash -c "echo 
-          hello world"
+    -   name: Verify running Docker container
+        ansible.builtin.command: docker run -it --rm archlinux bash -c "echo hello world"
         register: docker_run
         changed_when: false
 
-      - name: Print Docker run output
+    -   name: Print Docker run output
         ansible.builtin.debug:
           var: docker_run.stdout

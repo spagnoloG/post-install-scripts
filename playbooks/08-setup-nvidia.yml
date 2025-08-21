@@ -1,102 +1,99 @@
-  - hosts: localhost
+-   hosts: localhost
     become: true
     vars:
       base_packages:
-        - base-devel
-        - linux-headers
-        - git
+      -   base-devel
+      -   linux-headers
+      -   git
       nvidia_packages:
-        - nvidia
-        - nvidia-utils
-        - lib32-nvidia-utils
-        - nvidia-settings
+      -   nvidia
+      -   nvidia-utils
+      -   lib32-nvidia-utils
+      -   nvidia-settings
       gpu_driver: nvidia
     tasks:
 
-      - name: Update the system
+    -   name: Update the system
         pacman:
           update_cache: true
           upgrade: true
 
-      - name: Install base packages
+    -   name: Install base packages
         pacman:
           name: '{{ base_packages }}'
           state: present
 
-      - name: Enable multilib repository
+    -   name: Enable multilib repository
         ansible.builtin.lineinfile:
           path: /etc/pacman.conf
           regexp: ^#\[multilib\]
           line: '[multilib]'
           state: present
 
-      - name: Enable multilib repository include line
+    -   name: Enable multilib repository include line
         ansible.builtin.lineinfile:
           path: /etc/pacman.conf
           regexp: ^#Include = /etc/pacman.d/mirrorlist
           line: Include = /etc/pacman.d/mirrorlist
           state: present
 
-      - name: Update package database
+    -   name: Update package database
         ansible.builtin.command: paru -Syy
         become: true
         become_user: '{{ ansible_user_id }}'
 
-      - name: Install NVIDIA driver packages
+    -   name: Install NVIDIA driver packages
         ansible.builtin.command: paru -S --noconfirm {{ item }}
         loop: '{{ nvidia_packages }}'
         become: true
         become_user: '{{ ansible_user_id }}'
 
-      - name: Enable DRM kernel mode setting for GRUB
+    -   name: Enable DRM kernel mode setting for GRUB
         ansible.builtin.lineinfile:
           path: /etc/default/grub
           regexp: ^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"
           line: GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1"
           backrefs: true
 
-      - name: Update GRUB configuration
+    -   name: Update GRUB configuration
         ansible.builtin.command: grub-mkconfig -o /boot/grub/grub.cfg
 
-      - name: Add NVIDIA modules to mkinitcpio
+    -   name: Add NVIDIA modules to mkinitcpio
         ansible.builtin.replace:
           path: /etc/mkinitcpio.conf
           regexp: ^MODULES=.*
           replace: MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
 
-      - name: Remove kms from mkinitcpio hooks
+    -   name: Remove kms from mkinitcpio hooks
         ansible.builtin.replace:
           path: /etc/mkinitcpio.conf
           regexp: ^HOOKS=.*
-          replace: HOOKS=(base udev autodetect modconf block filesystems 
-            keyboard fsck)
+          replace: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 
-      - name: Regenerate initramfs
+    -   name: Regenerate initramfs
         ansible.builtin.command: mkinitcpio -P
 
-      - name: Download nvidia.hook
+    -   name: Download nvidia.hook
         ansible.builtin.get_url:
-          url: 
-            https://raw.githubusercontent.com/korvahannu/arch-nvidia-drivers-installation-guide/main/nvidia.hook
+          url: https://raw.githubusercontent.com/korvahannu/arch-nvidia-drivers-installation-guide/main/nvidia.hook
           dest: /tmp/nvidia.hook
 
-      - name: Create /etc/pacman.d/hooks directory
+    -   name: Create /etc/pacman.d/hooks directory
         ansible.builtin.file:
           path: /etc/pacman.d/hooks/
           state: directory
           mode: '0755'
 
-      - name: Customize nvidia.hook
+    -   name: Customize nvidia.hook
         ansible.builtin.replace:
           path: /tmp/nvidia.hook
           regexp: ^Target=nvidia$
           replace: Target={{ gpu_driver }}
 
-      - name: Move nvidia.hook to pacman hooks directory
-        ansible.builtin.command: mv /tmp/nvidia.hook 
-          /etc/pacman.d/hooks/nvidia.hook
+    -   name: Move nvidia.hook to pacman hooks directory
+        ansible.builtin.command: mv /tmp/nvidia.hook /etc/pacman.d/hooks/nvidia.hook
 
-      - name: Copy xorg configuration file
+    -   name: Copy xorg configuration file
         ansible.builtin.copy:
           src: files/xorg/xorg.conf
           dest: /etc/X11/xorg.conf

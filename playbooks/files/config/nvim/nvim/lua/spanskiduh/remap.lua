@@ -61,3 +61,13 @@ vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
 
 -- Show git status
 vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
+
+-- Claude Code AI assistant
+vim.keymap.set("n", "<leader>cc", "<cmd>ClaudeCode<CR>",
+               {desc = "Toggle Claude Code"})
+vim.keymap.set("n", "<leader>cC", "<cmd>ClaudeCodeContinue<CR>",
+               {desc = "Claude Code Continue"})
+vim.keymap.set("n", "<leader>cV", "<cmd>ClaudeCodeVerbose<CR>",
+               {desc = "Claude Code Verbose"})
+vim.keymap.set("n", "<leader>cr", "<cmd>ClaudeCodeResume<CR>",
+               {desc = "Claude Code Resume"})

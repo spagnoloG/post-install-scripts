@@ -20,13 +20,13 @@ use_wayland: true
 #   comment "ansible_rule_<DESCRIPTION>"
 
 nft_rules:
-  - description: Block_DNS_TCP
+-   description: Block_DNS_TCP
     table: inet filter
     chain: output
     protocol: tcp
     dport: 53
     action: reject with tcp reset
-  - description: Block_DNS_UDP
+-   description: Block_DNS_UDP
     table: inet filter
     chain: output
     protocol: udp
@@ -37,185 +37,185 @@ nft_rules:
 
 base_packages:
   # Essential utilities
-  - base-devel
-  - bash-completion
-  - dialog
-  - keychain
-  - lshw
-  - inxi
-  - htop
-  - tree
-  - xsel
-  - fuse2
-  - zip
-  - unzip
-  - imagemagick
-  - micromamba-bin
-  - tk  # for python
-  - intel-ucode
+-   base-devel
+-   bash-completion
+-   dialog
+-   keychain
+-   lshw
+-   inxi
+-   htop
+-   tree
+-   xsel
+-   fuse2
+-   zip
+-   unzip
+-   imagemagick
+-   micromamba-bin
+-   tk  # for python
+-   intel-ucode
 
   # Networking tools
-  - openssh
-  - sshpass
-  - iw
-  - wpa_supplicant
-  - openbsd-netcat
-  - axel
-  - tcpdump
-  - mtr
-  - net-tools
-  - inetutils
-  - rsync
-  - conntrack-tools
-  - ethtool
+-   openssh
+-   sshpass
+-   iw
+-   wpa_supplicant
+-   openbsd-netcat
+-   axel
+-   tcpdump
+-   mtr
+-   net-tools
+-   inetutils
+-   rsync
+-   conntrack-tools
+-   ethtool
 
   # Package management & mirrors
-  - reflector
-  - go
-  - ripgrep
-  - ripgrep-all
-  - yamlfmt
-  - lua-format
-  - direnv
+-   reflector
+-   go
+-   ripgrep
+-   ripgrep-all
+-   yamlfmt
+-   lua-format
+-   direnv
 
   # Miscellaneous utilities
-  - ntfs-3g
-  - brightnessctl
-  - powertop
-  - arandr
-  - w3m
-  - wget
-  - oh-my-zsh-git
+-   ntfs-3g
+-   brightnessctl
+-   powertop
+-   arandr
+-   w3m
+-   wget
+-   oh-my-zsh-git
 
 desktop_packages:
   # Browsers & communication
-  - brave-bin
-  - discord
-  - slack-desktop
-  - evolution
-  - remmina
+-   brave-bin
+-   discord
+-   slack-desktop
+-   evolution
+-   remmina
 
   # Office & productivity
-  - libreoffice
-  - gparted
-  - evince
-  - zathura
-  - zathura-pdf-mupdf
-  - texlive
+-   libreoffice
+-   gparted
+-   evince
+-   zathura
+-   zathura-pdf-mupdf
+-   texlive
 
   # Media & design
-  - vlc
-  - gimp
-  - shotcut
-  - inkscape
-  - fontforge
-  - obs-studio
-  - file-roller
-  - shotwell
-  - feh
+-   vlc
+-   gimp
+-   shotcut
+-   inkscape
+-   fontforge
+-   obs-studio
+-   file-roller
+-   shotwell
+-   feh
 
   # File management
-  - ranger
-  - superfile
-  - thunar
-  - thunar-volman
-  - thunar-archive-plugin
-  - thunar-media-tags-plugin
-  - thunar-nextcloud-plugin
-  - tumbler # thumbnailer
+-   ranger
+-   superfile
+-   thunar
+-   thunar-volman
+-   thunar-archive-plugin
+-   thunar-media-tags-plugin
+-   thunar-nextcloud-plugin
+-   tumbler # thumbnailer
 
   # Terminal & UI customization
-  - alacritty
-  - lxappearance
-  - qt5ct
-  - neofetch
-  - mousepad
+-   alacritty
+-   lxappearance
+-   qt5ct
+-   neofetch
+-   mousepad
 
   # Music
-  - spotify
-  - cava
+-   spotify
+-   cava
 
   # Typing tutor
-  - klavaro
+-   klavaro
 
   # Clipboard tool
-  - copyq
+-   copyq
 
   # Programming
-  - neovim
-  - cursor-bin
-  - uv
-  - python-ruamel-yaml
+-   neovim
+-   cursor-bin
+-   uv
+-   python-ruamel-yaml
 
 hacking_packages:
-  - ghidra
-  - wireshark-qt
-  - dig
-  - hyperscan
-  - imhex-bin
-  - radare2
-  - burpsuite
+-   ghidra
+-   wireshark-qt
+-   dig
+-   hyperscan
+-   imhex-bin
+-   radare2
+-   burpsuite
 
 sound_packages:
-  - sof-firmware
-  - alsa-utils
-  - alsa-plugins
-  - pavucontrol
-  - pipewire-alsa
+-   sof-firmware
+-   alsa-utils
+-   alsa-plugins
+-   pavucontrol
+-   pipewire-alsa
 
 sway_packages:
-  - sway
-  - swaybg
-  - swayidle
-  - swaylock-effects
-  - waybar
-  - wofi
-  - mako
-  - bemenu
-  - wdisplays-persistent
-  - xdg-desktop-portal-wlr
-  - xdg-desktop-portal
-  - kanshi
-  - nwg-bar
+-   sway
+-   swaybg
+-   swayidle
+-   swaylock-effects
+-   waybar
+-   wofi
+-   mako
+-   bemenu
+-   wdisplays-persistent
+-   xdg-desktop-portal-wlr
+-   xdg-desktop-portal
+-   kanshi
+-   nwg-bar
 
   # Clipboard & screenshot tools
-  - wl-clipboard
-  - grim
-  - slurp
+-   wl-clipboard
+-   grim
+-   slurp
 
   # XWayland compatibility
-  - xorg-xwayland
-  - xorg-xlsclients
+-   xorg-xwayland
+-   xorg-xlsclients
 
   # Wayland-specific libraries
-  - qt5-wayland
-  - glfw-wayland
+-   qt5-wayland
+-   glfw-wayland
 
 xorg_packages:
-  - xorg
-  - xorg-apps
-  - xorg-xinit
-  - xdotool
-  - xclip
-  - xorg-drivers
+-   xorg
+-   xorg-apps
+-   xorg-xinit
+-   xdotool
+-   xclip
+-   xorg-drivers
 
 i3_packages:
-  - i3-wm
-  - i3status
-  - i3lock
-  - lxappearance
-  - polybar
-  - rofi
-  - ranger
-  - thunar
-  - alacritty
-  - dunst
-  - feh
-  - xss-lock
-  - picom
-  - light
-  - pango
-  - flameshot
-  - gsimplecal
-  - thunar-archive-plugin
-  - thunar-media-tags-plugin
+-   i3-wm
+-   i3status
+-   i3lock
+-   lxappearance
+-   polybar
+-   rofi
+-   ranger
+-   thunar
+-   alacritty
+-   dunst
+-   feh
+-   xss-lock
+-   picom
+-   light
+-   pango
+-   flameshot
+-   gsimplecal
+-   thunar-archive-plugin
+-   thunar-media-tags-plugin

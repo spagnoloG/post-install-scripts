@@ -85,4 +85,13 @@ return require('packer').startup(function(use)
 
     use {'spagnoloG/pynvim-runner'}
 
+    -- Claude Code AI assistant
+    use {
+        'greggh/claude-code.nvim',
+        requires = {
+            'nvim-lua/plenary.nvim' -- Required for git operations
+        },
+        config = function() require('spanskiduh.claude-code') end
+    }
+
 end)

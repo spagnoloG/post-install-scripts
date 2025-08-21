@@ -1,28 +1,28 @@
-  - hosts: localhost
+-   hosts: localhost
     become: true
     tasks:
 
-      - name: Install power management packages
+    -   name: Install power management packages
         pacman:
           name:
-            - tlp
-            - tlp-rdw
-            - acpi
-            - acpi_call
+          -   tlp
+          -   tlp-rdw
+          -   acpi
+          -   acpi_call
           state: present
 
-      - name: Enable TLP service
+    -   name: Enable TLP service
         ansible.builtin.systemd:
           name: tlp
           enabled: true
           state: started
 
-      - name: Mask systemd-rfkill.service
+    -   name: Mask systemd-rfkill.service
         ansible.builtin.systemd:
           name: systemd-rfkill.service
           masked: true
 
-      - name: Mask systemd-rfkill.socket
+    -   name: Mask systemd-rfkill.socket
         ansible.builtin.systemd:
           name: systemd-rfkill.socket
           masked: true

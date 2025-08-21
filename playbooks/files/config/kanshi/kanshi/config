@@ -53,14 +53,18 @@ profile {
 }
 
 profile {
-    output DP-1 position 1920,0 mode 3840x2160@29.9810 scale 1.00 transform normal
-    output eDP-1 position 0,0 mode 1920x1080@60.0490 scale 1.00 transform normal
+    output DP-1 position 0,1080 mode 1920x1080@60.0000 scale 1.00 transform normal
+    output eDP-1 position 1920,1080 mode 1920x1080@60.0490 scale 1.00 transform normal
 }
 profile {
     output DP-3 position 1920,0 mode 2560x1440@59.9510 scale 1.00 transform normal
     output eDP-1 position 0,0 mode 1920x1080@60.0490 scale 1.00 transform normal
 }
 profile {
-    output HDMI-A-1 position 1920,0 mode 3440x1440@49.9870 scale 1.00 transform normal
-    output eDP-1 position 0,0 mode 1920x1080@60.0490 scale 1.00 transform normal
+    output HDMI-A-1 position 0,0 mode 3440x1440@49.9870 scale 1.00 transform normal
+    output eDP-1 position 3440,0 mode 1920x1080@60.0490 scale 1.00 transform normal
+}
+profile {
+    output DP-2 position 1920,0 mode 1920x1080@60.0000 scale 1.00 transform normal
+    output eDP-1 position 3840,0 mode 1920x1080@60.0490 scale 1.00 transform normal
 }

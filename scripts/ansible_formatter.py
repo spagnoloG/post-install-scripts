@@ -5,6 +5,13 @@ from ruamel.yaml import YAML, YAMLError
 def format_yaml(input_file):
     yaml = YAML()
     yaml.indent(mapping=2, sequence=4, offset=2)
+    yaml.preserve_quotes = True
+    yaml.width = 4096
+    yaml.map_indent = 2
+    yaml.sequence_indent = 4
+    yaml.sequence_dash_offset = 0
+    yaml.allow_unicode = True
+    yaml.default_flow_style = False
 
     if not os.path.isfile(input_file):
         print(f"Error: File '{input_file}' not found.", file=sys.stderr)
