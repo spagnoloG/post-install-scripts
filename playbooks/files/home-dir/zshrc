@@ -106,6 +106,213 @@ _move_to_trash () {
     done
 }
 
+sync_code() {
+    local server_name="$1"
+    local src_dir="$SRC_DIR"
+    local dst_dir="$DST_DIR"
+    local exit_code=0
+    
+    if [[ -z "$server_name" ]]; then
+        echo "USAGE: sync_code <server_name> - Synchronizes files from source to destination using rsync/scp" >&2
+        echo "" >&2
+        echo "REQUIRED:" >&2
+        echo "  server_name  SSH server name to sync to" >&2
+        echo "" >&2
+        echo "ENVIRONMENT VARIABLES:" >&2
+        echo "  SRC_DIR      Source directory (required)" >&2
+        echo "  DST_DIR      Destination directory (required)" >&2
+        echo "  IGNORE_DIRS  Comma-separated list of directories to exclude (optional)" >&2
+        echo "               Example: IGNORE_DIRS=\".venv,.git,results\"" >&2
+        return 1
+    fi
+    
+    if [[ -n "$DST_DIR" ]]; then
+        dst_dir="${server_name}:${DST_DIR}"
+        echo "INFO: Using server '$server_name' with destination '$dst_dir'"
+    fi
+    
+    if [[ -z "$src_dir" || -z "$DST_DIR" ]]; then
+        echo "USAGE: sync_code <server_name> - Synchronizes files from source to destination using rsync/scp" >&2
+        echo "" >&2
+        echo "REQUIRED:" >&2
+        echo "  server_name  SSH server name to sync to" >&2
+        echo "" >&2
+        echo "ENVIRONMENT VARIABLES:" >&2
+        if [[ -z "$src_dir" ]]; then
+            echo "ERROR: SRC_DIR environment variable is not set" >&2
+            echo "INFO: Set it with: export SRC_DIR=/path/to/source" >&2
+        fi
+        if [[ -z "$DST_DIR" ]]; then
+            echo "ERROR: DST_DIR environment variable is not set" >&2
+            echo "INFO: Set it with: export DST_DIR=/path/to/destination" >&2
+        fi
+        echo "  IGNORE_DIRS  Comma-separated list of directories to exclude (optional)" >&2
+        echo "               Example: IGNORE_DIRS=\".venv,.git,results\"" >&2
+        return 1
+    fi
+    
+    if [[ "$src_dir" == "." ]]; then
+        src_dir="$(pwd)"
+        echo "INFO: Converting SRC_DIR '.' to absolute path: '$src_dir'"
+    elif [[ "$src_dir" == "./"* ]]; then
+        src_dir="$(pwd)/${src_dir#./}"
+        echo "INFO: Converting relative SRC_DIR to absolute path: '$src_dir'"
+    elif [[ "$src_dir" != "/"* && "$src_dir" != *":"* ]]; then
+        # Handle other relative paths (not starting with / and not remote)
+        src_dir="$(pwd)/$src_dir"
+        echo "INFO: Converting relative SRC_DIR to absolute path: '$src_dir'"
+    fi
+    
+    if [[ "$dst_dir" == "." ]]; then
+        dst_dir="$(pwd)"
+        echo "INFO: Converting DST_DIR '.' to absolute path: '$dst_dir'"
+    elif [[ "$dst_dir" == "./"* ]]; then
+        dst_dir="$(pwd)/${dst_dir#./}"
+        echo "INFO: Converting relative DST_DIR to absolute path: '$dst_dir'"
+    elif [[ "$dst_dir" != "/"* && "$dst_dir" != *":"* ]]; then
+        # Handle other relative paths (not starting with / and not remote)
+        dst_dir="$(pwd)/$dst_dir"
+        echo "INFO: Converting relative DST_DIR to absolute path: '$dst_dir'"
+    fi
+    
+    src_dir="${src_dir%/}"
+    dst_dir="${dst_dir%/}"
+    
+    if [[ ! -d "$src_dir" ]]; then
+        echo "ERROR: Source directory '$src_dir' does not exist" >&2
+        return 1
+    fi
+    
+    if [[ ! -r "$src_dir" ]]; then
+        echo "ERROR: Source directory '$src_dir' is not readable" >&2
+        return 1
+    fi
+     
+    if [[ "$dst_dir" != *":"* ]]; then
+        if [[ "$(realpath "$src_dir" 2>/dev/null)" == "$(realpath "$dst_dir" 2>/dev/null)" ]]; then
+            echo "ERROR: Source and destination directories are the same" >&2
+            return 1
+        fi
+    fi
+    
+    local rsync_exclude_opts=""
+    local tar_exclude_opts=""
+    if [[ -n "$IGNORE_DIRS" ]]; then
+        echo "INFO: Processing IGNORE_DIRS: '$IGNORE_DIRS'"
+        IFS=',' read -ra ignore_array <<< "$IGNORE_DIRS"
+        for dir in "${ignore_array[@]}"; do
+            dir=$(echo "$dir" | xargs)
+            if [[ -n "$dir" ]]; then
+                rsync_exclude_opts="$rsync_exclude_opts --exclude=$dir"
+                tar_exclude_opts="$tar_exclude_opts --exclude=$dir"
+                echo "INFO: Will exclude directory: '$dir'"
+            fi
+        done
+    fi
+    
+    echo "INFO: Starting sync from '$src_dir' to '$dst_dir'"
+    
+    if command -v rsync >/dev/null 2>&1; then
+        echo "INFO: Using rsync for synchronization"
+        
+        if [[ "$dst_dir" == *":"* ]]; then
+            echo "INFO: Testing remote connection..."
+            local remote_host="${dst_dir%%:*}"
+            if ! ssh -o ConnectTimeout=10 -o BatchMode=yes "$remote_host" 'exit' 2>/dev/null; then
+                echo "ERROR: Cannot connect to remote host '$remote_host'" >&2
+                echo "INFO: Make sure SSH key authentication is set up" >&2
+                return 1
+            fi
+            
+            if ! ssh "$remote_host" 'command -v rsync' >/dev/null 2>&1; then
+                echo "WARNING: rsync not available on remote host, falling back to scp"
+                rsync_available=false
+            else
+                rsync_available=true
+            fi
+        else
+            rsync_available=true
+        fi
+        
+        if [[ "$rsync_available" == "true" ]]; then
+            if rsync -avz --progress --human-readable --stats $rsync_exclude_opts "$src_dir/" "$dst_dir/" 2>&1; then
+                exit_code=$?
+                if [[ $exit_code -eq 0 ]]; then
+                    echo "SUCCESS: rsync completed successfully"
+                    return 0
+                else
+                    echo "ERROR: rsync failed with exit code $exit_code" >&2
+                    return $exit_code
+                fi
+            else
+                exit_code=$?
+                echo "ERROR: rsync failed with exit code $exit_code" >&2
+                return $exit_code
+            fi
+        fi
+    fi
+    
+    echo "WARNING: rsync not available or failed, falling back to tar+ssh"
+    echo "WARNING: Destination files will be overwritten!"
+    echo "WARNING: tar+ssh does not provide incremental sync like rsync"
+    
+    if ! command -v tar >/dev/null 2>&1; then
+        echo "ERROR: tar is not available" >&2
+        echo "INFO: Please install tar" >&2
+        return 1
+    fi
+    
+    if ! command -v ssh >/dev/null 2>&1; then
+        echo "ERROR: ssh is not available" >&2
+        echo "INFO: Please install openssh-client" >&2
+        return 1
+    fi
+    
+    if [[ "$dst_dir" == *":"* ]]; then
+        local remote_host="${dst_dir%%:*}"
+        local remote_path="${dst_dir#*:}"
+        echo "INFO: Testing SSH connection to '$remote_host'..."
+        if ! ssh -o ConnectTimeout=10 -o BatchMode=yes "$remote_host" 'exit' 2>/dev/null; then
+            echo "ERROR: Cannot connect to remote host '$remote_host'" >&2
+            echo "INFO: Make sure SSH key authentication is set up" >&2
+            return 1
+        fi
+        
+        echo "INFO: Ensuring remote directory '$remote_path' exists"
+        if ! ssh "$remote_host" "mkdir -p '$remote_path'" 2>/dev/null; then
+            echo "ERROR: Could not create remote directory '$remote_path'" >&2
+            return 1
+        fi
+        
+        echo "INFO: Using tar+ssh for synchronization with exclusions"
+        echo "INFO: This may take longer than rsync for large directories"
+        
+        if (cd "$src_dir" && tar -cf - $tar_exclude_opts .) | ssh "$remote_host" "cd '$remote_path' && tar -xf -"; then
+            echo "SUCCESS: tar+ssh completed successfully"
+            return 0
+        else
+            exit_code=$?
+            echo "ERROR: tar+ssh failed with exit code $exit_code" >&2
+            return $exit_code
+        fi
+    else
+        echo "INFO: Using tar for local synchronization with exclusions"
+        if ! mkdir -p "$dst_dir" 2>/dev/null; then
+            echo "ERROR: Could not create destination directory '$dst_dir'" >&2
+            return 1
+        fi
+        
+        if (cd "$src_dir" && tar -cf - $tar_exclude_opts .) | (cd "$dst_dir" && tar -xf -); then
+            echo "SUCCESS: tar completed successfully"
+            return 0
+        else
+            exit_code=$?
+            echo "ERROR: tar failed with exit code $exit_code" >&2
+            return $exit_code
+        fi
+    fi
+}
+
 _empty_trash () {
     if [[ -d $TRASH_DIR ]]; then 
         \rm -rf "${TRASH_DIR:?}"/*
