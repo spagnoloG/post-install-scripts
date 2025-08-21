@@ -8,7 +8,7 @@ claude_code.setup({
     -- Terminal window settings
     window = {
         split_ratio = 0.4, -- Percentage of screen for the terminal window
-        position = "botright", -- Position of the window
+        position = "vertical", -- Position of the window
         enter_insert = true, -- Enter insert mode when opening Claude Code
         hide_numbers = true, -- Hide line numbers in the terminal window
         hide_signcolumn = true, -- Hide the sign column in the terminal window

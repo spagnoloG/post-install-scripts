@@ -113,7 +113,7 @@ sync_code() {
     local exit_code=0
     
     if [[ -z "$server_name" ]]; then
-        echo "USAGE: sync_code <server_name> - Synchronizes files from source to destination using rsync/scp" >&2
+        echo "USAGE: sync_code <server_name> - Synchronizes files from source to destination using rsync/tar+ssh" >&2
         echo "" >&2
         echo "REQUIRED:" >&2
         echo "  server_name  SSH server name to sync to" >&2
@@ -132,7 +132,7 @@ sync_code() {
     fi
     
     if [[ -z "$src_dir" || -z "$DST_DIR" ]]; then
-        echo "USAGE: sync_code <server_name> - Synchronizes files from source to destination using rsync/scp" >&2
+        echo "USAGE: sync_code <server_name> - Synchronizes files from source to destination using rsync/tar+ssh" >&2
         echo "" >&2
         echo "REQUIRED:" >&2
         echo "  server_name  SSH server name to sync to" >&2
@@ -196,21 +196,76 @@ sync_code() {
     fi
     
     local rsync_exclude_opts=""
-    local tar_exclude_opts=""
+    local tar_exclude_args=()
     if [[ -n "$IGNORE_DIRS" ]]; then
         echo "INFO: Processing IGNORE_DIRS: '$IGNORE_DIRS'"
-        IFS=',' read -ra ignore_array <<< "$IGNORE_DIRS"
+        IFS=',' read -A ignore_array <<< "$IGNORE_DIRS"
         for dir in "${ignore_array[@]}"; do
             dir=$(echo "$dir" | xargs)
             if [[ -n "$dir" ]]; then
+                # Remove leading ./ if present for consistency
+                dir="${dir#./}"
                 rsync_exclude_opts="$rsync_exclude_opts --exclude=$dir"
-                tar_exclude_opts="$tar_exclude_opts --exclude=$dir"
-                echo "INFO: Will exclude directory: '$dir'"
+                # For tar, use array to properly handle arguments
+                tar_exclude_args+=(--exclude="./$dir" --exclude="$dir")
+                echo "INFO: Will exclude directory: '$dir' (and all subdirectories)"
             fi
         done
     fi
     
     echo "INFO: Starting sync from '$src_dir' to '$dst_dir'"
+    
+    # Show which files/directories will be synced
+    echo "INFO: Analyzing files to sync..."
+    local file_count=0
+    local dir_count=0
+    local total_size=0
+    
+    if [[ -n "$IGNORE_DIRS" ]]; then
+        # Build find exclude options for preview
+        local find_exclude_opts=""
+        IFS=',' read -A ignore_array <<< "$IGNORE_DIRS"
+        for dir in "${ignore_array[@]}"; do
+            dir=$(echo "$dir" | xargs)
+            if [[ -n "$dir" ]]; then
+                find_exclude_opts="$find_exclude_opts -not -path '*/$dir' -not -path '*/$dir/*'"
+            fi
+        done
+        
+        # Count files and directories to sync (excluding ignored ones)
+        eval "file_count=\$(find '$src_dir' -type f $find_exclude_opts 2>/dev/null | wc -l)"
+        eval "dir_count=\$(find '$src_dir' -type d $find_exclude_opts 2>/dev/null | wc -l)"
+        
+        # Show sample of files that will be synced
+        echo "INFO: Sample files to sync (first 10):"
+        eval "find '$src_dir' -type f $find_exclude_opts 2>/dev/null" | head -10 | while read -r file; do
+            rel_path="${file#$src_dir/}"
+            size=$(stat -c%s "$file" 2>/dev/null || echo "0")
+            echo "  - $rel_path ($(numfmt --to=iec-i --suffix=B $size))"
+        done
+        
+        if [[ $file_count -gt 10 ]]; then
+            echo "  ... and $((file_count - 10)) more files"
+        fi
+    else
+        # No exclusions - count all files
+        file_count=$(find "$src_dir" -type f 2>/dev/null | wc -l)
+        dir_count=$(find "$src_dir" -type d 2>/dev/null | wc -l)
+        
+        echo "INFO: Sample files to sync (first 10):"
+        find "$src_dir" -type f 2>/dev/null | head -10 | while read -r file; do
+            rel_path="${file#$src_dir/}"
+            size=$(stat -c%s "$file" 2>/dev/null || echo "0")
+            echo "  - $rel_path ($(numfmt --to=iec-i --suffix=B $size))"
+        done
+        
+        if [[ $file_count -gt 10 ]]; then
+            echo "  ... and $((file_count - 10)) more files"
+        fi
+    fi
+    
+    echo "INFO: Total files to sync: $file_count"
+    echo "INFO: Total directories to sync: $dir_count"
     
     if command -v rsync >/dev/null 2>&1; then
         echo "INFO: Using rsync for synchronization"
@@ -225,7 +280,7 @@ sync_code() {
             fi
             
             if ! ssh "$remote_host" 'command -v rsync' >/dev/null 2>&1; then
-                echo "WARNING: rsync not available on remote host, falling back to scp"
+                echo "WARNING: rsync not available on remote host, falling back to tar+ssh"
                 rsync_available=false
             else
                 rsync_available=true
@@ -287,7 +342,7 @@ sync_code() {
         echo "INFO: Using tar+ssh for synchronization with exclusions"
         echo "INFO: This may take longer than rsync for large directories"
         
-        if (cd "$src_dir" && tar -cf - $tar_exclude_opts .) | ssh "$remote_host" "cd '$remote_path' && tar -xf -"; then
+        if (cd "$src_dir" && tar -cf - "${tar_exclude_args[@]}" .) | ssh "$remote_host" "cd '$remote_path' && tar -xf -"; then
             echo "SUCCESS: tar+ssh completed successfully"
             return 0
         else
@@ -302,7 +357,7 @@ sync_code() {
             return 1
         fi
         
-        if (cd "$src_dir" && tar -cf - $tar_exclude_opts .) | (cd "$dst_dir" && tar -xf -); then
+        if (cd "$src_dir" && tar -cf - "${tar_exclude_args[@]}" .) | (cd "$dst_dir" && tar -xf -); then
             echo "SUCCESS: tar completed successfully"
             return 0
         else
