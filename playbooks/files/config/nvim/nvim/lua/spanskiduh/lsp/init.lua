@@ -133,7 +133,7 @@ mason.setup({
 })
 
 mason_lspconfig.setup({
-    ensure_installed = {'rust_analyzer', 'pylsp', 'marksman', 'ltex'},
+    ensure_installed = {'rust_analyzer', 'pylsp', 'marksman'},
     handlers = {lsp_zero.default_setup}
 })
 

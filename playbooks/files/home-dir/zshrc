@@ -381,7 +381,24 @@ _rm_completion() {
     _alternative 'files:file:_files'
 }
 
+
+autoload -U compinit
+compinit
+
+source $ZSH/oh-my-zsh.sh
+
+# Define wifi function
+wifi() {
+    if [[ -f ~/.wifi ]]; then
+        bash ~/.wifi "$@"
+    else
+        echo "wifi script not found at ~/.wifi"
+    fi
+}
+
+# Ohmyzsh overrides some aliases, so we need to define them after sourcing it.
 # Aliases
+alias ls='lsd'
 alias -- 'md-notes'='cd ~/Documents/md-notes/ && nvim .'
 alias -- 'night'='brightnessctl s 1%'
 alias -- 'opdf'='okular $(find ~/  -type f -iname '\''*pdf'\'' | fzf)'
@@ -395,15 +412,9 @@ alias -- 'sus'='systemctl suspend'
 alias -- 'tree'='eza --tree'
 alias -- 'vi'='nvim'
 alias -- 'vim'='nvim'
-alias -- 'ls'='lsd'
 alias -- 'conda'='micromamba'
 alias -- 'empty_trash'='_empty_trash'
 alias -- 'cd'='z'
-
-autoload -U compinit
-compinit
-
-source $ZSH/oh-my-zsh.sh
 
 compdef _files _move_to_trash
 

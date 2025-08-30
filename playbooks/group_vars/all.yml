@@ -150,6 +150,7 @@ desktop_packages:
 -   cursor-bin
 -   uv
 -   python-ruamel-yaml
+-   jdk-openjdk
 
   # Styling 
 -   dracula-gtk-theme
