@@ -29,12 +29,19 @@ vim.api.nvim_create_user_command("ShowErrorDiagnostics", function()
     })
 end, {})
 
+-- Track which buffers have LSP keybindings registered
+local lsp_keybinds_registered = {}
+
 -- Default on_attach function with WhichKey mappings
 lsp_zero.on_attach(function(client, bufnr)
     if client.name == "eslint" then
         vim.cmd [[ LspStop eslint ]]
         return
     end
+
+    -- Only register keybindings once per buffer
+    if lsp_keybinds_registered[bufnr] then return end
+    lsp_keybinds_registered[bufnr] = true
 
     -- Register LSP key mappings for WhichKey
     wk.add({
@@ -142,8 +149,31 @@ local cmp_mappings = {
 }
 cmp.setup({
     mapping = cmp_mappings,
-    sources = {{name = 'nvim_lsp'}, {name = 'path'}}
+    sources = {
+        {name = 'nvim_lsp'}, {name = 'cmp_r'}, {name = 'path'},
+        {name = 'buffer'}, {name = 'luasnip'}
+    }
 })
+
+-- R-specific completion setup
+local ok_r, cmp_r = pcall(require, 'cmp_r')
+if ok_r then cmp_r.setup({filetypes = {'r', 'rmd', 'quarto'}, doc_width = 58}) end
+
+-- LuaSnip configuration (minimal setup to avoid jsregexp warnings)
+local ok_luasnip, luasnip = pcall(require, 'luasnip')
+if ok_luasnip then
+    -- Simple configuration that doesn't break LuaSnip
+    luasnip.config.setup({
+        -- Keep minimal required events
+        update_events = "TextChanged,TextChangedI",
+        -- Disable features that might use jsregexp
+        enable_autosnippets = false
+    })
+
+    -- Load friendly snippets
+    local ok_friendly, friendly = pcall(require, 'luasnip.loaders.from_vscode')
+    if ok_friendly then friendly.lazy_load() end
+end
 
 -- Diagnostic configuration for Neovim LSP
 vim.diagnostic.config({

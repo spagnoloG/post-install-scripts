@@ -47,10 +47,6 @@ return require('packer').startup(function(use)
         config = function() require('spanskiduh.vimtex') end
     }
 
-    -- Snippets
-    use {"L3MON4D3/LuaSnip"}
-    use "rafamadriz/friendly-snippets"
-
     -- Neotree
     vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
     use {
@@ -74,9 +70,10 @@ return require('packer').startup(function(use)
 
     use {'github/copilot.vim'}
 
-    use {'hrsh7th/cmp-path'}
-
     use {'R-nvim/R.nvim', config = function() require('spanskiduh.rnvim') end}
+
+    -- R completion
+    use {'R-nvim/cmp-r'}
 
     use {
         'folke/which-key.nvim',

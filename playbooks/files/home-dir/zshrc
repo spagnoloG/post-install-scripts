@@ -400,16 +400,18 @@ alias -- 'cd'='z'
 
 autoload -U compinit
 compinit
+
+source $ZSH/oh-my-zsh.sh
+
 compdef _files _move_to_trash
-compdef _rm rm
-compdef _files rm
-compdef _rm_completion rm
+
+zstyle ':fzf-tab:complete:*:*' fzf-preview 'less ${(Q)realpath}'
+zstyle ':fzf-tab:complete:*:options' fzf-preview 
+zstyle ':fzf-tab:complete:*:argument-1' fzf-preview
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 
 # Named Directory Hashes
-
-source $ZSH/oh-my-zsh.sh
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 typeset -gA ZSH_HIGHLIGHT_STYLES
@@ -463,7 +465,6 @@ spf-cd() {
 }
 
 zle -N ranger-cd
-bindkey '^i' ranger-cd
 zle -N spf-cd
 bindkey '^o' spf-cd
 
@@ -475,7 +476,6 @@ if [[ ! -d $ZSH_CACHE_DIR ]]; then
   mkdir $ZSH_CACHE_DIR
 fi
 
-source $ZSH/oh-my-zsh.sh
 
 # >>> mamba initialize >>>
 # !! Contents within this block are managed by 'micromamba shell init' !!

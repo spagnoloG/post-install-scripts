@@ -123,6 +123,7 @@ desktop_packages:
 -   thunar-media-tags-plugin
 -   thunar-nextcloud-plugin
 -   tumbler # thumbnailer
+-   fzf
 
   # Terminal & UI customization
 -   alacritty

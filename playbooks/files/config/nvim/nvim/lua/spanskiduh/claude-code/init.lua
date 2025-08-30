@@ -50,14 +50,14 @@ claude_code.setup({
         -- Output options
         verbose = "--verbose" -- Enable verbose logging with full turn-by-turn output
     },
-    -- Keymaps
+    -- Keymaps - disabled to avoid duplicates (managed in which-key)
     keymaps = {
         toggle = {
-            normal = "<leader>cc", -- Normal mode keymap for toggling Claude Code
-            terminal = "<C-,>", -- Terminal mode keymap for toggling Claude Code
+            normal = false, -- Disable automatic keymap registration
+            terminal = "<C-,>", -- Keep terminal keymap
             variants = {
-                continue = "<leader>cC", -- Normal mode keymap for Claude Code with continue flag
-                verbose = "<leader>cV" -- Normal mode keymap for Claude Code with verbose flag
+                continue = false, -- Disable automatic keymap registration
+                verbose = false -- Disable automatic keymap registration
             }
         },
         window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
@@ -65,29 +65,4 @@ claude_code.setup({
     }
 })
 
--- Register Claude Code key mappings with WhichKey if available
-if ok_wk then
-    wk.add({
-        {
-            "<leader>cc",
-            "<cmd>ClaudeCode<CR>",
-            desc = "Toggle Claude Code",
-            mode = "n"
-        }, {
-            "<leader>cC",
-            "<cmd>ClaudeCodeContinue<CR>",
-            desc = "Claude Code Continue",
-            mode = "n"
-        }, {
-            "<leader>cV",
-            "<cmd>ClaudeCodeVerbose<CR>",
-            desc = "Claude Code Verbose",
-            mode = "n"
-        }, {
-            "<leader>cr",
-            "<cmd>ClaudeCodeResume<CR>",
-            desc = "Claude Code Resume",
-            mode = "n"
-        }
-    })
-end
+-- Note: Claude Code keybindings are registered in which-key/init.lua to avoid duplicates

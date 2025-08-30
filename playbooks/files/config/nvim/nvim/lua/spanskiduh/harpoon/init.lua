@@ -9,32 +9,32 @@ wk.add({
     {
         "<leader>a",
         function() mark.add_file() end,
-        desc = "Add File to Harpoon",
+        desc = "➕ Add File to Harpoon",
         mode = "n"
     }, {
         "<leader>e",
         function() ui.toggle_quick_menu() end,
-        desc = "Toggle Harpoon Menu",
+        desc = "📋 Toggle Harpoon Menu",
         mode = "n"
     }, {
         "<leader>1",
         function() ui.nav_file(1) end,
-        desc = "Harpoon File 1",
+        desc = "1️⃣ Harpoon File 1",
         mode = "n"
     }, {
         "<leader>2",
         function() ui.nav_file(2) end,
-        desc = "Harpoon File 2",
+        desc = "2️⃣ Harpoon File 2",
         mode = "n"
     }, {
         "<leader>3",
         function() ui.nav_file(3) end,
-        desc = "Harpoon File 3",
+        desc = "3️⃣ Harpoon File 3",
         mode = "n"
     }, {
         "<leader>4",
         function() ui.nav_file(4) end,
-        desc = "Harpoon File 4",
+        desc = "4️⃣ Harpoon File 4",
         mode = "n"
     }
 })

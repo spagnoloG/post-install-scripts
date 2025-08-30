@@ -9,10 +9,16 @@ wk.add({
     {
         "<leader>ff",
         telescope_builtin.find_files,
-        desc = "Find Files",
+        desc = "🔍 Find Files",
         mode = "n"
-    }, {"<C-p>", telescope_builtin.git_files, desc = "Git Files", mode = "n"},
-    {"<leader>fg", telescope_builtin.live_grep, desc = "Live Grep", mode = "n"}
+    },
+    {"<C-p>", telescope_builtin.git_files, desc = "📁 Git Files", mode = "n"},
+    {
+        "<leader>fg",
+        telescope_builtin.live_grep,
+        desc = "🔍 Live Grep",
+        mode = "n"
+    }
 })
 
 -- Telescope setup

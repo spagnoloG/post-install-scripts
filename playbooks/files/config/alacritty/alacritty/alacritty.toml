@@ -1,3 +1,6 @@
+[general]
+live_config_reload = true
+
 [colors.primary]
 
 background = "#282a36"
@@ -66,16 +69,33 @@ background = "#f1fa8c"
 foreground = "#f1fa8c"
 background = "#282a36"
 
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+
 [font]
 size = 11
 [font.normal]
 family = "Iosevka"
 style = "Regular"
 
+[scrolling]
+history = 10000
+multiplier = 4
+
 [window]
 decorations = "None"
 opacity = 0.9
+dynamic_title = true
+startup_mode = "Maximized"
 
 [window.padding]
 x = 5
 y = 5
+
+[mouse]
+hide_when_typing = true
+
+[[keyboard.bindings]]
+key = "N"
+mods = "Control|Shift"
+action = "SpawnNewInstance"
