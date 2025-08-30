@@ -89,8 +89,8 @@ dynamic_title = true
 startup_mode = "Maximized"
 
 [window.padding]
-x = 5
-y = 5
+x = 0
+y = 0
 
 [mouse]
 hide_when_typing = true

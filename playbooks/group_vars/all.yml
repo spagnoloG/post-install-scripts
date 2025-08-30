@@ -102,6 +102,7 @@ desktop_packages:
 -   zathura
 -   zathura-pdf-mupdf
 -   texlive
+-   biber
 
   # Media & design
 -   vlc
@@ -124,6 +125,8 @@ desktop_packages:
 -   thunar-nextcloud-plugin
 -   tumbler # thumbnailer
 -   fzf
+-   fd
+-   tree-sitter
 
   # Terminal & UI customization
 -   alacritty
@@ -147,6 +150,10 @@ desktop_packages:
 -   cursor-bin
 -   uv
 -   python-ruamel-yaml
+
+  # Styling 
+-   dracula-gtk-theme
+-   dracula-icons-theme
 
 hacking_packages:
 -   ghidra
