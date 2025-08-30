@@ -256,6 +256,11 @@ wifi_fzf_preview() {
 export -f wifi_fzf_preview
 
 # -------------- Main ---------------------------------------------------------
+if [[ "${1:-}" == "_preview" ]]; then
+  wifi_fzf_preview "$2"
+  exit 0
+fi
+
 main() {
   command -v fzf >/dev/null || { echo "fzf not found"; exit 1; }
   command -v nmcli >/dev/null || { echo "nmcli not found"; exit 1; }
@@ -293,7 +298,7 @@ main() {
           --prompt="$prompt" \
           --header="$header" \
           --with-nth=1 --delimiter=$'\t' \
-          --preview 'bash -lc "wifi_fzf_preview \"{}\""' \
+          --preview "$0 _preview {}" \
           --preview-window=right:60%:wrap \
           --expect=enter,ctrl-d,ctrl-f,ctrl-r,ctrl-h,ctrl-s,ctrl-g
     )" || break

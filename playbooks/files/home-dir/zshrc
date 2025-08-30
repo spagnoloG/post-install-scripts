@@ -396,6 +396,15 @@ wifi() {
     fi
 }
 
+# Define mounter function
+mounter() {
+    if [[ -f ~/.mounter ]]; then
+        bash ~/.mounter "$@"
+    else
+        echo "mounter script not found at ~/.mounter"
+    fi
+}
+
 # Ohmyzsh overrides some aliases, so we need to define them after sourcing it.
 # Aliases
 alias ls='lsd'

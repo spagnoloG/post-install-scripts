@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# deps: lsblk, fzf, awk, sed, findmnt, coreutils (timeout)
+# optional: udisksctl (non-root mounting), sudo (fallback)
+
+FZF_HEIGHT="${FZF_HEIGHT:-80%}"
+FZF_REVERSE="${FZF_REVERSE:---reverse}"
+
+have_udisk() { command -v udisksctl >/dev/null 2>&1; }
+is_mounted() { findmnt -no TARGET -- "$1" >/dev/null 2>&1; }
+current_mnt() { findmnt -no TARGET -- "$1" 2>/dev/null || true; }
+
+mk_mount_dir() {
+  local base="$HOME/mnt"; mkdir -p "$base"
+  local hint; hint=$(basename "$1" | sed 's#[/ ]#_#g')
+  mktemp -d "$base/${hint}-XXXX"
+}
+
+scan_drives() {
+  lsblk -P -p -o NAME,TYPE,SIZE,FSTYPE,LABEL,MOUNTPOINT,RM,RO,MODEL,UUID |
+  awk '
+    function qstrip(s){gsub(/^"|"$/,"",s);return s}
+    {
+      split("", kv);
+      for (i=1;i<=NF;i++){ k=substr($i,1,index($i,"=")-1); v=substr($i,index($i,"=")+1); kv[k]=qstrip(v) }
+      name=kv["NAME"]; type=kv["TYPE"]; size=kv["SIZE"]; fs=kv["FSTYPE"]; lbl=kv["LABEL"];
+      mnt=kv["MOUNTPOINT"]; rm=kv["RM"]; ro=kv["RO"]; mdl=kv["MODEL"]; uuid=kv["UUID"];
+
+      star = (mnt != "" ? "•" : " ");
+      rmi  = (rm == "1" ? "⟂" : " ");
+      lock = (ro == "1" ? "🔒" : " ");
+      name_disp = (lbl!="" ? lbl : name);
+      fs_disp   = (fs!="" ? fs : (type=="disk" ? "RAW" : "--"));
+      mnt_disp  = (mnt!="" ? mnt : "--");
+      mdl_disp  = (mdl!="" ? mdl : "--");
+      uuid_disp = (uuid!=""? uuid: "--");
+
+      printf "%s  %s  %s  %-18s  %-6s  %-36s  %8s  %s\t%s\t%s\t%s\t%s\t%s\n",
+             star, rmi, lock, name_disp, fs_disp, uuid_disp, size, mdl_disp,
+             name, mnt_disp, fs_disp, type, name_disp, uuid_disp;
+    }'
+}
+
+sorted_input() {
+  awk -F'\t' '
+    {
+      disp=$1; dev=$2; mnt=$3; fs=$4; typ=$5; name=$6;
+      mounted = (disp ~ /^•/ ? 0 : 1);
+      removable = (disp ~ /^.⟂/ ? 0 : 1);
+      printf "%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\n", mounted, removable, name, disp, dev, mnt, fs, typ;
+    }' |
+  sort -t $'\t' -k1,1n -k2,2n -k3,3 |
+  awk -F'\t' '{printf "%s\t%s\t%s\t%s\t%s\n",$4,$5,$6,$7,$8}'
+}
+
+preview_one() {
+  local line="$1"
+  local dev mnt fs typ
+  dev=$(cut -f2 <<<"$line")
+  mnt=$(cut -f3 <<<"$line")
+  fs=$(cut -f4 <<<"$line")
+  typ=$(cut -f5 <<<"$line")
+
+  echo "Device:   $dev"
+  echo "Type:     ${typ:---}"
+  echo "FS:       ${fs:---}"
+  echo "Mounted:  ${mnt:---}"
+  echo
+
+  # basic info (size, model, label, uuid)
+  echo "Info:"
+  lsblk -no SIZE,MODEL,LABEL,UUID -- "$dev" 2>/dev/null | sed 's/^/  /'
+  echo
+
+  # show partition table if it's a whole disk
+  if [[ "$typ" == "disk" ]]; then
+    echo "Partitions:"
+    lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT -- "$dev" 2>/dev/null | sed 's/^/  /'
+    echo
+  fi
+
+  # show usage + files if mounted and not swap/raw
+  if [[ -n "${mnt:-}" && "$mnt" != "--" && "${fs,,}" != "swap" && "${fs}" != "RAW" ]]; then
+    echo "Usage:"
+    df -h -- "$mnt" 2>/dev/null | sed 's/^/  /'
+    echo
+    echo "Contents:"
+    ls -alh --group-directories-first -- "$mnt" 2>/dev/null | head -n 20 | sed 's/^/  /'
+  fi
+}
+
+mount_device() {
+  local dev="$1" fs="${2:-}" typ="${3:-}" hint="${4:-}"
+
+  if [[ "$typ" == "disk" && ( -z "${fs:-}" || "$fs" == "RAW" ) ]]; then
+    echo "Cannot mount a RAW whole disk. Pick a partition." >&2
+    return 2
+  fi
+  if is_mounted "$dev"; then
+    current_mnt "$dev"; return 0
+  fi
+
+  if have_udisk; then
+    local out; out=$(udisksctl mount -b "$dev" 2>&1) || { echo "$out" >&2; return 1; }
+    [[ "$out" =~ at[[:space:]]([^[:space:]]+) ]] && { echo "${BASH_REMATCH[1]}"; return 0; }
+    echo "$out" >&2; return 1
+  fi
+
+  local dir; dir=$(mk_mount_dir "${hint:-$dev}")
+  if [[ "${fs,,}" =~ ^(vfat|fat|fat32|exfat|ntfs)$ ]]; then
+    sudo mount -o uid="$UID",gid="$(id -g)" -- "$dev" "$dir"
+  else
+    sudo mount -- "$dev" "$dir"
+  fi
+  echo "$dir"
+}
+
+unmount_device() {
+  local dev="$1"
+  local mnt; mnt=$(current_mnt "$dev" || true)
+  if [[ -z "$mnt" ]]; then echo "Not mounted."; return 0; fi
+
+  if have_udisk && [[ "$mnt" == /run/media/"$USER"/* ]]; then
+    udisksctl unmount -b "$dev" >/dev/null 2>&1 || true
+  else
+    sudo umount -- "$dev" >/dev/null 2>&1 || true
+  fi
+  [[ "$mnt" == "$HOME"/mnt/* ]] && rmdir "$mnt" 2>/dev/null || true
+  echo "Unmounted: $dev"
+}
+
+if [[ "${1:-}" == "_preview" ]]; then
+  preview_one "$2"
+  exit 0
+fi
+
+main() {
+  command -v fzf >/dev/null || { echo "fzf not found"; exit 1; }
+  command -v lsblk >/dev/null || { echo "lsblk not found"; exit 1; }
+
+  while :; do
+    mapfile -t rows < <(scan_drives | sorted_input)
+
+    selection="$(
+      printf "%s\n" "${rows[@]}" |
+      SHELL=/bin/bash fzf --ansi --no-sort --height="$FZF_HEIGHT" $FZF_REVERSE \
+          --prompt="drives > " \
+          --header="Enter=mount  Ctrl-U=unmount  Ctrl-R=rescan" \
+          --with-nth=1 --delimiter=$'\t' \
+          --preview "$0 _preview '{}'" \
+          --preview-window=right:60%:wrap \
+          --expect=enter,ctrl-u,ctrl-r
+    )" || break
+
+    key=$(sed -n '1p' <<<"$selection")
+    chosen=$(sed -n '2p' <<<"$selection")
+    [[ -z "$chosen" ]] && continue
+
+    dev=$(cut -f2 <<<"$chosen")
+    mnt=$(cut -f3 <<<"$chosen")
+    fs=$(cut -f4 <<<"$chosen")
+    typ=$(cut -f5 <<<"$chosen")
+    name_hint=$(echo "$chosen" | cut -f1 | sed -E 's/^\s*[• ]\s*[⟂ ]\s*[🔒 ]\s*//; s/[[:space:]]+$//')
+
+    case "$key" in
+      ctrl-r) continue ;;
+      ctrl-u)
+        echo "Unmounting $dev ..."
+        unmount_device "$dev"
+        sleep 0.2
+        ;;
+      enter)
+        if [[ -n "$mnt" && "$mnt" != "--" ]]; then
+          echo "Already mounted at: $mnt"
+        else
+          echo "Mounting $dev ..."
+          mp=$(mount_device "$dev" "$fs" "$typ" "$name_hint") || { sleep 0.2; continue; }
+          echo "Mounted at: $mp"
+        fi
+        sleep 0.2
+        ;;
+    esac
+  done
+}
+
+main "$@"
+
+
