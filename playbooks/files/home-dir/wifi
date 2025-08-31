@@ -13,16 +13,11 @@ set -euo pipefail
 #   Ctrl-S → Toggle "Saved Only" view
 #   Ctrl-G → Pick Wi-Fi device (if multiple)
 #
-# Notes:
-# - This script builds fzf input as TSV: DISPLAY \t SSID \t SECH \t SOURCE
-#   SOURCE is "live" or "saved" (for toggling views).
-# - Preview shows details about the selected SSID/AP and current IP.
-
 # --------------------- Config -------------------------------------------------
 FZF_HEIGHT="${FZF_HEIGHT:-80%}"
 FZF_REVERSE="${FZF_REVERSE:---reverse}"
 
-# --------------------- Utils --------------------------------------------------
+# --------------------- Utils -------------------------------------------------
 trim() { sed 's/^[[:space:]]*//; s/[[:space:]]*$//'; }
 
 bars() {
@@ -48,8 +43,7 @@ ensure_wifi_on() {
 }
 
 pick_device() {
-  # return DEVICE name on stdout
-  local dev
+    local dev
   dev="$(nmcli -t -f DEVICE,TYPE,STATE device status | awk -F: '$2=="wifi"{print $1"  ("$3")"}' \
         | fzf --prompt="wifi device> " --height="$FZF_HEIGHT" $FZF_REVERSE --ansi \
         | awk '{print $1}')"
@@ -57,24 +51,18 @@ pick_device() {
 }
 
 current_wifi_dev() {
-  # prefer connected wifi device; else first wifi device
   nmcli -t -f DEVICE,TYPE,STATE device status | awk -F: '
     $2=="wifi" && $3=="connected"{print $1; found=1; exit}
     $2=="wifi" && !found{cand=$1}
     END{ if(!found && cand!="") print cand }'
 }
 
-# Build a map of saved SSIDs for quick lookups
 saved_ssid_set() {
   nmcli -t -f NAME,TYPE connection show | awk -F: '$2=="wifi"{print $1}'
 }
 
-# Live scan (no rescan) for speed; returns TSV lines:
-# DISPLAY \t SSID \t SECH \t SOURCE
 scan_wifi_live() {
   local dev="${1:-}"
-  # Fields: IN-USE,SSID,BSSID,FREQ,CHAN,RATE,SIGNAL,SECURITY
-  # Use device filter if provided.
   local dev_arg=()
   [[ -n "$dev" ]] && dev_arg=(device wifi list ifname "$dev") || dev_arg=(dev wifi list)
   nmcli -t -f IN-USE,SSID,BSSID,FREQ,CHAN,RATE,SIGNAL,SECURITY "${dev_arg[@]}" --rescan no | \
@@ -94,7 +82,6 @@ scan_wifi_live() {
     }'
 }
 
-# Saved Wi-Fi connections as faux entries (SOURCE=saved)
 scan_saved_only() {
   nmcli -t -f NAME,TYPE,UUID,DEVICE connection show | awk -F: '
     $2=="wifi" {
@@ -106,19 +93,11 @@ scan_saved_only() {
     }'
 }
 
-# Merge + sort: active first, then by SIGNAL (bars), then by SSID
-# We'll let fzf do live sorting off input order; so we order here: active → high signal.
 sorted_input() {
-  # Input is TSV, "DISPLAY \t SSID \t SECH \t SOURCE"
-  # We consider star indicator at beginning of DISPLAY and signal bar char.
   awk -F'\t' '
     function score_bar(line,   disp, bar, val) {
       disp=$1
-      # bar is second token visually after the bullet; map to numeric
-      # We stored display like: "[•] [bar] ..." → pick 2nd column by splitting on "  "
       n=split(disp, a, "  ")
-      # a[1] starts with "•" or " "
-      # a[2] is the bar character block
       bar=a[2]
       if (bar ~ /▇/) val=100;
       else if (bar ~ /▆/) val=75;
@@ -131,7 +110,6 @@ sorted_input() {
       disp=$1; ssid=$2; sech=$3; src=$4;
       active = (disp ~ /^•/ ? 1 : 0);
       sb = score_bar($0);
-      # sort key: active desc, signal desc, ssid asc
       printf "%d\t%03d\t%s\t%s\t%s\t%s\n", -active, -sb, ssid, disp, sech, src;
     }
   ' | sort -t$'\t' -k1,1n -k2,2n -k3,3 \
@@ -174,7 +152,6 @@ disconnect_ssid() {
   if cn=$(find_active_by_ssid "$ssid"); then
     nmcli connection down id "$cn"
   else
-    # Fallback: disconnect wifi device
     local dev; dev=$(current_wifi_dev)
     [[ -n "${dev:-}" ]] && nmcli device disconnect "$dev" || true
   fi
@@ -205,7 +182,6 @@ hidden_connect() {
 
 # -------------- Preview ------------------------------------------------------
 wifi_fzf_preview() {
-  # Receives the full TSV line: DISPLAY \t SSID \t SECH \t SOURCE
   local line="$1"
   local ssid sech src display
   display=$(cut -f1 <<<"$line")
@@ -218,7 +194,6 @@ wifi_fzf_preview() {
   echo "Security: $sech    Source: $src"
   echo
 
-  # Show live AP rows for this SSID
   echo "Nearby APs:"
   nmcli -t -f SSID,BSSID,FREQ,CHAN,RATE,SIGNAL,SECURITY dev wifi list --rescan no \
     | awk -F: -v s="$ssid" '
@@ -230,26 +205,21 @@ wifi_fzf_preview() {
         }'
   echo
 
-  # Saved profile details (if any)
   if nmcli -t -f NAME,UUID,TYPE connection show | awk -F: -v s="$ssid" '$1==s && $3=="wifi"{found=1} END{exit found?0:1}'; then
     echo "Saved profile:"
     nmcli connection show "$ssid" | sed 's/^/  /'
     echo
   fi
 
-  # Current IP info
   if [[ -n "$dev" ]]; then
     echo "Device: $dev"
     nmcli -g IP4.ADDRESS,IP4.GATEWAY,IP4.DNS device show "$dev" \
       | sed 's/^/  /'
   fi
 
-  # Optional QR (if qrencode exists and ssid not hidden)
   if command -v qrencode >/dev/null && [[ "$ssid" != "<hidden>" ]]; then
     echo
     echo "Wi-Fi QR (WPA/WPA2 assumed; edit script if needed):"
-    # NOTE: This does not include password (unknown to us).
-    # You can modify to include pass if you store/retrieve it.
     qrencode -t UTF8 "WIFI:T:WPA;S:${ssid};P:***;H:false;;" | sed 's/^/  /'
   fi
 }
@@ -269,15 +239,12 @@ main() {
   local dev; dev=$(current_wifi_dev)
   local saved_only=0
 
-  # Initial rescan for freshness (non-blocking if busy)
   nmcli dev wifi rescan >/dev/null 2>&1 || true
 
   while :; do
-    # Build input set
     mapfile -t live_lines < <(scan_wifi_live "$dev")
     mapfile -t saved_lines < <(scan_saved_only)
 
-    # Merge & sort, optionally filter only saved
     if (( saved_only )); then
       mapfile -t lines < <(printf "%s\n" "${saved_lines[@]}" | sorted_input)
     else
@@ -288,7 +255,6 @@ main() {
       )
     fi
 
-    # Build prompt/headers
     local header='Enter=connect  Ctrl-D=disconnect  Ctrl-F=forget  Ctrl-R=rescan  Ctrl-H=hidden  Ctrl-S=saved-toggle  Ctrl-G=pick-device'
     local prompt="wifi${dev:+[$dev]}${saved_only:+[*saved]} > "
 

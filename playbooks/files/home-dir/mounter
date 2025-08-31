@@ -68,19 +68,16 @@ preview_one() {
   echo "Mounted:  ${mnt:---}"
   echo
 
-  # basic info (size, model, label, uuid)
   echo "Info:"
   lsblk -no SIZE,MODEL,LABEL,UUID -- "$dev" 2>/dev/null | sed 's/^/  /'
   echo
 
-  # show partition table if it's a whole disk
   if [[ "$typ" == "disk" ]]; then
     echo "Partitions:"
     lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT -- "$dev" 2>/dev/null | sed 's/^/  /'
     echo
   fi
 
-  # show usage + files if mounted and not swap/raw
   if [[ -n "${mnt:-}" && "$mnt" != "--" && "${fs,,}" != "swap" && "${fs}" != "RAW" ]]; then
     echo "Usage:"
     df -h -- "$mnt" 2>/dev/null | sed 's/^/  /'
@@ -130,6 +127,7 @@ unmount_device() {
   echo "Unmounted: $dev"
 }
 
+# -------------- Main ---------------------------------------------------------
 if [[ "${1:-}" == "_preview" ]]; then
   preview_one "$2"
   exit 0

@@ -57,6 +57,7 @@ base_packages:
   # Networking tools
 -   openssh
 -   sshpass
+-   sshfs
 -   iw
 -   wpa_supplicant
 -   openbsd-netcat

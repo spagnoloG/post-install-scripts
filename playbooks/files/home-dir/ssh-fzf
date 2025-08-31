@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# deps: ssh, fzf, awk, sed, grep
+# optional: sshfs, fusermount/umount, $EDITOR or xdg-open
+#
+# Keys:
+#   Enter  → ssh
+#   Ctrl-T → quick test (BatchMode)
+#   Ctrl-S → sftp
+#   Ctrl-O → sshfs mount to ~/mnt/<host>-XXXX
+#   Ctrl-U → unmount sshfs made by this tool
+#   Ctrl-E → edit config file that defines the host
+#   Ctrl-R → rescan
+
+FZF_HEIGHT="${FZF_HEIGHT:-80%}"
+FZF_REVERSE="${FZF_REVERSE:---reverse}"
+SSH_CONFIG="${SSH_CONFIG:-$HOME/.ssh/config}"
+MOUNT_BASE="${MOUNT_BASE:-$HOME/mnt}"
+DEFAULT_REMOTE_PATH="${DEFAULT_REMOTE_PATH:-}"   # set to e.g. /var/www if you want Ctrl-O to mount that
+mkdir -p "$MOUNT_BASE"
+
+die(){ echo "Error: $*" >&2; exit 1; }
+have(){ command -v "$1" >/dev/null 2>&1; }
+
+# --------- config discovery ----------
+gather_config_files() {
+  local stack=() seen=()
+  [[ -f "$SSH_CONFIG" ]] && stack+=("$SSH_CONFIG")
+  [[ -f /etc/ssh/ssh_config ]] && stack+=("/etc/ssh/ssh_config")
+
+  while ((${#stack[@]})); do
+    local f="${stack[-1]}"; stack=("${stack[@]:0:${#stack[@]}-1}")
+    local already=0; for s in "${seen[@]}"; do [[ "$s" == "$f" ]] && already=1 && break; done
+    ((already)) && continue
+    seen+=("$f")
+
+    while IFS= read -r line; do
+      [[ "$line" =~ ^[[:space:]]*# ]] && continue
+      if [[ "$line" =~ ^[Ii]nclude[[:space:]]+(.+)$ ]]; then
+        local inc="${BASH_REMATCH[1]}"
+        local pats=($inc)
+        for pat in "${pats[@]}"; do
+          [[ "$pat" != /* ]] && pat="$(dirname "$f")/$pat"
+          while IFS= read -r -d '' m; do [[ -f "$m" ]] && stack+=("$m"); done \
+            < <(bash -c 'shopt -s nullglob; for x in "$@"; do printf "%s\0" "$x"; done' _ "$pat")
+        done
+      fi
+    done < "$f"
+  done
+
+  printf "%s\n" "${seen[@]}" | awk '!seen[$0]++'
+}
+
+hosts_from_file() {
+  awk '
+    BEGIN{ IGNORECASE=1 }
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*Host[[:space:]]+/ {
+      $1=""; sub(/^[[:space:]]+/, "", $0)
+      n=split($0, arr, /[[:space:]]+/)
+      for(i=1;i<=n;i++){
+        h=arr[i]
+        if (h=="*" || h ~ /[*?]/) next
+        print h
+      }
+    }' "$1"
+}
+
+# Produce: HOST \t FILE
+gather_hosts() {
+  local files=() f
+  mapfile -t files < <(gather_config_files)
+  for f in "${files[@]}"; do
+    while IFS= read -r h; do
+      printf "%s\t%s\n" "$h" "$f"
+    done < <(hosts_from_file "$f")
+  done | awk -F'\t' '{m[$1]=$2} END{for(k in m) printf "%s\t%s\n", k, m[k]}' | sort -k1,1
+}
+
+config_file_for_host() {
+  local host="$1"
+  gather_hosts | awk -F'\t' -v h="$host" '$1==h{print $2; exit}'
+}
+
+ssh_resolve() { ssh -G -- "$1" 2>/dev/null || true; }
+
+short_summary() {
+  local g; g=$(ssh_resolve "$1")
+  [[ -z "$g" ]] && { echo "Unable to resolve config."; return; }
+  local HostName Port User IdentityFile ProxyJump
+  HostName=$(awk '/^hostname /{print $2;exit}' <<<"$g")
+  Port=$(awk '/^port /{print $2;exit}' <<<"$g")
+  User=$(awk '/^user /{print $2;exit}' <<<"$g")
+  IdentityFile=$(awk '/^identityfile /{print $2;exit}' <<<"$g")
+  ProxyJump=$(awk '/^proxyjump /{print $2;exit}' <<<"$g")
+  printf "HostName=%s  Port=%s  User=%s  Key=%s%s\n" \
+    "${HostName:-?}" "${Port:-22}" "${User:-$USER}" "${IdentityFile:-default}" \
+    "$([[ -n "${ProxyJump:-}" ]] && echo "  ProxyJump=$ProxyJump")"
+}
+
+# --------- preview (host only) ----------
+preview_host() {
+  local host="$1"
+  local file; file=$(config_file_for_host "$host")
+  echo "Host: $host"
+  [[ -n "$file" ]] && echo "Defined in: $file"
+  echo
+  short_summary "$host"
+  echo
+  echo "Resolved config (ssh -G $host):"
+  echo "--------------------------------"
+  ssh_resolve "$host" | sed 's/^/  /'
+}
+
+# trampoline so subshell has all functions
+if [[ "${1:-}" == "_preview" ]]; then
+  shift
+  preview_host "$1"
+  exit 0
+fi
+
+# --------- actions ----------
+do_ssh(){ echo "Connecting to $1..."; exec ssh -- "$1"; }
+do_test(){
+  echo "Testing $1 (BatchMode, 5s timeout)..."
+  if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -- "$1" true 2>/dev/null; then
+    echo "OK"; else echo "FAIL" >&2; return 1; fi
+}
+do_sftp(){ echo "Starting sftp to $1..."; exec sftp -- "$1"; }
+
+do_mount(){
+  local host="$1"
+  have sshfs || { echo "sshfs not installed." >&2; return 1; }
+  local mp; mp=$(mktemp -d "$MOUNT_BASE/${host}-XXXX")
+  local path="${DEFAULT_REMOTE_PATH:-}"
+  if [[ -z "$path" ]]; then sshfs "$host:" "$mp"; else sshfs "$host:$path" "$mp"; fi
+  echo "Mounted at: $mp"
+}
+do_unmount(){
+  local host="$1"
+  local m; m=$(mount | awk -v h="$host" -v b="$MOUNT_BASE" '$3 ~ "^"b"/"h"-" {print $3}' | head -n1)
+  [[ -z "${m:-}" ]] && { echo "No mount under $MOUNT_BASE for $host." >&2; return 1; }
+  if command -v fusermount >/dev/null 2>&1; then fusermount -u "$m" || true; else umount "$m" || true; fi
+  rmdir "$m" 2>/dev/null || true
+  echo "Unmounted: $m"
+}
+do_edit(){
+  local file="$1"
+  [[ -z "$file" ]] && { echo "Config file not found for this host." >&2; return 1; }
+  local ed="${EDITOR:-}"
+  if [[ -z "$ed" ]]; then
+    if have xdg-open; then ed=xdg-open; elif have sensible-editor; then ed=sensible-editor; else ed=vi; fi
+  fi
+  "$ ed" "$file"
+}
+
+# --------- main ----------
+main() {
+  have fzf || die "fzf not found"
+  have ssh || die "ssh not found"
+
+  while :; do
+    mapfile -t rows < <(gather_hosts)
+    if ((${#rows[@]}==0)); then
+      echo "No Host entries found in SSH config."
+      echo "Add some to $SSH_CONFIG (or Include files)."
+    fi
+
+    selection="$(
+      printf "%s\n" "${rows[@]}" |
+      SHELL=/bin/bash fzf --ansi --no-sort --height="$FZF_HEIGHT" $FZF_REVERSE \
+        --prompt="ssh > " \
+        --header=$'Enter=ssh  Ctrl-T=test  Ctrl-S=sftp  Ctrl-O=mount  Ctrl-U=unmount  Ctrl-E=edit  Ctrl-R=rescan' \
+        --with-nth=1 --delimiter=$'\t' \
+        --preview "$0 _preview {1}" \
+        --preview-window=right:60%:wrap \
+        --expect=enter,ctrl-t,ctrl-s,ctrl-o,ctrl-u,ctrl-e,ctrl-r
+    )" || break
+
+    key=$(sed -n '1p' <<<"$selection")
+    chosen=$(sed -n '2p' <<<"$selection")
+    [[ -z "$chosen" ]] && continue
+
+    host=$(cut -f1 <<<"$chosen")
+    file=$(cut -f2 <<<"$chosen")
+
+    case "$key" in
+      ctrl-r) continue ;;
+      enter)  do_ssh "$host" ;;
+      ctrl-t) do_test "$host"; sleep 0.6 ;;
+      ctrl-s) do_sftp "$host" ;;
+      ctrl-o) do_mount "$host"; sleep 0.6 ;;
+      ctrl-u) do_unmount "$host"; sleep 0.6 ;;
+      ctrl-e) do_edit "$file"; sleep 0.6 ;;
+      *) : ;;
+    esac
+  done
+}
+
+main "$@"

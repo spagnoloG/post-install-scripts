@@ -405,6 +405,15 @@ mounter() {
     fi
 }
 
+# Define sshf function
+sshf() {
+    if [[ -f ~/.ssh-fzf ]]; then
+        bash ~/.ssh-fzf "$@"
+    else
+        echo "ssh-fzf script not found at ~/.ssh-fzf"
+    fi
+}
+
 # Ohmyzsh overrides some aliases, so we need to define them after sourcing it.
 # Aliases
 alias ls='lsd'
