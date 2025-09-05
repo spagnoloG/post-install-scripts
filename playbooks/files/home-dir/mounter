@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# deps: lsblk, fzf, awk, sed, findmnt, coreutils (timeout)
-# optional: udisksctl (non-root mounting), sudo (fallback)
+# Drive mounting utility with fuzzy finder interface
+#
+# Requirements: lsblk, fzf, awk, sed, findmnt, coreutils (timeout)
+# Optional: udisksctl (for non-root mounting), sudo (fallback for system mounting)
 
 FZF_HEIGHT="${FZF_HEIGHT:-80%}"
 FZF_REVERSE="${FZF_REVERSE:---reverse}"
@@ -142,7 +144,7 @@ main() {
 
     selection="$(
       printf "%s\n" "${rows[@]}" |
-      SHELL=/bin/bash fzf --ansi --no-sort --height="$FZF_HEIGHT" $FZF_REVERSE \
+      fzf --ansi --no-sort --height="$FZF_HEIGHT" $FZF_REVERSE \
           --prompt="drives > " \
           --header="Enter=mount  Ctrl-U=unmount  Ctrl-R=rescan" \
           --with-nth=1 --delimiter=$'\t' \

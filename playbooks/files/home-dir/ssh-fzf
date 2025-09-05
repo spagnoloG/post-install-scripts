@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# deps: ssh, fzf, awk, sed, grep
-# optional: sshfs, fusermount/umount, $EDITOR or xdg-open
+# SSH connection manager with fuzzy finder interface
 #
-# Keys:
-#   Enter  → ssh
-#   Ctrl-T → quick test (BatchMode)
-#   Ctrl-S → sftp
-#   Ctrl-O → sshfs mount to ~/mnt/<host>-XXXX
-#   Ctrl-U → unmount sshfs made by this tool
-#   Ctrl-E → edit config file that defines the host
-#   Ctrl-R → rescan
+# Requirements: ssh, fzf, awk, sed, grep
+# Optional: sshfs, fusermount/umount, $EDITOR or xdg-open
+#
+# Controls:
+#   Enter  → Connect via SSH
+#   Ctrl-T → Test connection (quick check without login)
+#   Ctrl-S → Start SFTP session
+#   Ctrl-O → Mount remote filesystem via SSHFS to ~/mnt/<host>-XXXX
+#   Ctrl-U → Unmount SSHFS mounts created by this tool
+#   Ctrl-E → Edit SSH config file for selected host
+#   Ctrl-X → Clean up all stale/broken mounts
+#   Ctrl-R → Refresh host list
 
 FZF_HEIGHT="${FZF_HEIGHT:-80%}"
 FZF_REVERSE="${FZF_REVERSE:---reverse}"
@@ -121,6 +124,37 @@ if [[ "${1:-}" == "_preview" ]]; then
 fi
 
 # --------- actions ----------
+cleanup_stale_mounts() {
+  local host="$1"
+  local skip_dir="${2:-}"  # Optional directory to skip (newly created)
+  
+  # Find stale mounts (directories that exist but aren't mounted)
+  find "$MOUNT_BASE" -maxdepth 1 -type d -name "${host}-*" 2>/dev/null | while IFS= read -r dir; do
+    # Skip the directory we just created
+    [[ -n "$skip_dir" && "$dir" == "$skip_dir" ]] && continue
+    
+    if ! mountpoint -q "$dir" 2>/dev/null; then
+      # Only remove if directory is older than 30 seconds (avoid race conditions)
+      if [[ $(find "$dir" -maxdepth 0 -mmin +0.5 2>/dev/null) ]]; then
+        echo "Cleaning up stale directory: $dir"
+        rmdir "$dir" 2>/dev/null || rm -rf "$dir" 2>/dev/null
+      fi
+    else
+      # Check if mount is responsive
+      if ! timeout 3 ls "$dir" >/dev/null 2>&1; then
+        echo "Found unresponsive mount: $dir"
+        echo "Attempting to unmount..."
+        if command -v fusermount >/dev/null 2>&1; then
+          fusermount -uz "$dir" 2>/dev/null || true
+        else
+          umount -l "$dir" 2>/dev/null || true  # lazy unmount
+        fi
+        rmdir "$dir" 2>/dev/null || true
+      fi
+    fi
+  done
+}
+
 do_ssh(){ echo "Connecting to $1..."; exec ssh -- "$1"; }
 do_test(){
   echo "Testing $1 (BatchMode, 5s timeout)..."
@@ -132,18 +166,79 @@ do_sftp(){ echo "Starting sftp to $1..."; exec sftp -- "$1"; }
 do_mount(){
   local host="$1"
   have sshfs || { echo "sshfs not installed." >&2; return 1; }
+  
   local mp; mp=$(mktemp -d "$MOUNT_BASE/${host}-XXXX")
   local path="${DEFAULT_REMOTE_PATH:-}"
-  if [[ -z "$path" ]]; then sshfs "$host:" "$mp"; else sshfs "$host:$path" "$mp"; fi
-  echo "Mounted at: $mp"
+  
+  # Clean up any existing stale mounts for this host (but skip our new directory)
+  cleanup_stale_mounts "$host" "$mp"
+  
+  local sshfs_opts=(
+    -o reconnect                    # Auto-reconnect on connection loss
+    -o ServerAliveInterval=15       # Keep connection alive
+    -o ServerAliveCountMax=3        # Max missed keepalives before disconnect
+    -o ConnectTimeout=10            # Connection timeout
+    -o cache=yes                    # Enable local caching for better performance
+    -o kernel_cache                 # Use kernel cache
+    -o compression=yes              # Enable compression
+    -o follow_symlinks              # Follow symbolic links
+  )
+  
+  echo "Mounting $host with optimized options..."
+  if [[ -z "$path" ]]; then
+    sshfs "${sshfs_opts[@]}" "$host:" "$mp"
+  else
+    sshfs "${sshfs_opts[@]}" "$host:$path" "$mp"
+  fi
+  
+  if [[ $? -eq 0 ]]; then
+    echo "Mounted at: $mp"
+    echo "Mount options: reconnect, caching, compression enabled"
+  else
+    rmdir "$mp" 2>/dev/null || true
+    echo "Mount failed" >&2
+    return 1
+  fi
 }
 do_unmount(){
   local host="$1"
-  local m; m=$(mount | awk -v h="$host" -v b="$MOUNT_BASE" '$3 ~ "^"b"/"h"-" {print $3}' | head -n1)
-  [[ -z "${m:-}" ]] && { echo "No mount under $MOUNT_BASE for $host." >&2; return 1; }
-  if command -v fusermount >/dev/null 2>&1; then fusermount -u "$m" || true; else umount "$m" || true; fi
-  rmdir "$m" 2>/dev/null || true
-  echo "Unmounted: $m"
+  local found=0
+  
+  # Find all mounts for this host
+  find "$MOUNT_BASE" -maxdepth 1 -type d -name "${host}-*" 2>/dev/null | while IFS= read -r dir; do
+    if mountpoint -q "$dir" 2>/dev/null; then
+      found=1
+      echo "Unmounting: $dir"
+      
+      # Try graceful unmount first
+      if command -v fusermount >/dev/null 2>&1; then
+        if ! fusermount -u "$dir" 2>/dev/null; then
+          echo "Graceful unmount failed, trying force unmount..."
+          fusermount -uz "$dir" 2>/dev/null || true
+        fi
+      else
+        if ! umount "$dir" 2>/dev/null; then
+          echo "Graceful unmount failed, trying lazy unmount..."
+          umount -l "$dir" 2>/dev/null || true
+        fi
+      fi
+      
+      # Clean up directory
+      sleep 0.5  # Give it a moment
+      rmdir "$dir" 2>/dev/null || rm -rf "$dir" 2>/dev/null
+      echo "Cleaned up: $dir"
+    elif [[ -d "$dir" ]]; then
+      # Stale directory
+      echo "Removing stale directory: $dir"
+      rmdir "$dir" 2>/dev/null || rm -rf "$dir" 2>/dev/null
+      found=1
+    fi
+  done
+  
+  if [[ $found -eq 0 ]]; then
+    echo "No mounts found for $host under $MOUNT_BASE." >&2
+    return 1
+  fi
 }
 do_edit(){
   local file="$1"
@@ -152,7 +247,40 @@ do_edit(){
   if [[ -z "$ed" ]]; then
     if have xdg-open; then ed=xdg-open; elif have sensible-editor; then ed=sensible-editor; else ed=vi; fi
   fi
-  "$ ed" "$file"
+  "$ed" "$file"
+}
+
+do_cleanup_all(){
+  echo "Cleaning up all stale mounts in $MOUNT_BASE..."
+  local cleaned=0
+  
+  find "$MOUNT_BASE" -maxdepth 1 -type d -name "*-*" 2>/dev/null | while IFS= read -r dir; do
+    local basename; basename=$(basename "$dir")
+    if [[ ! "$basename" =~ ^.*-[A-Za-z0-9]{4}$ ]]; then continue; fi
+    
+    if ! mountpoint -q "$dir" 2>/dev/null; then
+      echo "Removing stale directory: $dir"
+      rmdir "$dir" 2>/dev/null || rm -rf "$dir" 2>/dev/null
+      cleaned=1
+    else
+      if ! timeout 3 ls "$dir" >/dev/null 2>&1; then
+        echo "Found unresponsive mount: $dir"
+        if command -v fusermount >/dev/null 2>&1; then
+          fusermount -uz "$dir" 2>/dev/null || true
+        else
+          umount -l "$dir" 2>/dev/null || true
+        fi
+        rmdir "$dir" 2>/dev/null || rm -rf "$dir" 2>/dev/null
+        cleaned=1
+      fi
+    fi
+  done
+  
+  if [[ $cleaned -eq 0 ]]; then
+    echo "No stale mounts found."
+  else
+    echo "Cleanup completed."
+  fi
 }
 
 # --------- main ----------
@@ -169,13 +297,13 @@ main() {
 
     selection="$(
       printf "%s\n" "${rows[@]}" |
-      SHELL=/bin/bash fzf --ansi --no-sort --height="$FZF_HEIGHT" $FZF_REVERSE \
+      fzf --ansi --no-sort --height="$FZF_HEIGHT" $FZF_REVERSE \
         --prompt="ssh > " \
-        --header=$'Enter=ssh  Ctrl-T=test  Ctrl-S=sftp  Ctrl-O=mount  Ctrl-U=unmount  Ctrl-E=edit  Ctrl-R=rescan' \
+        --header=$'Enter=ssh  Ctrl-T=test  Ctrl-S=sftp  Ctrl-O=mount  Ctrl-U=unmount  Ctrl-E=edit  Ctrl-X=cleanup  Ctrl-R=rescan' \
         --with-nth=1 --delimiter=$'\t' \
         --preview "$0 _preview {1}" \
         --preview-window=right:60%:wrap \
-        --expect=enter,ctrl-t,ctrl-s,ctrl-o,ctrl-u,ctrl-e,ctrl-r
+        --expect=enter,ctrl-t,ctrl-s,ctrl-o,ctrl-u,ctrl-e,ctrl-x,ctrl-r
     )" || break
 
     key=$(sed -n '1p' <<<"$selection")
@@ -193,6 +321,7 @@ main() {
       ctrl-o) do_mount "$host"; sleep 0.6 ;;
       ctrl-u) do_unmount "$host"; sleep 0.6 ;;
       ctrl-e) do_edit "$file"; sleep 0.6 ;;
+      ctrl-x) do_cleanup_all; sleep 1 ;;
       *) : ;;
     esac
   done

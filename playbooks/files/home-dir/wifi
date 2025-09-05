@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# deps: nmcli, fzf, awk, sed
-# optional: qrencode (for QR in preview)
+# WiFi connection manager with fuzzy finder interface
+# 
+# Requirements: nmcli, fzf, awk, sed
+# Optional: qrencode (shows QR codes in preview)
 #
-# Keys:
-#   Enter  → Connect
-#   Ctrl-D → Disconnect active connection for SSID
-#   Ctrl-F → Forget saved connection
-#   Ctrl-R → Rescan Wi-Fi
-#   Ctrl-H → Connect to hidden SSID
-#   Ctrl-S → Toggle "Saved Only" view
-#   Ctrl-G → Pick Wi-Fi device (if multiple)
-#
-# --------------------- Config -------------------------------------------------
+# Controls:
+#   Enter  → Connect to selected network
+#   Ctrl-D → Disconnect from network
+#   Ctrl-F → Forget/delete saved connection
+#   Ctrl-R → Refresh/rescan available networks
+#   Ctrl-H → Connect to hidden network
+#   Ctrl-S → Toggle between all networks and saved-only view
+#   Ctrl-G → Choose Wi-Fi adapter (if you have multiple)
+
+# Configuration
 FZF_HEIGHT="${FZF_HEIGHT:-80%}"
 FZF_REVERSE="${FZF_REVERSE:---reverse}"
 
