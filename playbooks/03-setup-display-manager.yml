@@ -2,9 +2,11 @@
     become: true
     tasks:
 
-    -   name: Install ly
+    -   name: Install ly and lxqt-policykit
         pacman:
-          name: ly
+          name:
+          -   ly
+          -   lxqt-policykit
           state: present
 
     -   name: Ensure environment variables are set globally in /etc/environment
@@ -21,8 +23,32 @@
         -   QT_QPA_PLATFORMTHEME=qt5ct
         when: use_wayland is defined and use_wayland
 
+    -   name: Update ly session log path
+        ansible.builtin.lineinfile:
+          path: /etc/ly/config.ini
+          regexp: '^session_log\s*='
+          line: 'session_log = .ly-session.log'
+          backup: true
+
     -   name: Enable ly service
         ansible.builtin.systemd:
           name: ly
           enabled: true
           state: started
+
+    -   name: Install swaylock-effects
+        ansible.builtin.command: paru -S --noconfirm swaylock-effects
+        become: false
+        when: use_wayland is defined and use_wayland
+
+    -   name: Ensure PAM configuration for swaylock contains required auth lines (fprintd)
+        become: true
+        ansible.builtin.lineinfile:
+          path: /etc/pam.d/swaylock
+          line: "{{ item }}"
+          insertafter: EOF
+          state: present
+        loop:
+        -   auth sufficient pam_unix.so try_first_pass likeauth nullok
+        -   auth sufficient pam_fprintd.so
+        when: use_wayland is defined and use_wayland

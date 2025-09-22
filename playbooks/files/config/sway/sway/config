@@ -279,5 +279,6 @@ bar {
 
 # Startup scripts
 exec_always pkill kanshi; exec kanshi
+exec /usr/bin/lxqt-policykit-agent
 
 include /etc/sway/config.d/*

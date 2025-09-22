@@ -53,6 +53,10 @@ base_packages:
 -   micromamba-bin
 -   tk  # for python
 -   intel-ucode
+-   zoxide
+-   lsd
+-   less
+-   fprintd
 
   # Networking tools
 -   openssh
@@ -76,7 +80,7 @@ base_packages:
 -   ripgrep
 -   ripgrep-all
 -   yamlfmt
--   lua-format
+#-   lua-format
 -   direnv
 
   # Miscellaneous utilities
@@ -152,6 +156,7 @@ desktop_packages:
 -   uv
 -   python-ruamel-yaml
 -   jdk-openjdk
+-   claude-code
 
   # Styling 
 -   dracula-gtk-theme

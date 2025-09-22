@@ -6,35 +6,179 @@
         ansible.builtin.command: paru -Syy
         become: false
 
-    -   name: Install base packages
-        ansible.builtin.command: paru -S --noconfirm {{ item }}
-        loop: '{{ base_packages }}'
-        become: false
+    -   name: Install base packages (batch installation)
+        block:
+        -   name: Debug - Show base packages batch command
+            debug:
+              msg: "Running: paru -S --noconfirm {{ base_packages | join(' ') }}"
 
-    -   name: Install desktop packages
-        ansible.builtin.command: paru -S --noconfirm {{ item }}
-        loop: '{{ desktop_packages }}'
-        become: false
+        -   name: Try batch installation of base packages
+            ansible.builtin.command: paru -S --noconfirm {{ base_packages | join(' ') }}
+            become: false
+            register: base_batch_result
 
-    -   name: Install sound packages
-        ansible.builtin.command: paru -S --noconfirm {{ item }}
-        loop: '{{ sound_packages }}'
-        become: false
+        rescue:
+        -   name: Log base packages batch installation failure
+            debug:
+              msg: "Base packages batch installation failed, trying individual packages. Error: {{ base_batch_result.stderr }}"
 
-    -   name: Install Sway packages
-        ansible.builtin.command: paru -S --noconfirm {{ item }}
-        loop: '{{ sway_packages }}'
-        become: false
+        -   name: Install base packages individually
+            ansible.builtin.command: paru -S --noconfirm {{ item }}
+            loop: "{{ base_packages }}"
+            become: false
+            register: base_individual_results
+            ignore_errors: true
+
+        -   name: Report failed base packages
+            debug:
+              msg: "Failed to install base package: {{ item.item }}"
+            loop: "{{ base_individual_results.results }}"
+            when: item.rc != 0
+
+    -   name: Install desktop packages (batch installation)
+        block:
+        -   name: Debug - Show desktop packages batch command
+            debug:
+              msg: "Running: paru -S --noconfirm {{ desktop_packages | join(' ') }}"
+
+        -   name: Try batch installation of desktop packages
+            ansible.builtin.command: paru -S --noconfirm {{ desktop_packages | join(' ') }}
+            become: false
+            register: desktop_batch_result
+
+        rescue:
+        -   name: Log desktop packages batch installation failure
+            debug:
+              msg: "Desktop packages batch installation failed, trying individual packages. Error: {{ desktop_batch_result.stderr }}"
+
+        -   name: Install desktop packages individually
+            ansible.builtin.command: paru -S --noconfirm {{ item }}
+            loop: "{{ desktop_packages }}"
+            become: false
+            register: desktop_individual_results
+            ignore_errors: true
+
+        -   name: Report failed desktop packages
+            debug:
+              msg: "Failed to install desktop package: {{ item.item }}"
+            loop: "{{ desktop_individual_results.results }}"
+            when: item.rc != 0
+
+    -   name: Install sound packages (batch installation)
+        block:
+        -   name: Debug - Show sound packages batch command
+            debug:
+              msg: "Running: paru -S --noconfirm {{ sound_packages | join(' ') }}"
+
+        -   name: Try batch installation of sound packages
+            ansible.builtin.command: paru -S --noconfirm {{ sound_packages | join(' ') }}
+            become: false
+            register: sound_batch_result
+
+        rescue:
+        -   name: Log sound packages batch installation failure
+            debug:
+              msg: "Sound packages batch installation failed, trying individual packages. Error: {{ sound_batch_result.stderr }}"
+
+        -   name: Install sound packages individually
+            ansible.builtin.command: paru -S --noconfirm {{ item }}
+            loop: "{{ sound_packages }}"
+            become: false
+            register: sound_individual_results
+            ignore_errors: true
+
+        -   name: Report failed sound packages
+            debug:
+              msg: "Failed to install sound package: {{ item.item }}"
+            loop: "{{ sound_individual_results.results }}"
+            when: item.rc != 0
+
+    -   name: Install Sway packages (batch installation)
+        block:
+        -   name: Debug - Show Sway packages batch command
+            debug:
+              msg: "Running: paru -S --noconfirm {{ sway_packages | join(' ') }}"
+
+        -   name: Try batch installation of Sway packages
+            ansible.builtin.command: paru -S --noconfirm {{ sway_packages | join(' ') }}
+            become: false
+            register: sway_batch_result
+
+        rescue:
+        -   name: Log Sway packages batch installation failure
+            debug:
+              msg: "Sway packages batch installation failed, trying individual packages. Error: {{ sway_batch_result.stderr }}"
+
+        -   name: Install Sway packages individually
+            ansible.builtin.command: paru -S --noconfirm {{ item }}
+            loop: "{{ sway_packages }}"
+            become: false
+            register: sway_individual_results
+            ignore_errors: true
+
+        -   name: Report failed Sway packages
+            debug:
+              msg: "Failed to install Sway package: {{ item.item }}"
+            loop: "{{ sway_individual_results.results }}"
+            when: item.rc != 0
         when: use_wayland is defined and use_wayland
 
-    -   name: Install Xorg packages
-        ansible.builtin.command: paru -S --noconfirm {{ item }}
-        loop: '{{ xorg_packages }}'
-        become: false
+    -   name: Install Xorg packages (batch installation)
+        block:
+        -   name: Debug - Show Xorg packages batch command
+            debug:
+              msg: "Running: paru -S --noconfirm {{ xorg_packages | join(' ') }}"
+
+        -   name: Try batch installation of Xorg packages
+            ansible.builtin.command: paru -S --noconfirm {{ xorg_packages | join(' ') }}
+            become: false
+            register: xorg_batch_result
+
+        rescue:
+        -   name: Log Xorg packages batch installation failure
+            debug:
+              msg: "Xorg packages batch installation failed, trying individual packages. Error: {{ xorg_batch_result.stderr }}"
+
+        -   name: Install Xorg packages individually
+            ansible.builtin.command: paru -S --noconfirm {{ item }}
+            loop: "{{ xorg_packages }}"
+            become: false
+            register: xorg_individual_results
+            ignore_errors: true
+
+        -   name: Report failed Xorg packages
+            debug:
+              msg: "Failed to install Xorg package: {{ item.item }}"
+            loop: "{{ xorg_individual_results.results }}"
+            when: item.rc != 0
         when: use_wayland is not defined or not use_wayland
 
-    -   name: Install i3 and related packages
-        ansible.builtin.command: paru -S --noconfirm {{ item }}
-        loop: '{{ i3_packages }}'
-        become: false
+    -   name: Install i3 and related packages (batch installation)
+        block:
+        -   name: Debug - Show i3 packages batch command
+            debug:
+              msg: "Running: paru -S --noconfirm {{ i3_packages | join(' ') }}"
+
+        -   name: Try batch installation of i3 packages
+            ansible.builtin.command: paru -S --noconfirm {{ i3_packages | join(' ') }}
+            become: false
+            register: i3_batch_result
+
+        rescue:
+        -   name: Log i3 packages batch installation failure
+            debug:
+              msg: "i3 packages batch installation failed, trying individual packages. Error: {{ i3_batch_result.stderr }}"
+
+        -   name: Install i3 packages individually
+            ansible.builtin.command: paru -S --noconfirm {{ item }}
+            loop: "{{ i3_packages }}"
+            become: false
+            register: i3_individual_results
+            ignore_errors: true
+
+        -   name: Report failed i3 packages
+            debug:
+              msg: "Failed to install i3 package: {{ item.item }}"
+            loop: "{{ i3_individual_results.results }}"
+            when: item.rc != 0
         when: use_wayland is not defined or not use_wayland
