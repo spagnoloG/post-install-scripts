@@ -49,12 +49,7 @@ vim.keymap.set("n", "<leader>wh", ":split<CR>")
 vim.keymap.set("n", "<leader>wv", ":vsplit<CR>")
 vim.keymap.set("n", "<leader>qq", ":q<CR>")
 
--- Neotree 
-vim.keymap.set("n", "<leader>nt", ":Neotree toggle<CR>")
-
--- Scroll in center (golden)
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
+-- Note: Neotree keybinding is in lazy.lua keys section
 
 -- Undotree
 vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)

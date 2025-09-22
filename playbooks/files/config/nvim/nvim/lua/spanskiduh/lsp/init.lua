@@ -1,13 +1,9 @@
-local ok1, lsp_zero = pcall(require, 'lsp-zero')
-local ok2, mason = pcall(require, 'mason')
-local ok3, mason_lspconfig = pcall(require, 'mason-lspconfig')
-local ok4, cmp = pcall(require, 'cmp')
-local ok5, wk = pcall(require, "which-key")
+local ok1, mason = pcall(require, 'mason')
+local ok2, mason_lspconfig = pcall(require, 'mason-lspconfig')
+local ok3, cmp = pcall(require, 'cmp')
+local ok4, wk = pcall(require, "which-key")
 
-if not (ok1 and ok2 and ok3 and ok4 and ok5) then return end
-
--- Extend lspconfig with lsp-zero's functionalities
-lsp_zero.extend_lspconfig()
+if not (ok1 and ok2 and ok3 and ok4) then return end
 
 -- Command to show all diagnostics (including warnings)
 vim.api.nvim_create_user_command("ShowAllDiagnostics", function()
@@ -32,10 +28,10 @@ end, {})
 -- Track which buffers have LSP keybindings registered
 local lsp_keybinds_registered = {}
 
--- Default on_attach function with WhichKey mappings
-lsp_zero.on_attach(function(client, bufnr)
+-- Native LSP on_attach function
+local function on_attach(client, bufnr)
     if client.name == "eslint" then
-        vim.cmd [[ LspStop eslint ]]
+        vim.lsp.stop_client(client.id)
         return
     end
 
@@ -119,7 +115,7 @@ lsp_zero.on_attach(function(client, bufnr)
             buffer = bufnr
         }
     })
-end)
+end
 
 -- Mason setup for installing and configuring LSP servers
 mason.setup({
@@ -134,8 +130,67 @@ mason.setup({
 
 mason_lspconfig.setup({
     ensure_installed = {'rust_analyzer', 'pylsp', 'marksman'},
-    handlers = {lsp_zero.default_setup}
+    automatic_installation = true
 })
+
+-- Native LSP setup with capabilities (Neovim 0.11+ compatible)
+local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+-- Check if we have the new vim.lsp.config API (Neovim 0.11+)
+if vim.lsp.config then
+    -- Use new native API
+    local servers = {
+        rust_analyzer = {
+            cmd = {'rust-analyzer'},
+            filetypes = {'rust'},
+            root_patterns = {'Cargo.toml', 'rust-project.json'}
+        },
+        pylsp = {
+            cmd = {'pylsp'},
+            filetypes = {'python'},
+            root_patterns = {
+                'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt',
+                'Pipfile'
+            }
+        },
+        marksman = {
+            cmd = {'marksman', 'server'},
+            filetypes = {'markdown'},
+            root_patterns = {'.marksman.toml', '.git'}
+        }
+    }
+
+    for server_name, config in pairs(servers) do
+        vim.lsp.config[server_name] = vim.tbl_extend('force', config, {
+            capabilities = lsp_capabilities,
+            on_attach = on_attach
+        })
+    end
+
+    -- Auto-start LSP servers for appropriate filetypes
+    vim.api.nvim_create_autocmd('FileType', {
+        callback = function(args)
+            local filetype = args.match
+            for server_name, config in pairs(servers) do
+                if vim.tbl_contains(config.filetypes or {}, filetype) then
+                    vim.lsp.enable(server_name)
+                end
+            end
+        end
+    })
+else
+    -- Fallback to lspconfig for older versions
+    local ok_lspconfig, lspconfig = pcall(require, 'lspconfig')
+    if ok_lspconfig then
+        local servers = {'rust_analyzer', 'pylsp', 'marksman'}
+        for _, server in ipairs(servers) do
+            lspconfig[server].setup({
+                capabilities = lsp_capabilities,
+                on_attach = on_attach
+            })
+        end
+    end
+end
 
 -- Set up nvim-cmp for completion
 local cmp_select = {behavior = cmp.SelectBehavior.Select}

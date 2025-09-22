@@ -14,7 +14,7 @@ vim.opt.wrap = false
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
 vim.opt.undofile = true
 
 vim.opt.hlsearch = true
@@ -34,8 +34,8 @@ vim.g.mapleader = " "
 
 vim.opt.autoread = true
 
--- Colorscheme
-vim.cmd.colorscheme("dracula")
+-- Colorscheme (will be loaded by lazy.nvim after plugin installation)
+-- vim.cmd.colorscheme("dracula") -- Moved to lazy.nvim config
 
 -- Autosave
 vim.cmd('autocmd FocusLost, BufLeave, BufHidden * silent! wall')

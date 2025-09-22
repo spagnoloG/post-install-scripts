@@ -56,3 +56,6 @@ telescope.setup {
         }
     }
 }
+
+-- Load fzf extension for performance
+pcall(telescope.load_extension, "fzf")

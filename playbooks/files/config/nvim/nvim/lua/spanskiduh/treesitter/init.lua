@@ -3,19 +3,17 @@ local ok, treesitter = pcall(require, "nvim-treesitter.configs")
 if not ok then return end
 
 treesitter.setup {
-    -- A list of parser names, or "all"
+    -- A list of parser names, or "all" (removed parsers that need CLI compilation)
     ensure_installed = {
         "c", "lua", "rust", "javascript", "java", "python", "html", "css",
-        "json", "yaml", "bash", "typescript", "r", "markdown", "rnoweb",
-        "latex", "vim", "vimdoc"
+        "json", "yaml", "bash", "typescript", "r", "markdown", "vim", "vimdoc"
     },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
 
-    -- Automatically install missing parsers when entering buffer
-    -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-    auto_install = true,
+    -- Disable auto_install since we don't have tree-sitter CLI
+    auto_install = false,
 
     -- List of parsers to ignore installing (for "all")
     ignore_install = {},
@@ -51,46 +49,21 @@ treesitter.setup {
     }
 }
 
--- Create a command to manually install missing parsers
+-- Create a command to manually install missing parsers (CLI-dependent ones)
 vim.api.nvim_create_user_command('TSInstallMissing', function()
-    local parsers = {"r", "rnoweb", "latex", "yaml"}
+    local parsers = {"rnoweb", "latex"}
+    vim.notify("Installing CLI-dependent parsers: " ..
+                   table.concat(parsers, ", "), vim.log.levels.INFO)
     for _, parser in ipairs(parsers) do vim.cmd('TSInstall ' .. parser) end
-end, {desc = "Install missing treesitter parsers"})
+end, {desc = "Install missing treesitter parsers (rnoweb, latex)"})
 
--- Auto-install missing parsers on startup (with error handling)
-vim.defer_fn(function()
-    local parsers_to_check = {"r", "rnoweb", "latex", "yaml"}
-
-    for _, parser in ipairs(parsers_to_check) do
-        -- Check if parser is already installed
-        local has_parser = false
-        local ok_check = pcall(function()
-            vim.treesitter.language.require_language(parser)
-            has_parser = true
-        end)
-
-        if not has_parser then
-            -- Try to install the parser
-            vim.notify("Installing treesitter parser for " .. parser .. "...",
-                       vim.log.levels.INFO)
-            vim.schedule(function()
-                local install_ok, install_result = pcall(vim.cmd,
-                                                         'TSInstall ' .. parser)
-                if install_ok then
-                    vim.notify("Successfully installed " .. parser .. " parser",
-                               vim.log.levels.INFO)
-                else
-                    vim.notify("Failed to install " .. parser .. " parser: " ..
-                                   tostring(install_result), vim.log.levels.WARN)
-                end
-            end)
-        end
-    end
-end, 2000) -- Increased delay to ensure treesitter is fully loaded
+-- Note: Automatic parser installation disabled to avoid CLI dependency
+-- To manually install missing parsers, run: :TSInstall <parser_name>
+-- Or use the provided commands: :TSInstallMissing or :TSInstallMissingSync
 
 -- Also provide a synchronous installation command
 vim.api.nvim_create_user_command('TSInstallMissingSync', function()
-    local parsers = {"r", "rnoweb", "latex", "yaml"}
+    local parsers = {"rnoweb", "latex"}
     for _, parser in ipairs(parsers) do
         vim.notify("Installing " .. parser .. "...", vim.log.levels.INFO)
         local ok, result = pcall(vim.cmd, 'TSInstall! ' .. parser)
@@ -101,4 +74,4 @@ vim.api.nvim_create_user_command('TSInstallMissingSync', function()
                            tostring(result), vim.log.levels.ERROR)
         end
     end
-end, {desc = "Synchronously install missing treesitter parsers"})
+end, {desc = "Synchronously install missing treesitter parsers (rnoweb, latex)"})

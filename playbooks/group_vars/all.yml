@@ -106,6 +106,7 @@ desktop_packages:
 -   evince
 -   zathura
 -   zathura-pdf-mupdf
+-   xdotool
 -   texlive
 -   biber
 
@@ -177,6 +178,7 @@ sound_packages:
 -   alsa-plugins
 -   pavucontrol
 -   pipewire-alsa
+-   pipewire-pulse
 
 sway_packages:
 -   sway

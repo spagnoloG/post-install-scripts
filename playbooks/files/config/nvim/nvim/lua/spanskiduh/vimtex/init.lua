@@ -21,6 +21,7 @@ vim.g.vimtex_quickfix_ignore_mode = 0
 -- PDF viewer settings
 vim.g.vimtex_view_general_viewer = "zathura"
 vim.g.vimtex_view_method = "zathura"
+-- Note: Install xdotool for forward search: sudo pacman -S xdotool
 -- Do not auto open quickfix on compile erros
 vim.g.vimtex_quickfix_mode = 1
 -- Latex warnings to ignore
