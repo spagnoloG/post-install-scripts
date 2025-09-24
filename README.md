@@ -2,7 +2,7 @@
 
 
 ```bash
-sudo pcman -Sy uv
+sudo pacman -Sy uv
 uv sync
 ```
 

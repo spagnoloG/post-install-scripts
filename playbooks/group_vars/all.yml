@@ -109,6 +109,7 @@ desktop_packages:
 -   xdotool
 -   texlive
 -   biber
+-   okular
 
   # Media & design
 -   vlc

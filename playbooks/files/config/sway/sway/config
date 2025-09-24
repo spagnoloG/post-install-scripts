@@ -149,7 +149,7 @@ client.background       #F8F8F2
     bindsym $mod+f1 exec swaylock --ignore-empty-password --show-failed-attempts --color 000000
 
     # Screenshot
-    bindsym Print exec grim -g "$(slurp -d)" - | wl-copy 
+    bindsym Print exec flameshot gui
 
 #
 # Moving around:
