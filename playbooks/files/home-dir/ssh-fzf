@@ -166,13 +166,24 @@ do_sftp(){ echo "Starting sftp to $1..."; exec sftp -- "$1"; }
 do_mount(){
   local host="$1"
   have sshfs || { echo "sshfs not installed." >&2; return 1; }
-  
+
   local mp; mp=$(mktemp -d "$MOUNT_BASE/${host}-XXXX")
   local path="${DEFAULT_REMOTE_PATH:-}"
-  
+
+  # Prompt user for remote directory if no default is set
+  if [[ -z "$path" ]]; then
+    echo "Enter remote directory to mount (press Enter for home directory):"
+    read -r path
+    # If user just pressed Enter, leave path empty (will mount home)
+    if [[ -n "$path" && "$path" != "/" ]]; then
+      # Remove trailing slash if present
+      path="${path%/}"
+    fi
+  fi
+
   # Clean up any existing stale mounts for this host (but skip our new directory)
   cleanup_stale_mounts "$host" "$mp"
-  
+
   local sshfs_opts=(
     -o reconnect                    # Auto-reconnect on connection loss
     -o ServerAliveInterval=15       # Keep connection alive
@@ -183,17 +194,25 @@ do_mount(){
     -o compression=yes              # Enable compression
     -o follow_symlinks              # Follow symbolic links
   )
-  
-  echo "Mounting $host with optimized options..."
-  if [[ -z "$path" ]]; then
-    sshfs "${sshfs_opts[@]}" "$host:" "$mp"
+
+  local mount_target="$host:"
+  if [[ -n "$path" ]]; then
+    mount_target="$host:$path"
+    echo "Mounting $host:$path with optimized options..."
   else
-    sshfs "${sshfs_opts[@]}" "$host:$path" "$mp"
+    echo "Mounting $host (home directory) with optimized options..."
   fi
-  
+
+  sshfs "${sshfs_opts[@]}" "$mount_target" "$mp"
+
   if [[ $? -eq 0 ]]; then
     echo "Mounted at: $mp"
     echo "Mount options: reconnect, caching, compression enabled"
+    if [[ -n "$path" ]]; then
+      echo "Remote path: $path"
+    else
+      echo "Remote path: home directory"
+    fi
   else
     rmdir "$mp" 2>/dev/null || true
     echo "Mount failed" >&2
