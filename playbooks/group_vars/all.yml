@@ -45,6 +45,7 @@ base_packages:
 -   inxi
 -   htop
 -   tree
+-   eza
 -   xsel
 -   fuse2
 -   zip
@@ -91,7 +92,7 @@ base_packages:
 -   w3m
 -   wget
 -   oh-my-zsh-git
-
+-   cliphist 
 desktop_packages:
   # Browsers & communication
 -   brave-bin

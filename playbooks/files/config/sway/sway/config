@@ -149,8 +149,11 @@ client.background       #F8F8F2
     bindsym $mod+f1 exec swaylock --ignore-empty-password --show-failed-attempts --color 000000
 
     # Screenshot
-    bindsym Print exec flameshot gui
+    bindsym Print exec QT_QPA_PLATFORM=xcb flameshot gui
 
+    bindsym $mod+p exec cliphist list | wofi -S dmenu | cliphist decode | wl-copy
+
+#
 #
 # Moving around:
 #
@@ -280,5 +283,7 @@ bar {
 # Startup scripts
 exec_always pkill kanshi; exec kanshi
 exec /usr/bin/lxqt-policykit-agent
+# For cliphist clipboard manager
+exec wl-paste --watch cliphist store
 
 include /etc/sway/config.d/*
