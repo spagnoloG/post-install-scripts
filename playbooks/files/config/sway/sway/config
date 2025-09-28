@@ -63,7 +63,6 @@ titlebar_padding 1
 titlebar_border_thickness 0
 
 #---- Flameshot specific configuration ----#
-for_window [app_id="flameshot"] border pixel 0, floating enable, fullscreen disable, move absolute position 0 0
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec hash dbus-update-activation-environment 2>/dev/null && \
      dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
@@ -149,7 +148,7 @@ client.background       #F8F8F2
     bindsym $mod+f1 exec swaylock --ignore-empty-password --show-failed-attempts --color 000000
 
     # Screenshot
-    bindsym Print exec QT_QPA_PLATFORM=xcb flameshot gui
+    bindsym Print exec sh -c 'QT_QPA_PLATFORM=xcb QT_AUTO_SCREEN_SCALE_FACTOR=1 flameshot gui'
 
     bindsym $mod+p exec cliphist list | wofi -S dmenu | cliphist decode | wl-copy
 
