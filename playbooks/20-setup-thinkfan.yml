@@ -1,0 +1,37 @@
+-   hosts: localhost
+    become: true
+    tasks:
+
+    -   name: Install lm_sensors and thinkfan packages
+        ansible.builtin.command: paru -S --noconfirm lm_sensors thinkfan
+        become: false
+
+    -   name: Configure ThinkPad ACPI module for fan control
+        ansible.builtin.lineinfile:
+          path: /etc/modprobe.d/thinkpad_acpi.conf
+          line: 'options thinkpad_acpi fan_control=1 experimental=1'
+          create: true
+
+    -   name: Reload thinkpad_acpi module
+        ansible.builtin.shell: |
+          rmmod thinkpad_acpi 2>/dev/null || true
+          modprobe thinkpad_acpi
+
+    -   name: Verify fan interface exists
+        ansible.builtin.command: cat /proc/acpi/ibm/fan
+        register: fan_interface_check
+        changed_when: false
+
+    -   name: Copy thinkfan configuration
+        ansible.builtin.copy:
+          src: files/config/thinkfan/thinkfan.conf
+          dest: /etc/thinkfan.conf
+          owner: root
+          group: root
+          mode: '0644'
+
+    -   name: Enable and start thinkfan service
+        ansible.builtin.systemd:
+          name: thinkfan
+          enabled: true
+          state: started

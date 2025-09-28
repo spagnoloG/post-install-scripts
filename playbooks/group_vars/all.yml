@@ -58,6 +58,7 @@ base_packages:
 -   lsd
 -   less
 -   fprintd
+-   usbutils 
 
   # Networking tools
 -   openssh
