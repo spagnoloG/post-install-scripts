@@ -123,6 +123,7 @@ desktop_packages:
 -   file-roller
 -   shotwell
 -   feh
+-   gthumb 
 
   # File management
 -   ranger
