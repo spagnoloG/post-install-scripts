@@ -59,6 +59,11 @@ base_packages:
 -   less
 -   fprintd
 -   usbutils 
+-   git
+-   bat
+-   git-lfs
+-   systemctl-tui
+-   nload
 
   # Networking tools
 -   openssh
@@ -84,6 +89,7 @@ base_packages:
 -   yamlfmt
 #-   lua-format
 -   direnv
+-   shellcheck-bin
 
   # Miscellaneous utilities
 -   ntfs-3g
