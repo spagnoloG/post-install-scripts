@@ -100,6 +100,8 @@ base_packages:
 -   wget
 -   oh-my-zsh-git
 -   cliphist 
+-   perl-image-exiftool
+
 desktop_packages:
   # Browsers & communication
 -   brave-bin

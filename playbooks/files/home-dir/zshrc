@@ -442,6 +442,8 @@ zstyle ':fzf-tab:complete:*:argument-1' fzf-preview
 zstyle ':fzf-tab:complete:_move_to_trash:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
 zstyle ':fzf-tab:complete:cd:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
 zstyle ':fzf-tab:complete:z:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
+zstyle ':fzf-tab:complete:ls:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
+zstyle ':fzf-tab:complete:lsd:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 

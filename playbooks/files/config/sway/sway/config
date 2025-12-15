@@ -84,6 +84,10 @@ for_window [title = "feh"] floating enable, resize set width 800px height 600px
 for_window [title = "Figure 1"] floating enable, resize set width 800px height 600px
 for_window [app_id = "matplotlib"] floating enable, resize set width 800px height 600px
 for_window [app_id = "com.github.hluk.copyq"] floating enable, resize set width 800px height 600px
+for_window [app_id = "blueman-manager"] floating enable, resize set width 800px height 600px
+for_window [app_id = "blueberry.py"] floating enable, resize set width 800px height 600px
+for_window [app_id = "org.pulseaudio.pavucontrol"] floating enable, resize set width 800px height 600px
+
 # Command to list all windows in sway:
 # swaymsg -t get_tree or  swaymsg -t subscribe '["window"]'
 
@@ -148,7 +152,8 @@ client.background       #F8F8F2
     bindsym $mod+f1 exec swaylock --ignore-empty-password --show-failed-attempts --color 000000
 
     # Screenshot
-    bindsym Print exec sh -c 'QT_QPA_PLATFORM=xcb QT_AUTO_SCREEN_SCALE_FACTOR=1 flameshot gui'
+    #bindsym Print exec sh -c 'QT_QPA_PLATFORM=xcb QT_AUTO_SCREEN_SCALE_FACTOR=1 flameshot gui'
+    bindsym Print exec grim -g "$(slurp -d)" - | wl-copy
 
     bindsym $mod+p exec cliphist list | wofi -S dmenu | cliphist decode | wl-copy
 

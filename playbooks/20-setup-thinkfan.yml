@@ -1,60 +1,191 @@
--   hosts: localhost
-    become: true
-    tasks:
+- hosts: localhost
+  become: true
+  tasks:
 
-    -   name: Install lm_sensors and thinkfan packages
-        ansible.builtin.command: paru -S --noconfirm lm_sensors thinkfan
-        become: false
+    # Install packages
+    - name: Install lm_sensors and thinkfan
+      ansible.builtin.command: paru -S --noconfirm lm_sensors thinkfan
+      become: false
 
-    -   name: Configure ThinkPad ACPI module for fan control
-        ansible.builtin.lineinfile:
-          path: /etc/modprobe.d/thinkpad_acpi.conf
-          line: 'options thinkpad_acpi fan_control=1 experimental=1'
-          create: true
+    # Bootloader detection
+    - name: Detect systemd-boot
+      ansible.builtin.stat:
+        path: /boot/loader/loader.conf
+      register: sdboot
 
-    -   name: Reload thinkpad_acpi module
-        ansible.builtin.shell: |
-          rmmod thinkpad_acpi 2>/dev/null || true
-          modprobe thinkpad_acpi
+    - name: Detect GRUB
+      ansible.builtin.stat:
+        path: /etc/default/grub
+      register: grub
 
-    -   name: Rebuild initramfs to persist module options
-        ansible.builtin.command: mkinitcpio -P
+    # systemd-boot: append mem_sleep_default=deep to /etc/kernel/cmdline
+    - name: Read current kernel cmdline
+      when: sdboot.stat.exists
+      ansible.builtin.shell: cat /etc/kernel/cmdline 2>/dev/null || echo ""
+      register: current_cmdline
+      changed_when: false
 
-    -   name: Verify fan interface exists
-        ansible.builtin.command: cat /proc/acpi/ibm/fan
-        register: fan_interface_check
-        changed_when: false
+    - name: Append mem_sleep_default=deep to kernel cmdline
+      when: sdboot.stat.exists and 'mem_sleep_default=deep' not in current_cmdline.stdout
+      ansible.builtin.shell: |
+        mkdir -p /etc/kernel
+        printf "%s %s\n" "$(cat /etc/kernel/cmdline 2>/dev/null || echo '')" "mem_sleep_default=deep" | sed -E 's/ +/ /g' > /etc/kernel/cmdline
 
-    -   name: Copy thinkfan configuration
-        ansible.builtin.copy:
-          src: files/config/thinkfan/thinkfan.conf
-          dest: /etc/thinkfan.conf
-          owner: root
-          group: root
-          mode: '0644'
+    # GRUB: append to GRUB_CMDLINE_LINUX_DEFAULT
+    - name: Ensure mem_sleep_default=deep in GRUB
+      when: grub.stat.exists
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet mem_sleep_default=deep"'
+        backrefs: false
 
-    -   name: Enable and start thinkfan service
-        ansible.builtin.systemd:
-          name: thinkfan
-          enabled: true
-          state: started
+    - name: Rebuild GRUB config
+      when: grub.stat.exists
+      ansible.builtin.command: grub-mkconfig -o /boot/grub/grub.cfg
 
-    -   name: Create systemd sleep hook to reload thinkpad_acpi on resume
-        ansible.builtin.copy:
-          dest: /lib/systemd/system-sleep/thinkfan
-          mode: '0755'
-          owner: root
-          group: root
-          content: |
-            #!/bin/bash
-            case $1/$2 in
-              pre/*)
-                # before suspend/hibernate
-                ;;
-              post/*)
-                # after resume, reload thinkpad_acpi with fan_control
-                modprobe -r thinkpad_acpi
-                modprobe thinkpad_acpi fan_control=1
-                systemctl restart thinkfan
-                ;;
-            esac
+    # Fallback: tmpfiles.d sets deep on every boot
+    - name: Set deep via tmpfiles.d
+      ansible.builtin.copy:
+        dest: /etc/tmpfiles.d/mem_sleep.conf
+        mode: '0644'
+        content: "w /sys/power/mem_sleep - - - - deep\n"
+
+    - name: Apply tmpfiles now
+      ansible.builtin.command: systemd-tmpfiles --create
+
+    # thinkpad_acpi module config
+    - name: Configure thinkpad_acpi for fan control
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/thinkpad_acpi.conf
+        line: 'options thinkpad_acpi fan_control=1 experimental=1'
+        create: true
+
+    # Detect module state
+    - name: Detect thinkpad_acpi state
+      ansible.builtin.shell: |
+        KREL="$(uname -r)"
+        if modinfo -k "$KREL" thinkpad_acpi >/dev/null 2>&1; then
+          echo module
+        elif grep -qw thinkpad_acpi "/lib/modules/$KREL/modules.builtin" 2>/dev/null; then
+          echo builtin
+        else
+          echo missing
+        fi
+      register: tp_state
+      changed_when: false
+
+    - name: Warn if thinkpad_acpi is built-in
+      ansible.builtin.debug:
+        msg: "thinkpad_acpi is built-in. Add thinkpad_acpi.fan_control=1 to kernel cmdline and reboot."
+      when: tp_state.stdout == 'builtin'
+
+    - name: Reload thinkpad_acpi module
+      ansible.builtin.shell: |
+        rmmod thinkpad_acpi 2>/dev/null || true
+        modprobe thinkpad_acpi
+      when: tp_state.stdout == 'module'
+      failed_when: false
+
+    - name: Rebuild initramfs
+      ansible.builtin.command: mkinitcpio -P
+
+    # Check fan interface exists
+    - name: Check for /proc/acpi/ibm/fan
+      ansible.builtin.stat:
+        path: /proc/acpi/ibm/fan
+      register: fan_if
+
+    - name: Warn if fan interface missing
+      ansible.builtin.debug:
+        msg: "/proc/acpi/ibm/fan missing. Skipping thinkfan setup."
+      when: not fan_if.stat.exists
+
+    # Copy thinkfan config with device-anchored globs
+    - name: Copy thinkfan configuration
+      ansible.builtin.copy:
+        src: files/config/thinkfan/thinkfan.conf
+        dest: /etc/thinkfan.conf
+        owner: root
+        group: root
+        mode: '0644'
+      when: fan_if.stat.exists
+
+    # Systemd override: wait for sensors after resume
+    - name: Create thinkfan override directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/thinkfan.service.d
+        state: directory
+        mode: '0755'
+      when: fan_if.stat.exists
+
+    - name: Install systemd override for sensor wait
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/thinkfan.service.d/override.conf
+        mode: '0644'
+        content: |
+          [Unit]
+          After=suspend.target hibernate.target
+
+          [Service]
+          ExecStartPre=/bin/sh -c 'for i in $(seq 1 20); do \
+            for p in /sys/class/hwmon/hwmon*/temp*_input; do \
+              [ -r "$p" ] && exit 0; \
+            done; sleep 0.5; done; exit 1'
+          Restart=on-failure
+          RestartSec=3
+      when: fan_if.stat.exists
+
+    # Sleep hook: EC control during suspend
+    - name: Ensure system-sleep directory
+      ansible.builtin.file:
+        path: /etc/systemd/system-sleep
+        state: directory
+        mode: '0755'
+
+    - name: Install sleep hook for fan management
+      ansible.builtin.copy:
+        dest: /etc/systemd/system-sleep/thinkfan
+        mode: '0755'
+        owner: root
+        group: root
+        content: |
+          #!/bin/bash
+          case $1/$2 in
+            pre/*)
+              # Stop thinkfan, return control to EC
+              systemctl -q is-active thinkfan && systemctl stop thinkfan || true
+              [ -w /proc/acpi/ibm/fan ] && echo 'level auto' > /proc/acpi/ibm/fan || true
+              ;;
+            post/*)
+              # Reload module with params, restart thinkfan
+              modprobe -r thinkpad_acpi 2>/dev/null || true
+              modprobe thinkpad_acpi fan_control=1 experimental=1 2>/dev/null || true
+              for i in $(seq 1 20); do
+                for p in /sys/class/hwmon/hwmon*/temp*_input; do
+                  [ -r "$p" ] && { systemctl restart thinkfan; exit 0; }
+                done
+                sleep 0.5
+              done
+              systemctl restart thinkfan
+              ;;
+          esac
+
+    # Enable thinkfan
+    - name: Enable and start thinkfan
+      ansible.builtin.systemd:
+        daemon_reload: true
+        name: thinkfan
+        enabled: true
+        state: started
+      when: fan_if.stat.exists
+
+    # Set deep sleep now
+    - name: Read current mem_sleep setting
+      ansible.builtin.command: cat /sys/power/mem_sleep
+      register: memsleep
+      changed_when: false
+
+    - name: Switch to deep sleep immediately
+      ansible.builtin.shell: echo deep > /sys/power/mem_sleep
+      when: "'[deep]' not in memsleep.stdout"
