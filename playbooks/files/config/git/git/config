@@ -64,18 +64,3 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
-[safe]
-	directory = /home/spanskiduh/mnt/v-calcuon-Sy1y/slam/DPVO
-	directory = /home/spanskiduh/mnt/v-crushinator-Ky7T/slam/syncer
-	directory = /home/spanskiduh/mnt/v-crushinator-Ky7T/slam/mgs-slam
-	directory = /home/spanskiduh/mnt/v-crushinator-Ky7T/slam/mgs-slam/thirdparty/mast3r
-	directory = /home/spanskiduh/mnt/v-crushinator-Ky7T/slam/mgs-slam/thirdparty/mast3r/dust3r
-	directory = /home/spanskiduh/mnt/v-crushinator-oaSf/slam/mgs-slam
-	directory = /home/spanskiduh/mnt/v-crushinator-oaSf/slam/mgs-slam/thirdparty/mast3r
-	directory = /home/spanskiduh/mnt/v-crushinator-oaSf/slam/mgs-slam/thirdparty/mast3r/dust3r
-	directory = /home/spanskiduh/mnt/v-crushinator-KGiE/slam/syncer
-	directory = /home/spanskiduh/mnt/v-crushinator-sDhg/slam/syncer
-	directory = /home/spanskiduh/mnt/v-crushinator-9UdS/slam/syncer
-	directory = /home/spanskiduh/mnt/v-crushinator-txnC/d2s/uav_RoMa
-	directory = /home/spanskiduh/mnt/v-crushinator-jKcK/slam/MASt3R-SLAM-exp
-	directory = /home/spanskiduh/mnt/v-crushinator-jKcK/slam/MASt3R-SLAM-exp/MASt3R-SLAM

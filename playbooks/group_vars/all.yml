@@ -135,6 +135,14 @@ desktop_packages:
 
   # File management
 -   ranger
+-   ueberzugpp
+-   poppler
+-   ffmpegthumbnailer
+-   highlight
+-   mediainfo
+-   atool
+-   libarchive
+-   p7zip
 -   superfile
 -   thunar
 -   thunar-volman
