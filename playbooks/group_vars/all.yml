@@ -134,8 +134,9 @@ desktop_packages:
 -   gthumb 
 
   # File management
+-   gpxsee
 -   ranger
--   ueberzugpp
+-   catimg
 -   poppler
 -   ffmpegthumbnailer
 -   highlight
@@ -199,6 +200,17 @@ sound_packages:
 -   pavucontrol
 -   pipewire-alsa
 -   pipewire-pulse
+
+niri_packages:
+-   fuzzel
+-   swaylock-effects
+-   waybar
+-   mako
+-   wdisplays-persistent
+-   xdg-desktop-portal-wlr
+-   xdg-desktop-portal
+-   kanshi
+-   nwg-bar
 
 sway_packages:
 -   sway

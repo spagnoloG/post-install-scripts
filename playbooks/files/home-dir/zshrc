@@ -421,7 +421,9 @@ alias -- 'md-notes'='cd ~/Documents/md-notes/ && nvim .'
 alias -- 'night'='brightnessctl s 1%'
 alias -- 'opdf'='okular $(find ~/  -type f -iname '\''*pdf'\'' | fzf)'
 alias -- 'fh'='eval $(history | fzf --tac --no-sort | sed "s/ *[0-9]* *//")'
-alias -- 'fp'='fzf --preview "bat --color=always --style=numbers --line-range=:500 {}"'
+fp() {
+    fzf --preview 'if [[ -d "{}" ]]; then lsd --color=always --icon=always -A "{}" | head -100; else mime=$(file --brief --mime-type -- "{}" 2>/dev/null); if [[ "$mime" == image/* ]]; then if command -v catimg >/dev/null 2>&1; then catimg -w ${FZF_PREVIEW_COLUMNS:-80} -- "{}" 2>/dev/null || file -- "{}"; else file -- "{}"; fi; elif [[ "$mime" == text/* || "$mime" == application/json || "$mime" == application/xml || "$mime" == application/javascript || "$mime" == application/x-sh || "$mime" == application/x-shellscript || "$mime" == inode/x-empty ]]; then bat --color=always --style=numbers --line-range=:500 "{}" 2>/dev/null; else file -- "{}"; fi; fi'
+}
 alias -- 'rm'='_move_to_trash'
 alias -- 'rot13'='tr '\''A-Za-z'\'' '\''N-ZA-Mn-za-m'\'''
 alias -- 'sup'='power off'
@@ -439,11 +441,11 @@ compdef _files _move_to_trash
 zstyle ':fzf-tab:complete:*:*' fzf-preview 'less ${(Q)realpath}'
 zstyle ':fzf-tab:complete:*:options' fzf-preview
 zstyle ':fzf-tab:complete:*:argument-1' fzf-preview
-zstyle ':fzf-tab:complete:_move_to_trash:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
-zstyle ':fzf-tab:complete:cd:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
-zstyle ':fzf-tab:complete:z:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
-zstyle ':fzf-tab:complete:ls:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
-zstyle ':fzf-tab:complete:lsd:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && lsd --color=always --icon=always -A $realpath | head -100'
+zstyle ':fzf-tab:complete:_move_to_trash:*' fzf-preview '[[ -f "$realpath" ]] && { mime=$(file --brief --mime-type -- "$realpath" 2>/dev/null); if [[ "$mime" == image/* ]]; then if command -v catimg >/dev/null 2>&1; then catimg -w ${FZF_PREVIEW_COLUMNS:-80} -- "$realpath" 2>/dev/null || file -- "$realpath"; else file -- "$realpath"; fi; elif [[ "$mime" == text/* || "$mime" == application/json || "$mime" == application/xml || "$mime" == application/javascript || "$mime" == application/x-sh || "$mime" == application/x-shellscript || "$mime" == inode/x-empty ]]; then bat --color=always --style=numbers --line-range=:500 "$realpath" 2>/dev/null; else file -- "$realpath"; fi; } || [[ -d "$realpath" ]] && lsd --color=always --icon=always -A "$realpath" | head -100'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview '[[ -f "$realpath" ]] && { mime=$(file --brief --mime-type -- "$realpath" 2>/dev/null); if [[ "$mime" == image/* ]]; then if command -v catimg >/dev/null 2>&1; then catimg -w ${FZF_PREVIEW_COLUMNS:-80} -- "$realpath" 2>/dev/null || file -- "$realpath"; else file -- "$realpath"; fi; elif [[ "$mime" == text/* || "$mime" == application/json || "$mime" == application/xml || "$mime" == application/javascript || "$mime" == application/x-sh || "$mime" == application/x-shellscript || "$mime" == inode/x-empty ]]; then bat --color=always --style=numbers --line-range=:500 "$realpath" 2>/dev/null; else file -- "$realpath"; fi; } || [[ -d "$realpath" ]] && lsd --color=always --icon=always -A "$realpath" | head -100'
+zstyle ':fzf-tab:complete:z:*' fzf-preview '[[ -f "$realpath" ]] && { mime=$(file --brief --mime-type -- "$realpath" 2>/dev/null); if [[ "$mime" == image/* ]]; then if command -v catimg >/dev/null 2>&1; then catimg -w ${FZF_PREVIEW_COLUMNS:-80} -- "$realpath" 2>/dev/null || file -- "$realpath"; else file -- "$realpath"; fi; elif [[ "$mime" == text/* || "$mime" == application/json || "$mime" == application/xml || "$mime" == application/javascript || "$mime" == application/x-sh || "$mime" == application/x-shellscript || "$mime" == inode/x-empty ]]; then bat --color=always --style=numbers --line-range=:500 "$realpath" 2>/dev/null; else file -- "$realpath"; fi; } || [[ -d "$realpath" ]] && lsd --color=always --icon=always -A "$realpath" | head -100'
+zstyle ':fzf-tab:complete:ls:*' fzf-preview '[[ -f "$realpath" ]] && { mime=$(file --brief --mime-type -- "$realpath" 2>/dev/null); if [[ "$mime" == image/* ]]; then if command -v catimg >/dev/null 2>&1; then catimg -w ${FZF_PREVIEW_COLUMNS:-80} -- "$realpath" 2>/dev/null || file -- "$realpath"; else file -- "$realpath"; fi; elif [[ "$mime" == text/* || "$mime" == application/json || "$mime" == application/xml || "$mime" == application/javascript || "$mime" == application/x-sh || "$mime" == application/x-shellscript || "$mime" == inode/x-empty ]]; then bat --color=always --style=numbers --line-range=:500 "$realpath" 2>/dev/null; else file -- "$realpath"; fi; } || [[ -d "$realpath" ]] && lsd --color=always --icon=always -A "$realpath" | head -100'
+zstyle ':fzf-tab:complete:lsd:*' fzf-preview '[[ -f "$realpath" ]] && { mime=$(file --brief --mime-type -- "$realpath" 2>/dev/null); if [[ "$mime" == image/* ]]; then if command -v catimg >/dev/null 2>&1; then catimg -w ${FZF_PREVIEW_COLUMNS:-80} -- "$realpath" 2>/dev/null || file -- "$realpath"; else file -- "$realpath"; fi; elif [[ "$mime" == text/* || "$mime" == application/json || "$mime" == application/xml || "$mime" == application/javascript || "$mime" == application/x-sh || "$mime" == application/x-shellscript || "$mime" == inode/x-empty ]]; then bat --color=always --style=numbers --line-range=:500 "$realpath" 2>/dev/null; else file -- "$realpath"; fi; } || [[ -d "$realpath" ]] && lsd --color=always --icon=always -A "$realpath" | head -100'
 
 [[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 
@@ -522,7 +524,7 @@ fkill() {
 # Quickly edit files in current directory
 fe() {
     local file
-    file=$(find . -type f 2>/dev/null | fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}' --header='Select file to edit')
+    file=$(find . -type f 2>/dev/null | fzf --preview 'mime=$(file --brief --mime-type -- "{}" 2>/dev/null); if [[ "$mime" == image/* ]]; then if command -v catimg >/dev/null 2>&1; then catimg -w ${FZF_PREVIEW_COLUMNS:-80} -- "{}" 2>/dev/null || file -- "{}"; else file -- "{}"; fi; elif [[ "$mime" == text/* || "$mime" == application/json || "$mime" == application/xml || "$mime" == application/javascript || "$mime" == application/x-sh || "$mime" == application/x-shellscript || "$mime" == inode/x-empty ]]; then bat --color=always --style=numbers --line-range=:500 "{}" 2>/dev/null; else file -- "{}"; fi' --header='Select file to edit')
     if [[ -n $file ]]; then
         ${EDITOR:-nvim} "$file"
     fi
@@ -565,4 +567,4 @@ if [ -s "/usr/share/nvm/init-nvm.sh" ]; then
     source "/usr/share/nvm/init-nvm.sh"
 fi
 
-export PATH="${HOME}/.local/bin:${PATH}"
+export PATH="${PATH}:${HOME}/.local/bin"

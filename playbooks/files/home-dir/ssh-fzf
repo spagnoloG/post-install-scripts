@@ -21,6 +21,9 @@ FZF_REVERSE="${FZF_REVERSE:---reverse}"
 SSH_CONFIG="${SSH_CONFIG:-$HOME/.ssh/config}"
 MOUNT_BASE="${MOUNT_BASE:-$HOME/mnt}"
 DEFAULT_REMOTE_PATH="${DEFAULT_REMOTE_PATH:-}"   # set to e.g. /var/www if you want Ctrl-O to mount that
+SSHFS_SERVER_ALIVE_INTERVAL="${SSHFS_SERVER_ALIVE_INTERVAL:-60}"
+SSHFS_SERVER_ALIVE_COUNT_MAX="${SSHFS_SERVER_ALIVE_COUNT_MAX:-2}"
+SSHFS_CONNECT_TIMEOUT="${SSHFS_CONNECT_TIMEOUT:-30}"
 mkdir -p "$MOUNT_BASE"
 
 die(){ echo "Error: $*" >&2; exit 1; }
@@ -186,9 +189,9 @@ do_mount(){
 
   local sshfs_opts=(
     -o reconnect                    # Auto-reconnect on connection loss
-    -o ServerAliveInterval=15       # Keep connection alive
-    -o ServerAliveCountMax=3        # Max missed keepalives before disconnect
-    -o ConnectTimeout=10            # Connection timeout
+    -o "ServerAliveInterval=$SSHFS_SERVER_ALIVE_INTERVAL"  # Back off keepalives to reduce reconnect churn
+    -o "ServerAliveCountMax=$SSHFS_SERVER_ALIVE_COUNT_MAX" # Tolerate brief drops before declaring dead
+    -o "ConnectTimeout=$SSHFS_CONNECT_TIMEOUT"             # Slow down repeated retry attempts on bad links
     -o cache=yes                    # Enable local caching for better performance
     -o kernel_cache                 # Use kernel cache
     -o compression=yes              # Enable compression
