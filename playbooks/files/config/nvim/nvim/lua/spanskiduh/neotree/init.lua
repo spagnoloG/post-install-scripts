@@ -2,6 +2,8 @@ local ok, neotree = pcall(require, "neo-tree")
 
 if not ok then return end
 
+local open_now = {"open_drop", nowait = true}
+
 neotree.setup {
     close_if_last_window = true,
     popup_border_style = "rounded",
@@ -92,7 +94,9 @@ neotree.setup {
                 ["l"] = "focus_preview",
                 ["S"] = "open_split",
                 ["s"] = "open_vsplit",
-                ["<cr>"] = "open",
+                ["<cr>"] = open_now,
+                ["<2-LeftMouse>"] = open_now,
+                ["<LeftMouse>"] = open_now,
                 ["<esc>"] = "cancel", -- close preview or floating neo-tree window
                 ["P"] = {
                     "toggle_preview",
@@ -126,6 +130,7 @@ neotree.setup {
             enabled = true
         },
         group_empty_dirs = false, -- when true, empty folders will be grouped together
+        hijack_netrw_behavior = "disabled",
         use_libuv_file_watcher = true, -- This will use the OS level file watchers to detect changes
         -- instead of relying on nvim autocmd events.
         window = {
@@ -148,7 +153,9 @@ neotree.setup {
                 ["l"] = "focus_preview",
                 ["S"] = "open_split",
                 ["s"] = "open_vsplit",
-                ["<cr>"] = "open",
+                ["<cr>"] = open_now,
+                ["<2-LeftMouse>"] = open_now,
+                ["<LeftMouse>"] = open_now,
                 ["<esc>"] = "cancel", -- close preview or floating neo-tree window
                 ["P"] = {
                     "toggle_preview",

@@ -1,8 +1,12 @@
 local ok1, telescope = pcall(require, "telescope")
 local ok2, telescope_builtin = pcall(require, "telescope.builtin")
 local ok3, wk = pcall(require, "which-key")
+local ok4, ts_parsers = pcall(require, "nvim-treesitter.parsers")
 
 if not (ok1 and ok2 and ok3) then return end
+
+-- Guard against nvim-treesitter API changes that can break Telescope previewers.
+local has_ts_ft_to_lang = ok4 and type(ts_parsers.ft_to_lang) == "function"
 
 -- Register Telescope key mappings with WhichKey
 wk.add({
@@ -25,6 +29,7 @@ wk.add({
 telescope.setup {
     picker = {hidden = true},
     defaults = {
+        preview = {treesitter = has_ts_ft_to_lang},
         vimgrep_arguments = {
             "rg", "--color=never", "--no-heading", "--with-filename",
             "--line-number", "--column", "--no-ignore", "--smart-case",

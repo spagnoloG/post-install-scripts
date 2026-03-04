@@ -215,7 +215,7 @@ require("lazy").setup({
             reset = true, -- reset the runtime path to improve startup time
             paths = {}, -- add any custom paths here that you want to includes in the rtp
             disabled_plugins = {
-                "gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin",
+                "gzip", "matchit", "matchparen", "tarPlugin",
                 "tohtml", "tutor", "zipPlugin"
             }
         }
