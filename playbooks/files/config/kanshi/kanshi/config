@@ -2,10 +2,15 @@
 #  niri msg outputs
 
 profile {
-    output "Samsung Electric Company C34H89x H4ZRB05512" enable mode 3440x1440@49.987Hz scale 1.00 position 0,0
+    output "Samsung Electric Company C34H89x H4ZRB05512" enable mode 3440x1440@100.0Hz scale 1.00 position 0,0
     output "AU Optronics 0xD291 Unknown" enable mode 1920x1200@60.026Hz scale 1.00 position 760,1440
 }
 
 profile {
     output "AU Optronics 0xD291 Unknown" enable mode 1920x1200@60.026Hz scale 1.00 position 0,0
+}
+
+profile {
+    output eDP-1 position 760,1440 mode 1920x1200@60.0260 scale 1.00 transform normal
+    output HDMI-A-1 position 0,0 mode 3440x1440@49.9870 scale 1.00 transform normal
 }
