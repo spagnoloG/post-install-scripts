@@ -233,6 +233,11 @@ layout {
 spawn-at-startup "swaybg"
 spawn-sh-at-startup "pkill swaybg; swaybg -i /home/spanskiduh/Pictures/wall/w.jpg -m fill"
 spawn-at-startup "kanshi"
+spawn-at-startup "alacritty"
+spawn-at-startup "brave"
+spawn-at-startup "slack"
+spawn-at-startup "spotify"
+spawn-at-startup "zettlr"
 
 
 
@@ -270,6 +275,13 @@ animations {
     // slowdown 3.0
 }
 
+// Named workspaces in desired order.
+workspace "code_terminal"
+workspace "browser"
+workspace "chat"
+workspace "media"
+workspace "notes"
+
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
 // https://yalter.github.io/niri/Configuration:-Window-Rules
@@ -291,6 +303,35 @@ window-rule {
     // - Flatpak Firefox (app-id is "org.mozilla.firefox")
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
+}
+
+window-rule {
+    match app-id=r#"(?i)(code|codium)"#
+    match app-id=r#"(?i)alacritty"#
+    open-on-workspace "code_terminal"
+}
+
+window-rule {
+    match app-id=r#"(?i)brave"#
+    match app-id=r#"firefox$"#
+    match app-id=r#"(?i)(google-chrome|chromium|chrome)"#
+    open-on-workspace "browser"
+}
+
+window-rule {
+    match app-id=r#"(?i)slack"#
+    match app-id=r#"(?i)discord"#
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match app-id=r#"(?i)spotify"#
+    open-on-workspace "media"
+}
+
+window-rule {
+    match app-id=r#"(?i)zettlr"#
+    open-on-workspace "notes"
 }
 
 // Example: block out two password managers from screen capture.
@@ -481,20 +522,20 @@ binds {
     //
     // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
     // will all refer to the 3rd workspace.
-    Mod+1 { focus-workspace 1; }
-    Mod+2 { focus-workspace 2; }
-    Mod+3 { focus-workspace 3; }
-    Mod+4 { focus-workspace 4; }
-    Mod+5 { focus-workspace 5; }
+    Mod+1 { focus-workspace "code_terminal"; }
+    Mod+2 { focus-workspace "browser"; }
+    Mod+3 { focus-workspace "chat"; }
+    Mod+4 { focus-workspace "media"; }
+    Mod+5 { focus-workspace "notes"; }
     Mod+6 { focus-workspace 6; }
     Mod+7 { focus-workspace 7; }
     Mod+8 { focus-workspace 8; }
     Mod+9 { focus-workspace 9; }
-    Mod+Ctrl+1 { move-column-to-workspace 1; }
-    Mod+Ctrl+2 { move-column-to-workspace 2; }
-    Mod+Ctrl+3 { move-column-to-workspace 3; }
-    Mod+Ctrl+4 { move-column-to-workspace 4; }
-    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+1 { move-column-to-workspace "code_terminal"; }
+    Mod+Ctrl+2 { move-column-to-workspace "browser"; }
+    Mod+Ctrl+3 { move-column-to-workspace "chat"; }
+    Mod+Ctrl+4 { move-column-to-workspace "media"; }
+    Mod+Ctrl+5 { move-column-to-workspace "notes"; }
     Mod+Ctrl+6 { move-column-to-workspace 6; }
     Mod+Ctrl+7 { move-column-to-workspace 7; }
     Mod+Ctrl+8 { move-column-to-workspace 8; }
