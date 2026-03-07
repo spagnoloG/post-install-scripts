@@ -201,7 +201,7 @@ sound_packages:
 -   pipewire-alsa
 -   pipewire-pulse
 
-niri_packages:
+niri_packages: #TODO: Include in playbooks
 -   fuzzel
 -   swaylock-effects
 -   waybar
@@ -211,6 +211,7 @@ niri_packages:
 -   xdg-desktop-portal
 -   kanshi
 -   nwg-bar
+-   xwayland-satellite
 
 sway_packages:
 -   sway

@@ -256,6 +256,11 @@ hotkey-overlay {
 // After enabling or disabling this, you need to restart the apps for this to take effect.
 prefer-no-csd
 
+// Ensure X11 apps can run via Xwayland bridge.
+xwayland-satellite {
+    path "/usr/bin/xwayland-satellite"
+}
+
 // You can change the path where screenshots are saved.
 // A ~ at the front will be expanded to the home directory.
 // The path is formatted with strftime(3) to give you the screenshot date and time.
@@ -303,6 +308,13 @@ window-rule {
     // - Flatpak Firefox (app-id is "org.mozilla.firefox")
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
+}
+
+// Keep new windows in normal tiled mode (with gaps) by default.
+window-rule {
+    open-fullscreen false
+    open-maximized false
+    open-maximized-to-edges false
 }
 
 window-rule {
@@ -563,8 +575,8 @@ binds {
     // Mod+R { switch-preset-column-width-back; }
     Mod+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
-    Mod+F { maximize-column; }
-    Mod+Shift+F { fullscreen-window; }
+    Mod+F hotkey-overlay-title="Toggle Maximize Column" { maximize-column; }
+    Mod+Shift+F hotkey-overlay-title="Toggle Fullscreen Window" { fullscreen-window; }
 
     // Expand the focused column to space not taken up by other fully visible columns.
     // Makes the column "fill the rest of the space".
