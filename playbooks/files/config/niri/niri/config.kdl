@@ -385,6 +385,8 @@ binds {
     Mod+Return hotkey-overlay-title="Open a Terminal: alacritty" { spawn "alacritty"; }
     Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+    Super+Alt+R hotkey-overlay-title="Start Screen Recording: wf-recorder" { spawn-sh "~/.config/niri/screen-record.sh start"; }
+    Super+Alt+Shift+R hotkey-overlay-title="Stop Screen Recording: wf-recorder" { spawn-sh "~/.config/niri/screen-record.sh stop"; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
@@ -536,8 +538,8 @@ binds {
     // will all refer to the 3rd workspace.
     Mod+1 { focus-workspace "code_terminal"; }
     Mod+2 { focus-workspace "browser"; }
-    Mod+3 { focus-workspace "chat"; }
-    Mod+4 { focus-workspace "media"; }
+    Mod+3 { focus-workspace "media"; }
+    Mod+4 { focus-workspace "chat"; }
     Mod+5 { focus-workspace "notes"; }
     Mod+6 { focus-workspace 6; }
     Mod+7 { focus-workspace 7; }
@@ -545,8 +547,8 @@ binds {
     Mod+9 { focus-workspace 9; }
     Mod+Ctrl+1 { move-column-to-workspace "code_terminal"; }
     Mod+Ctrl+2 { move-column-to-workspace "browser"; }
-    Mod+Ctrl+3 { move-column-to-workspace "chat"; }
-    Mod+Ctrl+4 { move-column-to-workspace "media"; }
+    Mod+Ctrl+3 { move-column-to-workspace "media"; }
+    Mod+Ctrl+4 { move-column-to-workspace "chat"; }
     Mod+Ctrl+5 { move-column-to-workspace "notes"; }
     Mod+Ctrl+6 { move-column-to-workspace 6; }
     Mod+Ctrl+7 { move-column-to-workspace 7; }

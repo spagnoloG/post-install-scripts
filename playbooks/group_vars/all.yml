@@ -212,6 +212,7 @@ niri_packages: #TODO: Include in playbooks
 -   kanshi
 -   nwg-bar
 -   xwayland-satellite
+-   wf-recorder
 
 sway_packages:
 -   sway
