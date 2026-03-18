@@ -82,34 +82,31 @@ require("lazy").setup({
             "tpope/vim-fugitive",
             cmd = {"Git", "Gdiffsplit", "Gwrite", "GDelete"},
             keys = {{"<leader>gs", vim.cmd.Git, desc = "Git Status"}}
-        }, -- LSP Support (conditionally load lspconfig for compatibility)
+        }, -- Mason package manager
+        {
+            "mason-org/mason.nvim",
+            opts = {
+                ui = {
+                    icons = {
+                        package_installed = "✓",
+                        package_pending = "➜",
+                        package_uninstalled = "✗"
+                    }
+                }
+            }
+        }, -- Mason bridge for LSP servers
+        {
+            "mason-org/mason-lspconfig.nvim",
+            dependencies = {{"mason-org/mason.nvim"}, {"neovim/nvim-lspconfig"}},
+            opts = {
+                ensure_installed = {"lua_ls", "marksman", "rust_analyzer"},
+                automatic_enable = false
+            }
+        }, -- LSP configuration (Neovim 0.11+)
         {
             "neovim/nvim-lspconfig",
-            cond = function()
-                -- Only load lspconfig if we don't have native vim.lsp.config
-                return not vim.lsp.config
-            end,
-            cmd = {"LspInfo", "LspInstall", "LspStart"},
-            event = {"BufReadPre", "BufNewFile"},
-            dependencies = {
-                {"hrsh7th/cmp-nvim-lsp"}, {"williamboman/mason-lspconfig.nvim"}
-            },
-            config = function() require("spanskiduh.lsp") end
-        }, -- Native LSP configuration (for Neovim 0.11+)
-        {
-            "hrsh7th/cmp-nvim-lsp",
-            cond = function()
-                -- Load native LSP setup if we have vim.lsp.config
-                return vim.lsp.config ~= nil
-            end,
-            event = {"BufReadPre", "BufNewFile"},
-            dependencies = {{"williamboman/mason-lspconfig.nvim"}},
-            config = function() require("spanskiduh.lsp") end
-        }, -- Mason for LSP server management
-        {
-            "williamboman/mason.nvim",
-            lazy = false,
-            config = function() require("mason").setup() end
+            dependencies = {{"hrsh7th/cmp-nvim-lsp"}},
+            config = function() require("spanskiduh.lsp").setup() end
         }, -- Autocompletion
         {
             "hrsh7th/nvim-cmp",
@@ -117,13 +114,13 @@ require("lazy").setup({
             dependencies = {
                 {"L3MON4D3/LuaSnip"}, {"hrsh7th/cmp-buffer"},
                 {"hrsh7th/cmp-path"}, {"saadparwaiz1/cmp_luasnip"},
-                {"hrsh7th/cmp-nvim-lsp"}, {"hrsh7th/cmp-nvim-lua"},
-                {"rafamadriz/friendly-snippets"}
-            }
+                {"hrsh7th/cmp-nvim-lsp"}, {"rafamadriz/friendly-snippets"},
+                {"R-nvim/cmp-r"}
+            },
+            config = function() require("spanskiduh.lsp").setup_cmp() end
         }, -- LaTeX support
         {
             "lervag/vimtex",
-            lazy = false, -- VimTeX should not be lazy-loaded
             ft = {"tex", "latex"},
             config = function() require("spanskiduh.vimtex") end
         }, -- File explorer
@@ -148,17 +145,10 @@ require("lazy").setup({
         {"github/copilot.vim", event = "InsertEnter"}, -- R language support
         {
             "R-nvim/R.nvim",
-            lazy = false,
             version = "~1.0.0",
             ft = {"r", "rmd", "quarto"},
             config = function() require("spanskiduh.rnvim") end
-        }, -- R completion
-        {
-            "R-nvim/cmp-r",
-            ft = {"r", "rmd", "quarto"},
-            dependencies = {"hrsh7th/nvim-cmp"}
-        }, -- Which-key for keybinding hints
-        {
+        }, {
             "folke/which-key.nvim",
             event = "VeryLazy",
             config = function() require("spanskiduh.which-key") end
@@ -215,8 +205,8 @@ require("lazy").setup({
             reset = true, -- reset the runtime path to improve startup time
             paths = {}, -- add any custom paths here that you want to includes in the rtp
             disabled_plugins = {
-                "gzip", "matchit", "matchparen", "tarPlugin",
-                "tohtml", "tutor", "zipPlugin"
+                "gzip", "matchit", "matchparen", "tarPlugin", "tohtml", "tutor",
+                "zipPlugin"
             }
         }
     }

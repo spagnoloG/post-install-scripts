@@ -1,240 +1,149 @@
-local ok1, mason = pcall(require, 'mason')
-local ok2, mason_lspconfig = pcall(require, 'mason-lspconfig')
-local ok3, cmp = pcall(require, 'cmp')
-local ok4, wk = pcall(require, "which-key")
+local M = {}
 
-if not (ok1 and ok2 and ok3 and ok4) then return end
+local servers = {"lua_ls", "marksman", "rust_analyzer"}
 
--- Command to show all diagnostics (including warnings)
-vim.api.nvim_create_user_command("ShowAllDiagnostics", function()
+local function lsp_capabilities()
+    local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+    if ok then return cmp_nvim_lsp.default_capabilities() end
+    return vim.lsp.protocol.make_client_capabilities()
+end
+
+local function set_lsp_keymaps(bufnr)
+    if vim.b[bufnr].spanskiduh_lsp_keymaps then return end
+    vim.b[bufnr].spanskiduh_lsp_keymaps = true
+
+    local opts = {buffer = bufnr, silent = true}
+
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition,
+                   vim.tbl_extend("force", opts, {desc = "LSP Definition"}))
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration,
+                   vim.tbl_extend("force", opts, {desc = "LSP Declaration"}))
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation,
+                   vim.tbl_extend("force", opts, {desc = "LSP Implementation"}))
+    vim.keymap.set("n", "gr", vim.lsp.buf.references,
+                   vim.tbl_extend("force", opts, {desc = "LSP References"}))
+    vim.keymap.set("n", "K", vim.lsp.buf.hover,
+                   vim.tbl_extend("force", opts, {desc = "LSP Hover"}))
+    vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help,
+                   vim.tbl_extend("force", opts, {desc = "LSP Signature Help"}))
+    vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action,
+                   vim.tbl_extend("force", opts, {desc = "LSP Code Action"}))
+    vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float,
+                   vim.tbl_extend("force", opts, {desc = "Line Diagnostics"}))
+    vim.keymap.set("n", "<leader>lf",
+                   function() vim.lsp.buf.format({async = true}) end,
+                   vim.tbl_extend("force", opts, {desc = "LSP Format"}))
+    vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename,
+                   vim.tbl_extend("force", opts, {desc = "LSP Rename"}))
+    vim.keymap.set("n", "<leader>ls", vim.lsp.buf.workspace_symbol,
+                   vim.tbl_extend("force", opts, {desc = "Workspace Symbols"}))
+    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force",
+                                                                       opts, {
+        desc = "Previous Diagnostic"
+    }))
+    vim.keymap.set("n", "]d", vim.diagnostic.goto_next,
+                   vim.tbl_extend("force", opts, {desc = "Next Diagnostic"}))
+end
+
+function M.setup()
     vim.diagnostic.config({
-        virtual_text = true,
+        severity_sort = true,
         signs = true,
         underline = true,
-        update_in_insert = false
-    })
-end, {})
-
--- Command to revert to showing only errors
-vim.api.nvim_create_user_command("ShowErrorDiagnostics", function()
-    vim.diagnostic.config({
-        virtual_text = {severity = {min = vim.diagnostic.severity.ERROR}},
-        signs = true,
-        underline = {severity = {min = vim.diagnostic.severity.ERROR}},
-        update_in_insert = false
-    })
-end, {})
-
--- Track which buffers have LSP keybindings registered
-local lsp_keybinds_registered = {}
-
--- Native LSP on_attach function
-local function on_attach(client, bufnr)
-    if client.name == "eslint" then
-        vim.lsp.stop_client(client.id)
-        return
-    end
-
-    -- Only register keybindings once per buffer
-    if lsp_keybinds_registered[bufnr] then return end
-    lsp_keybinds_registered[bufnr] = true
-
-    -- Register LSP key mappings for WhichKey
-    wk.add({
-        {
-            "gd",
-            function() vim.lsp.buf.definition() end,
-            desc = "Go to Definition",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "K",
-            function() vim.lsp.buf.hover() end,
-            desc = "Hover Documentation",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "<leader>vws",
-            function() vim.lsp.buf.workspace_symbol() end,
-            desc = "Workspace Symbol",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "<leader>vd",
-            function() vim.diagnostic.open_float() end,
-            desc = "View Diagnostic",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "[d",
-            function() vim.diagnostic.goto_next() end,
-            desc = "Next Diagnostic",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "]d",
-            function() vim.diagnostic.goto_prev() end,
-            desc = "Previous Diagnostic",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "<leader>vca",
-            function() vim.lsp.buf.code_action() end,
-            desc = "Code Action",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "<leader>vrr",
-            function() vim.lsp.buf.references() end,
-            desc = "References",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "<leader>vrn",
-            function() vim.lsp.buf.rename() end,
-            desc = "Rename Symbol",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "<C-h>",
-            function() vim.lsp.buf.signature_help() end,
-            desc = "Signature Help",
-            mode = "i",
-            buffer = bufnr
-        }, {
-            "<leader>sd",
-            function() vim.cmd("ShowAllDiagnostics") end,
-            desc = "Show Line Diagnostics",
-            mode = "n",
-            buffer = bufnr
-        }, {
-            "<leader>hd",
-            function() vim.cmd("ShowErrorDiagnostics") end,
-            desc = "Hide Line Diagnostics",
-            mode = "n",
-            buffer = bufnr
+        update_in_insert = false,
+        float = {border = "rounded", source = "if_many"},
+        virtual_text = {
+            source = "if_many",
+            spacing = 2,
+            severity = {min = vim.diagnostic.severity.ERROR}
         }
     })
+
+    local augroup = vim.api
+                        .nvim_create_augroup("spanskiduh-lsp", {clear = true})
+
+    vim.api.nvim_create_autocmd("LspAttach", {
+        group = augroup,
+        callback = function(args) set_lsp_keymaps(args.buf) end
+    })
+
+    vim.lsp.config("*", {capabilities = lsp_capabilities()})
+
+    vim.lsp.config("lua_ls", {
+        settings = {
+            Lua = {
+                runtime = {version = "LuaJIT"},
+                completion = {callSnippet = "Replace"},
+                diagnostics = {globals = {"vim"}},
+                workspace = {
+                    checkThirdParty = false,
+                    library = {vim.env.VIMRUNTIME}
+                }
+            }
+        }
+    })
+
+    vim.lsp.config("rust_analyzer", {
+        settings = {["rust-analyzer"] = {cargo = {allFeatures = true}}}
+    })
+
+    for _, server in ipairs(servers) do vim.lsp.enable(server) end
 end
 
--- Mason setup for installing and configuring LSP servers
-mason.setup({
-    ui = {
-        icons = {
-            package_installed = "✓",
-            package_pending = "➜",
-            package_uninstalled = "✗"
-        }
-    }
-})
+function M.setup_cmp()
+    local ok_cmp, cmp = pcall(require, "cmp")
+    if not ok_cmp then return end
 
-mason_lspconfig.setup({
-    ensure_installed = {'rust_analyzer', 'pylsp', 'marksman'},
-    automatic_installation = true
-})
+    local ok_luasnip, luasnip = pcall(require, "luasnip")
+    local ok_cmp_r, cmp_r = pcall(require, "cmp_r")
 
--- Native LSP setup with capabilities (Neovim 0.11+ compatible)
-local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
-
--- Check if we have the new vim.lsp.config API (Neovim 0.11+)
-if vim.lsp.config then
-    -- Use new native API
-    local servers = {
-        rust_analyzer = {
-            cmd = {'rust-analyzer'},
-            filetypes = {'rust'},
-            root_patterns = {'Cargo.toml', 'rust-project.json'}
-        },
-        pylsp = {
-            cmd = {'pylsp'},
-            filetypes = {'python'},
-            root_patterns = {
-                'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt',
-                'Pipfile'
-            }
-        },
-        marksman = {
-            cmd = {'marksman', 'server'},
-            filetypes = {'markdown'},
-            root_patterns = {'.marksman.toml', '.git'}
-        }
-    }
-
-    for server_name, config in pairs(servers) do
-        vim.lsp.config[server_name] = vim.tbl_extend('force', config, {
-            capabilities = lsp_capabilities,
-            on_attach = on_attach
+    if ok_luasnip then
+        luasnip.config.setup({
+            update_events = "TextChanged,TextChangedI",
+            enable_autosnippets = false
         })
+
+        local ok_loader, vscode_loader = pcall(require,
+                                               "luasnip.loaders.from_vscode")
+        if ok_loader then vscode_loader.lazy_load() end
     end
 
-    -- Auto-start LSP servers for appropriate filetypes
-    vim.api.nvim_create_autocmd('FileType', {
-        callback = function(args)
-            local filetype = args.match
-            for server_name, config in pairs(servers) do
-                if vim.tbl_contains(config.filetypes or {}, filetype) then
-                    vim.lsp.enable(server_name)
+    local sources = {{name = "nvim_lsp"}, {name = "path"}, {name = "buffer"}}
+
+    if ok_luasnip then table.insert(sources, {name = "luasnip"}) end
+
+    local cmp_select = {behavior = cmp.SelectBehavior.Select}
+
+    cmp.setup({
+        snippet = {
+            expand = function(args)
+                if ok_luasnip then
+                    luasnip.lsp_expand(args.body)
+                elseif vim.snippet and vim.snippet.expand then
+                    vim.snippet.expand(args.body)
                 end
             end
-        end
+        },
+        mapping = {
+            ["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
+            ["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
+            ["<C-y>"] = cmp.mapping.confirm({select = true}),
+            ["<C-Space>"] = cmp.mapping.complete(),
+            ["<Tab>"] = nil,
+            ["<S-Tab>"] = nil
+        },
+        sources = sources
     })
-else
-    -- Fallback to lspconfig for older versions
-    local ok_lspconfig, lspconfig = pcall(require, 'lspconfig')
-    if ok_lspconfig then
-        local servers = {'rust_analyzer', 'pylsp', 'marksman'}
-        for _, server in ipairs(servers) do
-            lspconfig[server].setup({
-                capabilities = lsp_capabilities,
-                on_attach = on_attach
-            })
+
+    if ok_cmp_r then
+        cmp_r.setup({filetypes = {"r", "rmd", "quarto"}, doc_width = 58})
+
+        local r_sources = vim.list_extend({{name = "cmp_r"}},
+                                          vim.deepcopy(sources))
+        for _, filetype in ipairs({"r", "rmd", "quarto"}) do
+            cmp.setup.filetype(filetype, {sources = r_sources})
         end
     end
 end
 
--- Set up nvim-cmp for completion
-local cmp_select = {behavior = cmp.SelectBehavior.Select}
-local cmp_mappings = {
-    ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-    ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-    ['<C-y>'] = cmp.mapping.confirm({select = true}),
-    ["<C-Space>"] = cmp.mapping.complete(),
-    ['<Tab>'] = nil,
-    ['<S-Tab>'] = nil
-}
-cmp.setup({
-    mapping = cmp_mappings,
-    sources = {
-        {name = 'nvim_lsp'}, {name = 'cmp_r'}, {name = 'path'},
-        {name = 'buffer'}, {name = 'luasnip'}
-    }
-})
-
--- R-specific completion setup
-local ok_r, cmp_r = pcall(require, 'cmp_r')
-if ok_r then cmp_r.setup({filetypes = {'r', 'rmd', 'quarto'}, doc_width = 58}) end
-
--- LuaSnip configuration (minimal setup to avoid jsregexp warnings)
-local ok_luasnip, luasnip = pcall(require, 'luasnip')
-if ok_luasnip then
-    -- Simple configuration that doesn't break LuaSnip
-    luasnip.config.setup({
-        -- Keep minimal required events
-        update_events = "TextChanged,TextChangedI",
-        -- Disable features that might use jsregexp
-        enable_autosnippets = false
-    })
-
-    -- Load friendly snippets
-    local ok_friendly, friendly = pcall(require, 'luasnip.loaders.from_vscode')
-    if ok_friendly then friendly.lazy_load() end
-end
-
--- Diagnostic configuration for Neovim LSP
-vim.diagnostic.config({
-    virtual_text = {severity = {min = vim.diagnostic.severity.ERROR}},
-    signs = true,
-    underline = {severity = {min = vim.diagnostic.severity.ERROR}},
-    update_in_insert = false,
-    severity_sort = true
-})
+return M

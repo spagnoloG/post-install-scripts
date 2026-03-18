@@ -71,12 +71,7 @@ wk.add({
         desc = "🗑️ Delete without yanking",
         mode = {"n", "v"}
     }, -- LSP operations (grouped under 'l')
-    {"<leader>l", group = "⚡ lsp", icon = "⚡"}, {
-        "<leader>lf",
-        function() vim.lsp.buf.format() end,
-        desc = "✨ Format document",
-        mode = "n"
-    }, -- Quickfix navigation (grouped under 'q')
+    {"<leader>l", group = "⚡ lsp", icon = "⚡"}, -- Quickfix navigation (grouped under 'q')
     {"<leader>q", group = "🔧 quickfix", icon = "🔧"},
     {"<leader>qq", ":q<CR>", desc = "🚪 Quit", mode = "n"},
     {

@@ -58,7 +58,7 @@ base_packages:
 -   lsd
 -   less
 -   fprintd
--   usbutils 
+-   usbutils
 -   git
 -   bat
 -   git-lfs
@@ -99,7 +99,7 @@ base_packages:
 -   w3m
 -   wget
 -   oh-my-zsh-git
--   cliphist 
+-   cliphist
 -   perl-image-exiftool
 
 desktop_packages:
@@ -131,7 +131,7 @@ desktop_packages:
 -   file-roller
 -   shotwell
 -   feh
--   gthumb 
+-   gthumb
 
   # File management
 -   gpxsee

@@ -27,7 +27,6 @@ vim.keymap.set("v", "<leader>d", "\"_d")
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "Q", "<nop>")
-vim.keymap.set("n", "<leader>lf", function() vim.lsp.buf.format() end)
 
 vim.keymap.set("n", "<leader>qn", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<leader>qp", "<cmd>cprev<CR>zz")
@@ -106,21 +105,20 @@ vim.keymap.set("n", "<leader>td", "<plug>(vimtex-doc-package)")
 vim.keymap.set("n", "<leader>tD", "<plug>(vimtex-doc-package-window)")
 
 -- File path operations
-vim.keymap.set("n", "<leader>fp", function()
-  print(vim.fn.expand('%:p'))
-end, { desc = "Show current file path" })
+vim.keymap.set("n", "<leader>fp", function() print(vim.fn.expand('%:p')) end,
+               {desc = "Show current file path"})
 
 vim.keymap.set("n", "<leader>fi", function()
-  local filepath = vim.fn.expand('%:p')
-  local filename = vim.fn.expand('%:t')
-  local filesize = vim.fn.getfsize(vim.fn.expand('%'))
-  print(string.format("File: %s | Size: %d bytes", filepath, filesize))
-end, { desc = "Show file info" })
+    local filepath = vim.fn.expand('%:p')
+    local filename = vim.fn.expand('%:t')
+    local filesize = vim.fn.getfsize(vim.fn.expand('%'))
+    print(string.format("File: %s | Size: %d bytes", filepath, filesize))
+end, {desc = "Show file info"})
 
 vim.keymap.set("n", "<leader>fy", function()
-  local filepath = vim.fn.expand('%:p')
-  vim.fn.setreg('+', filepath)
-  print("Copied to clipboard: " .. filepath)
-end, { desc = "Copy file path to clipboard" })
+    local filepath = vim.fn.expand('%:p')
+    vim.fn.setreg('+', filepath)
+    print("Copied to clipboard: " .. filepath)
+end, {desc = "Copy file path to clipboard"})
 
 -- Note: Claude Code keybindings are registered in which-key/init.lua to avoid duplicates
