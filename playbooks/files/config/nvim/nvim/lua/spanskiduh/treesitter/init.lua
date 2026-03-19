@@ -20,7 +20,8 @@ treesitter.setup {
 
     highlight = {
         enable = true,
-        additional_vim_regex_highlighting = true,
+        -- Keep Tree-sitter in charge of syntax colors to avoid muddy overlaps.
+        additional_vim_regex_highlighting = false,
         -- Disable highlighting for very large files
         disable = function(lang, buf)
             local max_filesize = 100 * 1024 -- 100 KB

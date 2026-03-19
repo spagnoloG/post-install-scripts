@@ -31,11 +31,11 @@ vim.opt.updatetime = 50
 vim.opt.colorcolumn = "80"
 
 vim.g.mapleader = " "
+vim.g.spanskiduh_kanagawa_theme = "wave"
 
 vim.opt.autoread = true
 
--- Colorscheme (will be loaded by lazy.nvim after plugin installation)
--- vim.cmd.colorscheme("dracula") -- Moved to lazy.nvim config
+-- Colorscheme is loaded by lazy.nvim after plugin installation.
 
 -- Autosave
 vim.cmd('autocmd FocusLost, BufLeave, BufHidden * silent! wall')

@@ -51,19 +51,10 @@ require("lazy").setup({
             }
         }, -- Colorscheme
         {
-            "Mofiqul/dracula.nvim",
+            "rebelot/kanagawa.nvim",
             lazy = false,
             priority = 1000,
-            config = function()
-                -- Safe colorscheme loading with fallback
-                local ok, _ = pcall(vim.cmd.colorscheme, "dracula")
-                if not ok then
-                    vim.cmd.colorscheme("default")
-                    vim.notify(
-                        "Failed to load dracula colorscheme, using default",
-                        vim.log.levels.WARN)
-                end
-            end
+            config = function() require("spanskiduh.kanagawa").load() end
         }, -- Treesitter for syntax highlighting
         {
             "nvim-treesitter/nvim-treesitter",
@@ -187,7 +178,7 @@ require("lazy").setup({
         version = false -- always use the latest git commit
     },
 
-    install = {colorscheme = {"dracula"}},
+    install = {colorscheme = {"kanagawa"}},
 
     checker = {
         enabled = true, -- automatically check for plugin updates
