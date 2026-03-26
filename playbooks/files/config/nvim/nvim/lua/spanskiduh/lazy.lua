@@ -90,7 +90,7 @@ require("lazy").setup({
             "mason-org/mason-lspconfig.nvim",
             dependencies = {{"mason-org/mason.nvim"}, {"neovim/nvim-lspconfig"}},
             opts = {
-                ensure_installed = {"lua_ls", "marksman", "rust_analyzer"},
+                ensure_installed = {"lua_ls", "marksman", "rust_analyzer", "pylsp"},
                 automatic_enable = false
             }
         }, -- LSP configuration (Neovim 0.11+)

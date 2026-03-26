@@ -1,11 +1,88 @@
 local M = {}
 
-local servers = {"lua_ls", "marksman", "rust_analyzer"}
+local servers = {"lua_ls", "marksman", "rust_analyzer", "pylsp"}
+local diagnostic_virtual_text_mode_index = 2
 
 local function lsp_capabilities()
     local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
     if ok then return cmp_nvim_lsp.default_capabilities() end
     return vim.lsp.protocol.make_client_capabilities()
+end
+
+local function diagnostic_virtual_text_config(min_severity)
+    local config = {source = "if_many", spacing = 2}
+    if min_severity then config.severity = {min = min_severity} end
+    return config
+end
+
+local diagnostic_virtual_text_modes = {
+    {name = "off", label = "off", value = false},
+    {
+        name = "errors",
+        label = "errors only",
+        value = diagnostic_virtual_text_config(vim.diagnostic.severity.ERROR)
+    },
+    {
+        name = "warnings",
+        label = "warnings and errors",
+        value = diagnostic_virtual_text_config(vim.diagnostic.severity.WARN)
+    },
+    {
+        name = "info",
+        label = "info, warnings, and errors",
+        value = diagnostic_virtual_text_config(vim.diagnostic.severity.INFO)
+    },
+    {name = "all", label = "all severities", value = diagnostic_virtual_text_config()}
+}
+
+local function set_diagnostic_virtual_text_mode(target, quiet)
+    local index = target
+    if type(target) == "string" then
+        index = nil
+        for i, mode in ipairs(diagnostic_virtual_text_modes) do
+            if mode.name == target then
+                index = i
+                break
+            end
+        end
+    end
+
+    local mode = index and diagnostic_virtual_text_modes[index]
+    if not mode then return end
+
+    diagnostic_virtual_text_mode_index = index
+    vim.diagnostic.config({
+        virtual_text = mode.value and vim.deepcopy(mode.value) or false
+    })
+
+    if not quiet then
+        vim.api.nvim_echo({{
+            "Diagnostic virtual text: " .. mode.label, "Normal"
+        }}, false, {})
+    end
+end
+
+local function cycle_diagnostic_virtual_text_mode()
+    local next_index = diagnostic_virtual_text_mode_index + 1
+    if next_index > #diagnostic_virtual_text_modes then next_index = 1 end
+    set_diagnostic_virtual_text_mode(next_index)
+end
+
+local function create_diagnostic_user_commands()
+    local commands = {
+        CycleDiagnosticVirtualText = cycle_diagnostic_virtual_text_mode,
+        ShowAllDiagnostics = function()
+            set_diagnostic_virtual_text_mode("all")
+        end,
+        ShowErrorDiagnostics = function()
+            set_diagnostic_virtual_text_mode("errors")
+        end
+    }
+
+    for name, callback in pairs(commands) do
+        pcall(vim.api.nvim_del_user_command, name)
+        vim.api.nvim_create_user_command(name, callback, {})
+    end
 end
 
 local function set_lsp_keymaps(bufnr)
@@ -37,6 +114,25 @@ local function set_lsp_keymaps(bufnr)
                    vim.tbl_extend("force", opts, {desc = "LSP Rename"}))
     vim.keymap.set("n", "<leader>ls", vim.lsp.buf.workspace_symbol,
                    vim.tbl_extend("force", opts, {desc = "Workspace Symbols"}))
+    vim.keymap.set("n", "<leader>lt", cycle_diagnostic_virtual_text_mode,
+                   vim.tbl_extend("force", opts, {
+        desc = "Cycle diagnostic virtual text"
+    }))
+    vim.keymap.set("n", "<leader>lT", function()
+        set_diagnostic_virtual_text_mode("errors")
+    end, vim.tbl_extend("force", opts, {
+        desc = "Reset diagnostic virtual text"
+    }))
+    vim.keymap.set("n", "<leader>sd", function()
+        set_diagnostic_virtual_text_mode("all")
+    end, vim.tbl_extend("force", opts, {
+        desc = "Show all diagnostic virtual text"
+    }))
+    vim.keymap.set("n", "<leader>hd", function()
+        set_diagnostic_virtual_text_mode("errors")
+    end, vim.tbl_extend("force", opts, {
+        desc = "Show only error virtual text"
+    }))
     vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force",
                                                                        opts, {
         desc = "Previous Diagnostic"
@@ -49,18 +145,16 @@ function M.setup()
     vim.diagnostic.config({
         severity_sort = true,
         signs = true,
-        underline = true,
+        underline = false, -- false!!!
         update_in_insert = false,
         float = {border = "rounded", source = "if_many"},
-        virtual_text = {
-            source = "if_many",
-            spacing = 2,
-            severity = {min = vim.diagnostic.severity.ERROR}
-        }
+        virtual_text = diagnostic_virtual_text_modes[diagnostic_virtual_text_mode_index].value
     })
 
     local augroup = vim.api
                         .nvim_create_augroup("spanskiduh-lsp", {clear = true})
+
+    create_diagnostic_user_commands()
 
     vim.api.nvim_create_autocmd("LspAttach", {
         group = augroup,
@@ -85,6 +179,26 @@ function M.setup()
 
     vim.lsp.config("rust_analyzer", {
         settings = {["rust-analyzer"] = {cargo = {allFeatures = true}}}
+    })
+
+    vim.lsp.config("pylsp", {
+        cmd = {vim.fn.stdpath("data") .. "/mason/bin/pylsp"},
+        root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, {
+                "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt",
+                "Pipfile", ".git"
+            })
+            local file = vim.api.nvim_buf_get_name(bufnr)
+
+            on_dir(root or vim.fs.dirname(file))
+        end,
+        settings = {
+            pylsp = {
+                plugins = {
+                    pycodestyle = {maxLineLength = 100}
+                }
+            }
+        }
     })
 
     for _, server in ipairs(servers) do vim.lsp.enable(server) end
