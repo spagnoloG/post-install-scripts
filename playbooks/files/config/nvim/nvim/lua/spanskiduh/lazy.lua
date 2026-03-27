@@ -61,6 +61,12 @@ require("lazy").setup({
             build = ":TSUpdate",
             event = {"BufReadPre", "BufNewFile"},
             config = function() require("spanskiduh.treesitter") end
+        }, -- CSV/TSV table view
+        {
+            "hat0uma/csvview.nvim",
+            ft = {"csv", "tsv"},
+            cmd = {"CsvViewEnable", "CsvViewDisable", "CsvViewToggle", "CsvViewInfo"},
+            config = function() require("spanskiduh.csvview").setup() end
         }, -- Undotree for undo history visualization
         {
             "mbbill/undotree",
@@ -143,33 +149,6 @@ require("lazy").setup({
             "folke/which-key.nvim",
             event = "VeryLazy",
             config = function() require("spanskiduh.which-key") end
-        }, -- Claude Code AI assistant
-        {
-            "greggh/claude-code.nvim",
-            dependencies = {"nvim-lua/plenary.nvim"},
-            config = function() require("spanskiduh.claude-code") end,
-            keys = {
-                {
-                    "<leader>cc",
-                    "<cmd>ClaudeCode<CR>",
-                    desc = "Toggle Claude Code"
-                },
-                {
-                    "<leader>cC",
-                    "<cmd>ClaudeCodeContinue<CR>",
-                    desc = "Claude Code Continue"
-                },
-                {
-                    "<leader>cV",
-                    "<cmd>ClaudeCodeVerbose<CR>",
-                    desc = "Claude Code Verbose"
-                },
-                {
-                    "<leader>cr",
-                    "<cmd>ClaudeCodeResume<CR>",
-                    desc = "Claude Code Resume"
-                }
-            }
         }
     },
 

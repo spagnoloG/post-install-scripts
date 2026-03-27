@@ -265,26 +265,26 @@ wk.add({
         "<plug>(vimtex-doc-package-window)",
         desc = "📚 Package doc (window)",
         mode = "n"
-    }, -- Claude Code operations (avoiding duplicates)
-    {"<leader>c", group = "🤖 claude-code", icon = "🤖"}, {
-        "<leader>cc",
-        "<cmd>ClaudeCode<CR>",
-        desc = "🤖 Toggle Claude Code",
+    }, -- CSV view operations
+    {"<leader>c", group = "🧾 csv", icon = "🧾"}, {
+        "<leader>ct",
+        "<cmd>CsvViewToggle<CR>",
+        desc = "🧾 Toggle CSV view",
         mode = "n"
     }, {
-        "<leader>cC",
-        "<cmd>ClaudeCodeContinue<CR>",
-        desc = "▶️ Claude Code Continue",
+        "<leader>ce",
+        "<cmd>CsvViewEnable<CR>",
+        desc = "🧾 Enable CSV view",
         mode = "n"
     }, {
-        "<leader>cV",
-        "<cmd>ClaudeCodeVerbose<CR>",
-        desc = "🔊 Claude Code Verbose",
+        "<leader>cd",
+        "<cmd>CsvViewDisable<CR>",
+        desc = "🧾 Disable CSV view",
         mode = "n"
     }, {
-        "<leader>cr",
-        "<cmd>ClaudeCodeResume<CR>",
-        desc = "⏯️ Claude Code Resume",
+        "<leader>ci",
+        "<cmd>CsvViewInfo<CR>",
+        desc = "ℹ️ CSV view info",
         mode = "n"
     }
 })

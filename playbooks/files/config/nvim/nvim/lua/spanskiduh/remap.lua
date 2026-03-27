@@ -121,4 +121,4 @@ vim.keymap.set("n", "<leader>fy", function()
     print("Copied to clipboard: " .. filepath)
 end, {desc = "Copy file path to clipboard"})
 
--- Note: Claude Code keybindings are registered in which-key/init.lua to avoid duplicates
+-- Note: CSV view keybindings are registered in which-key/init.lua
