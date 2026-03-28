@@ -286,5 +286,16 @@ wk.add({
         "<cmd>CsvViewInfo<CR>",
         desc = "ℹ️ CSV view info",
         mode = "n"
+    }, -- Markview operations
+    {"<leader>m", group = "📝 markdown", icon = "📝"}, {
+        "<leader>mt",
+        function() require("spanskiduh.markview").toggle_split() end,
+        desc = "📝 Toggle Markdown preview",
+        mode = "n"
+    }, {
+        "<leader>mi",
+        function() require("spanskiduh.markview").toggle_inline() end,
+        desc = "📝 Toggle inline preview",
+        mode = "n"
     }
 })

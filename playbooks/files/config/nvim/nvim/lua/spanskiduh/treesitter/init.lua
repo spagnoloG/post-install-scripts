@@ -6,7 +6,8 @@ treesitter.setup {
     -- A list of parser names, or "all" (removed parsers that need CLI compilation)
     ensure_installed = {
         "c", "lua", "rust", "javascript", "java", "python", "html", "css",
-        "json", "yaml", "bash", "typescript", "r", "markdown", "vim", "vimdoc"
+        "json", "yaml", "bash", "typescript", "r", "markdown",
+        "markdown_inline", "vim", "vimdoc"
     },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)

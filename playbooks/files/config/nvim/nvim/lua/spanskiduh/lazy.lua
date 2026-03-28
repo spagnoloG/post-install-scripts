@@ -55,6 +55,11 @@ require("lazy").setup({
             lazy = false,
             priority = 1000,
             config = function() require("spanskiduh.kanagawa").load() end
+        }, -- Markdown preview
+        {
+            "OXY2DEV/markview.nvim",
+            lazy = false,
+            config = function() require("spanskiduh.markview").setup() end
         }, -- Treesitter for syntax highlighting
         {
             "nvim-treesitter/nvim-treesitter",

@@ -122,3 +122,11 @@ vim.keymap.set("n", "<leader>fy", function()
 end, {desc = "Copy file path to clipboard"})
 
 -- Note: CSV view keybindings are registered in which-key/init.lua
+
+-- Markview operations
+vim.keymap.set("n", "<leader>mt", function()
+    require("spanskiduh.markview").toggle_split()
+end, {desc = "Toggle Markview split"})
+vim.keymap.set("n", "<leader>mi", function()
+    require("spanskiduh.markview").toggle_inline()
+end, {desc = "Toggle Markview inline"})
