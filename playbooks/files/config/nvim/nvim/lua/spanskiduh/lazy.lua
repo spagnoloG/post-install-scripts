@@ -154,6 +154,18 @@ require("lazy").setup({
             "folke/which-key.nvim",
             event = "VeryLazy",
             config = function() require("spanskiduh.which-key") end
+        }, {
+            "sphamba/smear-cursor.nvim",
+            event = "VeryLazy",
+            cmd = {"SmearCursorToggle"},
+            keys = {
+                {
+                    "<leader>ct",
+                    "<cmd>SmearCursorToggle<CR>",
+                    desc = "Toggle smear cursor"
+                }
+            },
+            config = function() require("spanskiduh.smear_cursor").setup() end
         }
     },
 

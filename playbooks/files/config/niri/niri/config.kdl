@@ -233,6 +233,7 @@ layout {
 spawn-at-startup "swaybg"
 spawn-sh-at-startup "pkill swaybg; swaybg -i /home/spanskiduh/Pictures/wall/w.jpg -m fill"
 spawn-at-startup "kanshi"
+spawn-sh-at-startup "wl-paste --watch cliphist store"
 spawn-at-startup "alacritty"
 spawn-at-startup "brave"
 spawn-at-startup "slack"
