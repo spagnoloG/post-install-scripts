@@ -63,8 +63,9 @@ require("lazy").setup({
         }, -- Treesitter for syntax highlighting
         {
             "nvim-treesitter/nvim-treesitter",
+            branch = "master",
             build = ":TSUpdate",
-            event = {"BufReadPre", "BufNewFile"},
+            lazy = false,
             config = function() require("spanskiduh.treesitter") end
         }, -- CSV/TSV table view
         {

@@ -233,7 +233,7 @@ layout {
 spawn-at-startup "swaybg"
 spawn-sh-at-startup "pkill swaybg; swaybg -i /home/spanskiduh/Pictures/wall/w.jpg -m fill"
 spawn-at-startup "kanshi"
-spawn-sh-at-startup "wl-paste --watch cliphist store"
+spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "alacritty"
 spawn-at-startup "brave"
 spawn-at-startup "slack"
@@ -385,6 +385,7 @@ binds {
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Return hotkey-overlay-title="Open a Terminal: alacritty" { spawn "alacritty"; }
     Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    Mod+P hotkey-overlay-title="Clipboard History: cliphist + fuzzel" { spawn-sh "~/.config/niri/clipboard-history.sh"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
     Super+Alt+R hotkey-overlay-title="Start Screen Recording: wf-recorder" { spawn-sh "~/.config/niri/screen-record.sh start"; }
     Super+Alt+Shift+R hotkey-overlay-title="Stop Screen Recording: wf-recorder" { spawn-sh "~/.config/niri/screen-record.sh stop"; }

@@ -2,6 +2,7 @@ sys_username: spanskiduh
 sys_hostname: t14
 arch_mirror_country: Germany,Austria,Slovenia
 use_wayland: true
+wayland_compositor: niri
 
 # --- NFTABLES CONFIGURATION ---
 
@@ -201,8 +202,10 @@ sound_packages:
 -   pipewire-alsa
 -   pipewire-pulse
 
-niri_packages: #TODO: Include in playbooks
+niri_packages:
+-   niri
 -   fuzzel
+-   swaybg
 -   swaylock-effects
 -   waybar
 -   mako
@@ -213,6 +216,9 @@ niri_packages: #TODO: Include in playbooks
 -   nwg-bar
 -   xwayland-satellite
 -   wf-recorder
+-   wl-clipboard
+-   qt5-wayland
+-   glfw-wayland
 
 sway_packages:
 -   sway

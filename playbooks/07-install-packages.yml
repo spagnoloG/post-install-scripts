@@ -93,6 +93,38 @@
             loop: "{{ sound_individual_results.results }}"
             when: item.rc != 0
 
+    -   name: Install niri packages (batch installation)
+        block:
+        -   name: Debug - Show niri packages batch command
+            debug:
+              msg: "Running: paru -S --noconfirm {{ niri_packages | join(' ') }}"
+
+        -   name: Try batch installation of niri packages
+            ansible.builtin.command: paru -S --noconfirm {{ niri_packages | join(' ') }}
+            become: false
+            register: niri_batch_result
+
+        rescue:
+        -   name: Log niri packages batch installation failure
+            debug:
+              msg: "Niri packages batch installation failed, trying individual packages. Error: {{ niri_batch_result.stderr }}"
+
+        -   name: Install niri packages individually
+            ansible.builtin.command: paru -S --noconfirm {{ item }}
+            loop: "{{ niri_packages }}"
+            become: false
+            register: niri_individual_results
+            ignore_errors: true
+
+        -   name: Report failed niri packages
+            debug:
+              msg: "Failed to install niri package: {{ item.item }}"
+            loop: "{{ niri_individual_results.results }}"
+            when: item.rc != 0
+        when:
+        -   use_wayland is defined and use_wayland
+        -   wayland_compositor | default('niri') == 'niri'
+
     -   name: Install Sway packages (batch installation)
         block:
         -   name: Debug - Show Sway packages batch command
@@ -121,7 +153,9 @@
               msg: "Failed to install Sway package: {{ item.item }}"
             loop: "{{ sway_individual_results.results }}"
             when: item.rc != 0
-        when: use_wayland is defined and use_wayland
+        when:
+        -   use_wayland is defined and use_wayland
+        -   wayland_compositor | default('niri') == 'sway'
 
     -   name: Install Xorg packages (batch installation)
         block:
