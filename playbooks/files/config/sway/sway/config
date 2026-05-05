@@ -10,9 +10,7 @@ set $right l
 # Your preferred terminal emulator
 set $term alacritty
 # Your preferred application launcher
-# Note: pass the final command to swaymsg so that the resulting window can be opened
-# on the original workspace that the command was run on.
-set $menu wofi -I --show drun | xargs swaymsg exec 
+set $menu fuzzel
 
 ### Output configuration
 #
@@ -155,7 +153,7 @@ client.background       #F8F8F2
     #bindsym Print exec sh -c 'QT_QPA_PLATFORM=xcb QT_AUTO_SCREEN_SCALE_FACTOR=1 flameshot gui'
     bindsym Print exec grim -g "$(slurp -d)" - | wl-copy
 
-    bindsym $mod+p exec cliphist list | wofi -S dmenu | cliphist decode | wl-copy
+    bindsym $mod+p exec sh -c '~/.config/sway/clipboard-history.sh'
 
 #
 #
@@ -285,7 +283,7 @@ bar {
 }
 
 # Startup scripts
-exec_always pkill kanshi; exec kanshi
+exec_always sh -c 'kanshictl reload || exec kanshi'
 exec /usr/bin/lxqt-policykit-agent
 # For cliphist clipboard manager
 exec wl-paste --watch cliphist store

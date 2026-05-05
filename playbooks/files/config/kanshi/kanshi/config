@@ -1,33 +1,53 @@
-# swaymsg -t get_outputs
-#  niri msg outputs
+# Get output names and stable identifiers with:
+#   swaymsg -t get_outputs
+#   niri msg outputs
+#
+# Prefer make/model/serial identifiers over DP-/HDMI-A port names. Port names
+# can change across boots or docks; keep them only where the stable identifier
+# has not been captured yet.
 
-profile {
-    output "Samsung Electric Company C34H89x H4ZRB05512" enable mode 3440x1440@100.0Hz scale 1.00 position 0,0
-    output "AU Optronics 0xD291 Unknown" enable mode 1920x1200@60.026Hz scale 1.00 position 760,1440
+output "AU Optronics 0xD291 Unknown" alias $laptop
+output "Samsung Electric Company C34H89x H4ZRB05512" alias $home_ultrawide
+output "Philips Consumer Electronics Company PHL27M1N3200Z UK02329015881" alias $philips_1080p
+
+profile home_ultrawide {
+    output $home_ultrawide enable mode 3440x1440@100.0Hz scale 1.00 position 0,0 transform normal
+    output $laptop enable mode 1920x1200@60.026Hz scale 1.00 position 760,1440 transform normal
+}
+
+profile dock_philips_1080p {
+    output $laptop enable mode 1920x1200@60.0260 scale 1.00 position 0,0 transform normal
+    output $philips_1080p enable mode 1920x1080@60.0000 scale 1.00 position 1920,0 transform normal
+}
+
+profile dock_dp3_4k {
+    output $laptop enable mode 1920x1200@60.0260 scale 1.00 position 0,0 transform normal
+    output DP-3 enable mode 3840x2160@59.9970 scale 1.50 position 1920,0 transform normal
+}
+
+profile dock_dp5_1440p {
+    output $laptop enable mode 1920x1200@60.0260 scale 1.00 position 0,0 transform normal
+    output DP-5 enable mode 2560x1440@59.9510 scale 1.00 position 1920,0 transform normal
+}
+
+profile dock_dp6_1440p {
+    output $laptop enable mode 1920x1200@60.0260 scale 1.00 position 0,0 transform normal
+    output DP-6 enable mode 2560x1440@59.9510 scale 1.00 position 1920,0 transform normal
+}
+
+profile laptop {
+    output $laptop enable mode 1920x1200@60.026Hz scale 1.00 position 0,0 transform normal
 }
 
 profile {
-    output "AU Optronics 0xD291 Unknown" enable mode 1920x1200@60.026Hz scale 1.00 position 0,0
+    output DP-2 position 1920,0 mode 3840x2160@59.9970 scale 1.00 transform normal
+    output eDP-1 position 0,0 mode 1920x1200@60.0260 scale 1.00 transform normal
 }
-
+profile {
+    output DP-3 position 1920,0 mode 3840x2160@59.9970 scale 1.50 transform normal
+    output eDP-1 position 0,0 mode 1920x1200@60.0260 scale 1.00 transform normal
+}
 profile {
     output HDMI-A-1 position 0,0 mode 3440x1440@99.9820 scale 1.00 transform normal
     output eDP-1 position 760,1440 mode 1920x1200@60.0260 scale 1.00 transform normal
-}
-
-profile {
-    output DP-2 position 1920,0 mode 3840x2160@59.9970 scale 1.50 transform normal
-    output eDP-1 position 0,0 mode 1920x1200@60.0260 scale 1.00 transform normal
-}
-profile {
-    output eDP-1 position 0,0 mode 1920x1200@60.0260 scale 1.00 transform normal
-    output DP-3 position 1920,0 mode 3840x2160@59.9970 scale 1.50 transform normal
-}
-profile {
-    output eDP-1 position 0,0 mode 1920x1200@60.0260 scale 1.00 transform normal
-    output DP-5 position 1920,0 mode 2560x1440@59.9510 scale 1.00 transform normal
-}
-profile {
-    output eDP-1 position 0,0 mode 1920x1200@60.0260 scale 1.00 transform normal
-    output DP-6 position 1920,0 mode 2560x1440@59.9510 scale 1.00 transform normal
 }
