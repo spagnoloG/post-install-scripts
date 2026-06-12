@@ -162,6 +162,7 @@ desktop_packages:
 -   qt5ct
 -   neofetch
 -   mousepad
+-   unicode-emoji
 
   # Music
 -   spotify
@@ -225,6 +226,7 @@ sway_packages:
 -   swaybg
 -   swayidle
 -   swaylock-effects
+-   fuzzel
 -   waybar
 -   wofi
 -   mako

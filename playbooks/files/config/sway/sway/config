@@ -154,6 +154,7 @@ client.background       #F8F8F2
     bindsym Print exec grim -g "$(slurp -d)" - | wl-copy
 
     bindsym $mod+p exec sh -c '~/.config/sway/clipboard-history.sh'
+    bindsym $mod+period exec sh -c '~/.config/sway/emoji-picker.sh'
 
 #
 #
