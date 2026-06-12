@@ -1,43 +1,44 @@
 [general]
 live_config_reload = true
 
-# Kanagawa Wave Alacritty Colors
+# Dracula Alacritty Colors
 
 [colors.primary]
-background = '#1f1f28'
-foreground = '#dcd7ba'
+background = '#282a36'
+foreground = '#f8f8f2'
+bright_foreground = '#ffffff'
 
 [colors.normal]
-black = '#090618'
-red = '#c34043'
-green = '#76946a'
-yellow = '#c0a36e'
-blue = '#7e9cd8'
-magenta = '#957fb8'
-cyan = '#6a9589'
-white = '#c8c093'
+black = '#21222c'
+red = '#ff5555'
+green = '#50fa7b'
+yellow = '#f1fa8c'
+blue = '#bd93f9'
+magenta = '#ff79c6'
+cyan = '#8be9fd'
+white = '#f8f8f2'
 
 [colors.bright]
-black = '#727169'
-red = '#e82424'
-green = '#98bb6c'
-yellow = '#e6c384'
-blue = '#7fb4ca'
-magenta = '#938aa9'
-cyan = '#7aa89f'
-white = '#dcd7ba'
+black = '#6272a4'
+red = '#ff6e6e'
+green = '#69ff94'
+yellow = '#ffffa5'
+blue = '#d6acff'
+magenta = '#ff92df'
+cyan = '#a4ffff'
+white = '#ffffff'
 
 [colors.selection]
-background = '#2d4f67'
-foreground = '#c8c093'
+text = 'CellForeground'
+background = '#44475a'
 
 [[colors.indexed_colors]]
 index = 16
-color = '#ffa066'
+color = '#ffb86c'
 
 [[colors.indexed_colors]]
 index = 17
-color = '#ff5d62'
+color = '#ff5555'
 
 [colors.cursor]
 

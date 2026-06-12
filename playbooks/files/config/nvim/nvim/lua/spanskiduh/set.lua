@@ -31,7 +31,6 @@ vim.opt.updatetime = 50
 vim.opt.colorcolumn = "80"
 
 vim.g.mapleader = " "
-vim.g.spanskiduh_kanagawa_theme = "wave"
 
 vim.opt.autoread = true
 

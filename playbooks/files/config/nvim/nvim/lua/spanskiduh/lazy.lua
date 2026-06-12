@@ -51,10 +51,10 @@ require("lazy").setup({
             }
         }, -- Colorscheme
         {
-            "rebelot/kanagawa.nvim",
+            "Mofiqul/dracula.nvim",
             lazy = false,
             priority = 1000,
-            config = function() require("spanskiduh.kanagawa").load() end
+            config = function() require("spanskiduh.dracula").load() end
         }, -- Markdown preview
         {
             "OXY2DEV/markview.nvim",
@@ -175,7 +175,7 @@ require("lazy").setup({
         version = false -- always use the latest git commit
     },
 
-    install = {colorscheme = {"kanagawa"}},
+    install = {colorscheme = {"dracula"}},
 
     checker = {
         enabled = true, -- automatically check for plugin updates
