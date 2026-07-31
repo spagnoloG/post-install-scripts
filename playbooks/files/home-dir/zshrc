@@ -35,33 +35,6 @@ export TRASH_DIR="$HOME/.trash"
 # Dracula theme for fzf
 export FZF_DEFAULT_OPTS='--color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6 --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4'
 
-bin_txt() {
-    curl -X PUT --data "$1" https://p.spanskiduh.dev
-}
-
-bin_file() {
-    curl -X PUT --data-binary "@$1" https://p.spanskiduh.dev
-}
-
-pdfgrep() {
-    if ! command -v rga >/dev/null 2>&1 || ! command -v fzf >/dev/null 2>&1; then
-        echo "Error: This function requires 'ripgrep-all (rga)' and 'fzf' to be installed."
-        return 1
-    fi
-
-    if [[ -z "$1" ]]; then
-        echo "Usage: pdfgrep <search-term>"
-        return 1
-    fi
-
-    rga --ignore-case --pretty --max-depth 1 -t pdf "$1" . | \
-    fzf --ansi \
-        --delimiter ':' \
-        --preview-window 'right,60%,border-left' \
-        --bind "enter:execute(xdg-open {1} > /dev/null 2>&1)" \
-        --preview "echo {} | cut -d: -f4- | sed 's/\x1b\[[0-9;]*m//g'"
-}
-
 _move_to_trash() {
     mkdir -p "$TRASH_DIR"
 
@@ -120,14 +93,6 @@ if (( $+commands[direnv] )); then
     eval "$(direnv hook zsh)"
 fi
 
-wifi() {
-    if [[ -f ~/.wifi ]]; then
-        bash ~/.wifi "$@"
-    else
-        echo "wifi script not found at ~/.wifi"
-    fi
-}
-
 mounter() {
     if [[ -f ~/.mounter ]]; then
         bash ~/.mounter "$@"
@@ -164,17 +129,6 @@ alias ls='lsd'
 alias -- 'md-notes'='cd ~/Documents/md-notes/ && nvim .'
 alias -- 'night'='brightnessctl s 1%'
 alias -- 'fh'='eval $(history | fzf --tac --no-sort | sed "s/ *[0-9]* *//")'
-
-opdf() {
-    local file
-    file=$(find "$HOME" -type f -iname '*pdf' 2>/dev/null | fzf)
-    [[ -n $file ]] && okular "$file"
-}
-
-fp() {
-    fzf --preview "$FZF_FILE_PREVIEW"
-}
-
 alias -- 'rm'='_move_to_trash'
 alias -- 'rot13'='tr '\''A-Za-z'\'' '\''N-ZA-Mn-za-m'\'''
 alias -- 'sup'='power off'
@@ -263,81 +217,14 @@ ZSH_HIGHLIGHT_STYLES[bracket-level-5]='fg=#ff79c6'
 ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]='standout'
 ZSH_HIGHLIGHT_STYLES[cursor]='bold'
 
-# File manager cd helpers.
-ranger-cd() {
-    local target tempfile
-
-    tempfile=$(mktemp) || return
-    ranger --choosedir="$tempfile" "${@:-$PWD}" < "$TTY"
-
-    if [[ -f $tempfile ]]; then
-        target=$(<"$tempfile")
-        [[ -n $target && $target != "$PWD" ]] && builtin cd -- "$target"
-    fi
-
-    command rm -f -- "$tempfile"
-    VISUAL=true zle edit-command-line
+run_ranger() {
+    zle -I
+    command ranger </dev/tty >/dev/tty
+    zle reset-prompt
 }
 
-spf() {
-    local os
-    os=$(uname -s)
-
-    if [[ "$os" == "Linux" ]]; then
-        export SPF_LAST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/superfile/lastdir"
-    elif [[ "$os" == "Darwin" ]]; then
-        export SPF_LAST_DIR="$HOME/Library/Application Support/superfile/lastdir"
-    fi
-
-    command spf "$@"
-
-    [ ! -f "$SPF_LAST_DIR" ] || {
-        . "$SPF_LAST_DIR"
-        command rm -f -- "$SPF_LAST_DIR" >/dev/null
-    }
-}
-
-# fzf utilities
-fshow() {
-    git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
-    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
-        --bind "ctrl-m:execute:
-                (grep -o '[a-f0-9]\{7\}' | head -1 |
-                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
-                {}
-FZF-EOF"
-}
-
-fkill() {
-    local pid
-    if [ "$UID" != "0" ]; then
-        pid=$(ps -f -u "$UID" | sed 1d | fzf -m --header='Select processes to kill' | awk '{print $2}')
-    else
-        pid=$(ps -ef | sed 1d | fzf -m --header='Select processes to kill' | awk '{print $2}')
-    fi
-
-    if [ "x$pid" != "x" ]; then
-        echo "$pid" | xargs kill -"${1:-9}"
-    fi
-}
-
-# Quickly edit files in current directory
-fe() {
-    local file
-    file=$(find . -type f 2>/dev/null | fzf --preview "$FZF_FILE_PREVIEW" --header='Select file to edit')
-    if [[ -n $file ]]; then
-        ${EDITOR:-nvim} "$file"
-    fi
-}
-
-spf-cd() {
-    spf
-    VISUAL=true zle edit-command-line
-}
-
-zle -N ranger-cd
-zle -N spf-cd
-bindkey '^o' spf-cd
+zle -N run_ranger
+bindkey '^O' run_ranger
 
 # >>> mamba initialize >>>
 # !! Contents within this block are managed by 'micromamba shell init' !!

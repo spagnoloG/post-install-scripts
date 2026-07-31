@@ -41,6 +41,9 @@ font Iosevka Regular 5
 
 ### Input configuration
 #
+# Use the same cursor theme for Sway's compositor-managed surfaces.
+seat * xcursor_theme material_light_cursors 24
+
 # Example configuration:
 #
 input "2:7:SynPS/2_Synaptics_TouchPad" {
@@ -150,8 +153,7 @@ client.background       #F8F8F2
     bindsym $mod+f1 exec swaylock --ignore-empty-password --show-failed-attempts --color 000000
 
     # Screenshot
-    #bindsym Print exec sh -c 'QT_QPA_PLATFORM=xcb QT_AUTO_SCREEN_SCALE_FACTOR=1 flameshot gui'
-    bindsym Print exec grim -g "$(slurp -d)" - | wl-copy
+    bindsym Print exec env QT_QPA_PLATFORM=wayland QT_ENABLE_HIGHDPI_SCALING=0 flameshot gui
 
     bindsym $mod+p exec sh -c '~/.config/sway/clipboard-history.sh'
     bindsym $mod+period exec sh -c '~/.config/sway/emoji-picker.sh'

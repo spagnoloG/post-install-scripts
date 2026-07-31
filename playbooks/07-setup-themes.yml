@@ -1,0 +1,60 @@
+-   hosts: localhost
+    become: true
+    tasks:
+
+    -   name: Set GTK theme via gsettings
+        ansible.builtin.command:
+          argv:
+          -   gsettings
+          -   set
+          -   org.gnome.desktop.interface
+          -   gtk-theme
+          -   Dracula
+        become: false
+        changed_when: false
+
+    -   name: Set GTK icon theme via gsettings
+        ansible.builtin.command:
+          argv:
+          -   gsettings
+          -   set
+          -   org.gnome.desktop.interface
+          -   icon-theme
+          -   Papirus
+        become: false
+        changed_when: false
+
+    -   name: Set cursor theme via gsettings
+        ansible.builtin.command:
+          argv:
+          -   gsettings
+          -   set
+          -   org.gnome.desktop.interface
+          -   cursor-theme
+          -   material_light_cursors
+        become: false
+        changed_when: false
+
+    -   name: Set cursor size via gsettings
+        ansible.builtin.command:
+          argv:
+          -   gsettings
+          -   set
+          -   org.gnome.desktop.interface
+          -   cursor-size
+          -   '24'
+        become: false
+        changed_when: false
+
+    -   name: Set color scheme to prefer dark
+        ansible.builtin.command:
+          argv:
+          -   gsettings
+          -   set
+          -   org.gnome.desktop.interface
+          -   color-scheme
+          -   prefer-dark
+        become: false
+        changed_when: false
+
+# Next fresh installation check how to enable this without gnome, also now manual enable is needed for qt applications via qt5ct

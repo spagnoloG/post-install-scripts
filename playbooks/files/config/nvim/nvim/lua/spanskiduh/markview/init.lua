@@ -104,26 +104,6 @@ function M.setup()
             splitview_winopts = {split = "right"}
         }
     })
-
-    local group = vim.api.nvim_create_augroup("SpanskiduhMarkview", {clear = true})
-    vim.api.nvim_create_autocmd({"BufWinEnter", "FileType"}, {
-        group = group,
-        callback = function(args)
-            if get_display_mode(args.buf) ~= "split" then return end
-
-            vim.schedule(function() open_markview_split(args.buf) end)
-        end
-    })
-
-    vim.api.nvim_create_autocmd({"BufDelete", "BufWinLeave"}, {
-        group = group,
-        callback = function(args) close_markview_split(args.buf) end
-    })
-
-    local current_buf = vim.api.nvim_get_current_buf()
-    if is_markdown_buffer(current_buf) then
-        vim.schedule(function() open_markview_split(current_buf) end)
-    end
 end
 
 return M

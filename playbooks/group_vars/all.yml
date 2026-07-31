@@ -182,7 +182,7 @@ desktop_packages:
 -   jdk-openjdk
 -   claude-code
 
-  # Styling 
+  # Styling
 -   dracula-gtk-theme
 -   dracula-icons-theme
 

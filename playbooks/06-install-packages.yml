@@ -64,6 +64,22 @@
             loop: "{{ desktop_individual_results.results }}"
             when: item.rc != 0
 
+    # Inkscape's parallel CLI exports can race over D-Bus while building this
+    # AUR package. Restricting CPU affinity makes upstream's nproc return 1.
+    -   name: Install Material cursor theme serially
+        ansible.builtin.command:
+          argv:
+          -   taskset
+          -   -c
+          -   '0'
+          -   paru
+          -   -S
+          -   --noconfirm
+          -   material-cursors-git
+        become: false
+        register: material_cursors_result
+        changed_when: "'there is nothing to do' not in material_cursors_result.stdout"
+
     -   name: Install sound packages (batch installation)
         block:
         -   name: Debug - Show sound packages batch command
