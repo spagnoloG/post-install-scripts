@@ -30,7 +30,6 @@ IFS=$'\n'
 ## Script arguments
 FILE_PATH="${1}"         # Full path of the highlighted file
 PV_WIDTH="${2}"          # Width of the preview pane (number of fitting characters)
-## shellcheck disable=SC2034 # PV_HEIGHT is provided for convenience and unused
 PV_HEIGHT="${3}"         # Height of the preview pane (number of fitting characters)
 IMAGE_CACHE_PATH="${4}"  # Full path that should be used to cache image preview
 PV_IMAGE_ENABLED="${5}"  # 'True' if image previews are enabled, 'False' otherwise.
@@ -320,8 +319,14 @@ handle_mime() {
 
         ## Image
         image/*)
-            ## Preview as text conversion
-            # img2txt --gamma=0.6 --width="${PV_WIDTH}" -- "${FILE_PATH}" && exit 4
+            ## Ranger 1.9 understands ANSI 256-color sequences but not 24-bit
+            ## RGB sequences. Force compatible colors to avoid palette damage.
+            local preview_width=$((PV_WIDTH > 2 ? PV_WIDTH - 1 : PV_WIDTH))
+            local preview_height=$((PV_HEIGHT > 2 ? PV_HEIGHT - 1 : PV_HEIGHT))
+            chafa --format=symbols --symbols=vhalf --colors=256 \
+                --dither=none --animate=off --polite=on --probe=off \
+                --scale=max --size="${preview_width}x${preview_height}" \
+                -- "${FILE_PATH}" && exit 5
             exiftool "${FILE_PATH}" && exit 5
             exit 1;;
 

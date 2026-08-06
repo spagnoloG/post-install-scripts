@@ -14,8 +14,11 @@ is_mounted() { findmnt -no TARGET -- "$1" >/dev/null 2>&1; }
 current_mnt() { findmnt -no TARGET -- "$1" 2>/dev/null || true; }
 
 mk_mount_dir() {
-  local base="$HOME/mnt"; mkdir -p "$base"
-  local hint; hint=$(basename "$1" | sed 's#[/ ]#_#g')
+  local base="$HOME/mnt"
+  local hint
+
+  mkdir -p "$base"
+  hint=$(basename "$1" | sed 's#[/ ]#_#g')
   mktemp -d "$base/${hint}-XXXX"
 }
 
@@ -97,16 +100,26 @@ mount_device() {
     return 2
   fi
   if is_mounted "$dev"; then
-    current_mnt "$dev"; return 0
+    current_mnt "$dev"
+    return 0
   fi
 
   if have_udisk; then
-    local out; out=$(udisksctl mount -b "$dev" 2>&1) || { echo "$out" >&2; return 1; }
-    [[ "$out" =~ at[[:space:]]([^[:space:]]+) ]] && { echo "${BASH_REMATCH[1]}"; return 0; }
-    echo "$out" >&2; return 1
+    local out
+    out=$(udisksctl mount -b "$dev" 2>&1) || {
+      echo "$out" >&2
+      return 1
+    }
+    if [[ "$out" =~ at[[:space:]]([^[:space:]]+) ]]; then
+      echo "${BASH_REMATCH[1]}"
+      return 0
+    fi
+    echo "$out" >&2
+    return 1
   fi
 
-  local dir; dir=$(mk_mount_dir "${hint:-$dev}")
+  local dir
+  dir=$(mk_mount_dir "${hint:-$dev}")
   if [[ "${fs,,}" =~ ^(vfat|fat|fat32|exfat|ntfs)$ ]]; then
     sudo mount -o uid="$UID",gid="$(id -g)" -- "$dev" "$dir"
   else
@@ -117,8 +130,12 @@ mount_device() {
 
 unmount_device() {
   local dev="$1"
-  local mnt; mnt=$(current_mnt "$dev" || true)
-  if [[ -z "$mnt" ]]; then echo "Not mounted."; return 0; fi
+  local mnt
+  mnt=$(current_mnt "$dev" || true)
+  if [[ -z "$mnt" ]]; then
+    echo "Not mounted."
+    return 0
+  fi
 
   if have_udisk && [[ "$mnt" == /run/media/"$USER"/* ]]; then
     udisksctl unmount -b "$dev" >/dev/null 2>&1 || true
@@ -136,6 +153,8 @@ if [[ "${1:-}" == "_preview" ]]; then
 fi
 
 main() {
+  local chosen dev fs key mnt mp name_hint selection typ
+
   command -v fzf >/dev/null || { echo "fzf not found"; exit 1; }
   command -v lsblk >/dev/null || { echo "lsblk not found"; exit 1; }
 
@@ -153,15 +172,12 @@ main() {
           --expect=enter,ctrl-u,ctrl-r
     )" || break
 
-    key=$(sed -n '1p' <<<"$selection")
-    chosen=$(sed -n '2p' <<<"$selection")
+    key=${selection%%$'\n'*}
+    chosen=${selection#*$'\n'}
     [[ -z "$chosen" ]] && continue
 
-    dev=$(cut -f2 <<<"$chosen")
-    mnt=$(cut -f3 <<<"$chosen")
-    fs=$(cut -f4 <<<"$chosen")
-    typ=$(cut -f5 <<<"$chosen")
-    name_hint=$(echo "$chosen" | cut -f1 | sed -E 's/^\s*[• ]\s*[⟂ ]\s*[🔒 ]\s*//; s/[[:space:]]+$//')
+    IFS=$'\t' read -r name_hint dev mnt fs typ <<<"$chosen"
+    name_hint=$(sed -E 's/^\s*[• ]\s*[⟂ ]\s*[🔒 ]\s*//; s/[[:space:]]+$//' <<<"$name_hint")
 
     case "$key" in
       ctrl-r) continue ;;
@@ -185,5 +201,4 @@ main() {
 }
 
 main "$@"
-
 

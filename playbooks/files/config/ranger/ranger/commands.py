@@ -11,9 +11,40 @@ from __future__ import (absolute_import, division, print_function)
 
 # You can import any python module as needed.
 import os
+import subprocess
 
 # You always need to import ranger.api.commands here to get the Command class:
 from ranger.api.commands import Command
+
+
+class fzf_select(Command):
+    """:fzf_select
+
+    Fuzzily select a file or directory below Ranger's current directory.
+    Directories are entered and files are selected.
+    """
+
+    def execute(self):
+        command = (
+            "fd --hidden --follow --exclude .git --color never . | "
+            "fzf --layout=reverse --height=80% --border "
+            "--prompt='Ranger> ' --select-1 --exit-0"
+        )
+        process = self.fm.execute_command(
+            command,
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+        )
+        stdout, _ = process.communicate()
+
+        if process.returncode != 0 or not stdout:
+            return
+
+        selected = os.path.abspath(stdout.rstrip("\n"))
+        if os.path.isdir(selected):
+            self.fm.cd(selected)
+        else:
+            self.fm.select_file(selected)
 
 
 # Any class that is a subclass of "Command" will be integrated into ranger as a

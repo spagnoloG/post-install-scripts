@@ -1,38 +1,8 @@
 sys_username: spanskiduh
-sys_hostname: t14
+sys_hostname: carbon
 arch_mirror_country: Germany,Austria,Slovenia
 use_wayland: true
-wayland_compositor: niri
-
-# --- NFTABLES CONFIGURATION ---
-
-# Each rule can include the following keys:
-# - description: A short description of the rule.
-# - table: The nftables table (default: "inet filter")
-# - chain: The chain within the table (default: "output")
-# - protocol: The protocol (e.g., "tcp", "udp", "icmp")
-# - dport: The destination port (optional, used with tcp/udp)
-# - sport: The source port (optional)
-# - action: The action to take (e.g., "reject", "accept", "drop")
-# - rule: (optional) A complete, raw rule string to use instead of composing one.
-#   If defined, this value takes precedence over protocol/dport/sport/action.
-#
-# A rule is added with an extra comment clause:
-#   comment "ansible_rule_<DESCRIPTION>"
-
-nft_rules:
--   description: Block_DNS_TCP
-    table: inet filter
-    chain: output
-    protocol: tcp
-    dport: 53
-    action: reject with tcp reset
--   description: Block_DNS_UDP
-    table: inet filter
-    chain: output
-    protocol: udp
-    dport: 53
-    action: reject
+wayland_compositor: sway 
 
 # --- PACKAGES ---
 
@@ -138,6 +108,7 @@ desktop_packages:
 -   gpxsee
 -   ranger
 -   catimg
+-   chafa
 -   poppler
 -   ffmpegthumbnailer
 -   highlight
@@ -145,7 +116,6 @@ desktop_packages:
 -   atool
 -   libarchive
 -   p7zip
--   superfile
 -   thunar
 -   thunar-volman
 -   thunar-archive-plugin

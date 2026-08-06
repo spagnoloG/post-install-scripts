@@ -1,0 +1,5 @@
+# Press 1 while viewing an image to copy its file data to the Wayland clipboard.
+clipboard --action1 "wl-copy --type image/png < %F"
+
+# Xorg alternative (requires xclip):
+# clipboard --action1 "xclip -selection clipboard -t image/png -i %F"

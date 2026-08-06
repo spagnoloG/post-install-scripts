@@ -7,7 +7,7 @@ uv sync
 ```
 
 ```
-uv run ansible-playbook -i inventory.yaml site.yml --ask-become-pass
+uv run ansible-playbook -i inventory.yaml playbooks/xx-playbook_name.yml --ask-become-pass
 ```
 
 This is a proof of concept (PoC) for a complete environment setup using Ansible.

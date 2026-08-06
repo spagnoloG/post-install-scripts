@@ -139,6 +139,7 @@ alias -- 'vi'='nvim'
 alias -- 'vim'='nvim'
 alias -- 'conda'='micromamba'
 alias -- 'empty_trash'='_empty_trash'
+alias -- 'feh'='feh --theme clipboard'
 (( $+functions[z] )) && alias -- 'cd'='z'
 
 compdef _files _move_to_trash

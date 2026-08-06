@@ -1,2 +1,3 @@
 .venv
 playbooks/files/config/superfile/superfile/theme/*
+__pycache__/*
