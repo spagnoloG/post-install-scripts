@@ -1,3 +1,8 @@
 .venv
 playbooks/files/config/superfile/superfile/theme/*
-__pycache__/*
+*__pycache__*
+
+/playbooks/files/config/gtk-4.0/gtk-4.0/gtk.css
+/playbooks/files/config/gtk-4.0/gtk-4.0/gtk-dark.css
+/playbooks/files/config/gtk-4.0/gtk-4.0/assets
+playbooks/files/config/tmux/tmux/plugins/*

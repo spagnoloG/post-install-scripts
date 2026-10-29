@@ -20,6 +20,7 @@
         -   QT_QPA_PLATFORM=wayland
         -   XDG_CURRENT_DESKTOP=sway
         -   XDG_SESSION_DESKTOP=sway
+        # qt6ct's plugin also registers the "qt5ct" key, so this themes both Qt5 and Qt6 apps
         -   QT_QPA_PLATFORMTHEME=qt5ct
         when: use_wayland is defined and use_wayland
 

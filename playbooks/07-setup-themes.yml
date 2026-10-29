@@ -1,6 +1,42 @@
 -   hosts: localhost
     become: true
+    gather_facts: false
     tasks:
+
+    -   name: Check Material Dracula theme dependencies
+        ansible.builtin.command:
+          argv:
+          -   pacman
+          -   -T
+          -   kvantum
+          -   kvantum-qt5
+          -   sassc
+          -   python
+          -   gtk-engine-murrine
+          -   gnome-themes-extra
+          -   ttf-roboto
+          -   papirus-icon-theme
+        become: false
+        register: material_dracula_missing_packages
+        changed_when: false
+        failed_when: material_dracula_missing_packages.rc not in [0, 127]
+
+    -   name: Install missing Material Dracula dependencies with paru
+        ansible.builtin.command:
+          argv: "{{ ['paru', '-S', '--needed', '--noconfirm'] + material_dracula_missing_packages.stdout_lines }}"
+        become: false
+        environment:
+          LC_ALL: C
+        when: material_dracula_missing_packages.stdout_lines | length > 0
+
+    -   name: Download and install Material Dracula for GTK and Qt
+        ansible.builtin.command:
+          argv:
+          -   bash
+          -   '{{ playbook_dir }}/../scripts/install-material-dracula.sh'
+        become: false
+        register: material_dracula_install
+        changed_when: "'Installing ' in material_dracula_install.stdout or 'Updating ' in material_dracula_install.stdout"
 
     -   name: Set GTK theme via gsettings
         ansible.builtin.command:
@@ -9,7 +45,7 @@
           -   set
           -   org.gnome.desktop.interface
           -   gtk-theme
-          -   Dracula
+          -   Orchis-Purple-Dark-Dracula
         become: false
         changed_when: false
 
@@ -20,7 +56,7 @@
           -   set
           -   org.gnome.desktop.interface
           -   icon-theme
-          -   Papirus
+          -   Papirus-Dark
         become: false
         changed_when: false
 
@@ -57,4 +93,13 @@
         become: false
         changed_when: false
 
-# Next fresh installation check how to enable this without gnome, also now manual enable is needed for qt applications via qt5ct
+    -   name: Set Material UI font via gsettings
+        ansible.builtin.command:
+          argv:
+          -   gsettings
+          -   set
+          -   org.gnome.desktop.interface
+          -   font-name
+          -   Roboto 11
+        become: false
+        changed_when: false

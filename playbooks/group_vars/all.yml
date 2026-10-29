@@ -130,6 +130,7 @@ desktop_packages:
 -   alacritty
 -   lxappearance
 -   qt5ct
+-   qt6ct
 -   neofetch
 -   mousepad
 -   unicode-emoji
@@ -153,8 +154,14 @@ desktop_packages:
 -   claude-code
 
   # Styling
--   dracula-gtk-theme
--   dracula-icons-theme
+-   kvantum
+-   kvantum-qt5
+-   sassc
+-   python
+-   gtk-engine-murrine
+-   gnome-themes-extra
+-   ttf-roboto
+-   papirus-icon-theme
 
 hacking_packages:
 -   ghidra
